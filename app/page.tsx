@@ -147,7 +147,7 @@ function Hero() {
             </a>
             <a
               href="#custom"
-              className="inline-flex items-center justify-center rounded-md border border-white/18 px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-white/88 transition hover:border-white/40 hover:text-white"
+              className="inline-flex items-center justify-center rounded-md border border-white/[0.18] px-6 py-4 text-sm font-black uppercase tracking-[0.16em] text-white/[0.88] transition hover:border-white/40 hover:text-white"
             >
               Custom Orders
             </a>
@@ -212,14 +212,14 @@ function BundleFeature() {
           <h2 className="text-3xl font-black uppercase leading-tight text-white sm:text-5xl">
             A Complete Custom Set In One Giftable Box
           </h2>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/68">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/[0.68]">
             Pair engraved essentials into a polished bundle that feels ready for birthdays, tournaments, wedding parties, and client gifts.
           </p>
           <div className="mt-8 grid gap-3 sm:grid-cols-3">
             {["Ball marker", "Divot tool", "Club Link"].map((item) => (
               <div key={item} className="rounded-lg border border-white/10 bg-white/[0.03] p-5">
                 <p className="text-sm font-black uppercase tracking-[0.14em] text-white">{item}</p>
-                <p className="mt-2 text-sm leading-6 text-white/58">Designed to match.</p>
+                <p className="mt-2 text-sm leading-6 text-white/[0.58]">Designed to match.</p>
               </div>
             ))}
           </div>
@@ -238,12 +238,12 @@ function GroomsmenGifts() {
           <h2 className="text-3xl font-black uppercase leading-tight text-white sm:text-5xl">
             Personal Golf Gifts For The Whole Group
           </h2>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/68">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-white/[0.68]">
             Create matching sets with names, initials, dates, or short messages for wedding parties and golf weekends.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {["Names and initials", "Wedding dates", "Group bundles", "Gift-ready presentation"].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-white/78">
+              <div key={item} className="flex items-center gap-3 text-white/[0.78]">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#77b943]" />
                 <span className="font-semibold">{item}</span>
               </div>
@@ -271,7 +271,7 @@ function AddOnSection() {
             {addOns.map((item) => (
               <div key={item} className="rounded-lg border border-white/10 bg-white/[0.03] p-6">
                 <p className="text-lg font-black uppercase text-white">{item}</p>
-                <p className="mt-3 text-sm leading-6 text-white/62">
+                <p className="mt-3 text-sm leading-6 text-white/[0.62]">
                   Simple add-on concept for future product pages and bundles.
                 </p>
               </div>
