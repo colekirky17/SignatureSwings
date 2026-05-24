@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { homepageFaqItems } from "../lib/faq-content";
 
 const categories = [
   {
@@ -115,6 +116,33 @@ export default function Home() {
             </div>
           </article>
         ))}
+      </section>
+
+      <section className="home-faq-preview" aria-labelledby="home-faq-heading">
+        <div className="home-faq-header">
+          <div>
+            <p className="faq-kicker">Need To Know</p>
+            <h2 id="home-faq-heading" className="home-section-title">
+              Frequently Asked Questions
+            </h2>
+          </div>
+          <Link href="/faq" className="faq-link">
+            View all FAQs
+            <span aria-hidden="true">-&gt;</span>
+          </Link>
+        </div>
+        <dl className="home-faq-grid">
+          {homepageFaqItems.map((item) => (
+            <div key={item.id} className="faq-item home-faq-item">
+              <dt>
+                <h3>{item.question}</h3>
+              </dt>
+              <dd>
+                <p>{item.answer}</p>
+              </dd>
+            </div>
+          ))}
+        </dl>
       </section>
     </main>
   );

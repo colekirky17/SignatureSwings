@@ -6,7 +6,7 @@ const footerNavigation = [
   { href: "/contact", label: "Contact Us" },
 ];
 
-const futureResources = ["FAQ", "Terms of Service", "Shipping & Returns"];
+const futureResources = ["Terms of Service", "Shipping & Returns"];
 const socialChannels = ["Facebook", "Instagram", "TikTok"];
 
 export function SiteFooter() {
@@ -31,6 +31,9 @@ export function SiteFooter() {
 
         <div className="footer-group" aria-label="Future customer resources">
           <h2>Support</h2>
+          <Link href="/faq" className="footer-link">
+            FAQ
+          </Link>
           {futureResources.map((resource) => (
             <span key={resource} className="footer-placeholder">
               {resource}
