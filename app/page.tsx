@@ -124,6 +124,9 @@ function Header() {
 function Hero() {
   return (
     <section className="relative overflow-hidden border-b border-white/10 bg-[#06110d]">
+      <p className="absolute left-5 top-4 z-10 text-[10px] font-bold uppercase tracking-[0.2em] text-[#77b943] sm:left-8">
+        LIVE TEST v2
+      </p>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_22%,rgba(119,185,67,0.18),transparent_30%),linear-gradient(90deg,#03100b_0%,rgba(3,16,11,0.9)_35%,rgba(3,16,11,0.38)_72%,#03100b_100%)]" />
       <div className="absolute inset-y-0 right-0 hidden w-1/2 opacity-80 lg:block">
         <PlaceholderMedia label="Hero media placeholder" tall />
