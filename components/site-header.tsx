@@ -1,10 +1,9 @@
 import Link from "next/link";
 
 const navigation = [
-  { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/about", label: "About Us" },
+  { href: "/contact", label: "Contact Us" },
 ];
 
 export function SiteHeader() {

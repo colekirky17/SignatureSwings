@@ -1,0 +1,20 @@
+# Dependencies
+/node_modules/
+
+# Next.js build output
+/.next/
+/out/
+
+# TypeScript generated files
+*.tsbuildinfo
+next-env.d.ts
+
+# Local environment and debug files
+.env*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# macOS
+.DS_Store
