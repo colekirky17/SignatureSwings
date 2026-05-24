@@ -4,6 +4,13 @@
 
 :root {
   color-scheme: dark;
+  --background: #07110d;
+  --surface: #0e1915;
+  --surface-raised: #14211c;
+  --border: #27362f;
+  --text: #f5f7f2;
+  --muted: #b4c0b7;
+  --accent: #78b846;
 }
 
 * {
@@ -16,11 +23,266 @@ html {
 
 body {
   margin: 0;
-  background: #04100c;
-  color: #f7faf3;
+  background: var(--background);
+  color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
 }
 
 a {
+  color: inherit;
   text-decoration: none;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.site-shell {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background: var(--background);
+  color: var(--text);
+}
+
+.container {
+  width: calc(100% - 2.5rem);
+  max-width: 70rem;
+  margin: 0 auto;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  background: #08120e;
+}
+
+.site-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.4rem 0;
+}
+
+.brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.nav-link {
+  transition: color 150ms ease;
+}
+
+.nav-link:hover {
+  color: var(--text);
+}
+
+.site-main {
+  flex: 1;
+}
+
+.page {
+  padding: 4rem 0;
+}
+
+.hero {
+  max-width: 43rem;
+  padding: 2.5rem 0 4rem;
+}
+
+.eyebrow {
+  margin-bottom: 1rem;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.page-header h1 {
+  font-size: clamp(2.25rem, 5vw, 3.25rem);
+  line-height: 1.12;
+  font-weight: 700;
+}
+
+.hero-copy,
+.page-intro,
+.page-copy {
+  margin-top: 1.25rem;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
+}
+
+.button {
+  display: inline-flex;
+  min-height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1.2rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.4rem;
+  background: var(--accent);
+  color: #08120e;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.button-secondary {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--text);
+}
+
+.page-header {
+  max-width: 42rem;
+  margin-bottom: 2.5rem;
+}
+
+.narrow-page {
+  max-width: 45rem;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  min-height: 8.5rem;
+  padding: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.card-title {
+  font-size: 1.08rem;
+  font-weight: 600;
+}
+
+.muted {
+  margin-top: 0.6rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.form-card {
+  max-width: 37rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.form-card h2 {
+  font-size: 1.1rem;
+}
+
+.form-grid {
+  display: grid;
+  gap: 1.15rem;
+  margin-top: 1.5rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.field-input {
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+.button-muted {
+  border-color: var(--border);
+  background: var(--surface-raised);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 0;
+}
+
+@media (max-width: 640px) {
+  .container {
+    width: calc(100% - 2rem);
+  }
+
+  .site-header-inner,
+  .footer-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    gap: 0.8rem 1.25rem;
+  }
+
+  .page {
+    padding: 3rem 0;
+  }
+
+  .hero {
+    padding: 1rem 0 2rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

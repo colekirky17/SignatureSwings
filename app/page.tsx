@@ -1,9 +1,20 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
-    <main className="py-16 sm:py-24">
-      <section className="max-w-2xl">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">Signature Swings</h1>
-        <p className="mt-5 text-lg leading-8 text-slate-300">Premium custom golf accessories.</p>
+    <main className="page">
+      <section className="hero">
+        <p className="eyebrow">Custom golf accessories</p>
+        <h1>Signature Swings</h1>
+        <p className="hero-copy">Premium custom golf accessories.</p>
+        <div className="actions">
+          <Link href="/shop" className="button">
+            Shop
+          </Link>
+          <Link href="/contact" className="button button-secondary">
+            Contact
+          </Link>
+        </div>
       </section>
     </main>
   );

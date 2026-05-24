@@ -16,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <div className="flex min-h-screen flex-col bg-slate-950 text-slate-100">
+        <div className="site-shell">
           <SiteHeader />
-          <div className="mx-auto w-full max-w-5xl flex-1 px-5 sm:px-8">{children}</div>
+          <div className="site-main">
+            <div className="container">{children}</div>
+          </div>
           <SiteFooter />
         </div>
       </body>
