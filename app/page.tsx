@@ -1,5 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { homepageFaqItems } from "../lib/faq-content";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Signature Swings | Custom Golf Accessories",
+  },
+  description:
+    "Explore Signature Swings custom golf accessories, including custom golf ball markers, custom divot repair tools, personalized golf gifts, and bulk order ideas.",
+};
 
 const categories = [
   {

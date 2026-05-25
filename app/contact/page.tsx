@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Custom Order Inquiries",
+  description:
+    "Learn how to discuss ideas for custom golf accessories, personalized golf gifts, and bulk custom golf accessories with Signature Swings.",
+};
+
 export default function ContactPage() {
   return (
     <main className="page">

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { faqItems } from "../../lib/faq-content";
 
 export const metadata: Metadata = {
-  title: "Frequently Asked Questions | Signature Swings",
+  title: "Frequently Asked Questions",
   description:
-    "Answers about custom golf accessories, custom golf ball markers, personalized golf gifts, and bulk custom golf accessory orders.",
+    "Answers about custom golf accessories, custom golf ball markers, custom divot repair tools, personalized golf gifts, and bulk custom golf accessories.",
 };
 
 export default function FaqPage() {

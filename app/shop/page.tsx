@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Custom Golf Accessories Collection",
+  description:
+    "Browse previews of custom golf ball markers, custom divot repair tools, personalized golf gifts, and bulk custom golf accessories from Signature Swings.",
+};
+
 const categories = [
   "Golf Ball Markers",
   "Divot Repair Tools",
