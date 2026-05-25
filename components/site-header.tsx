@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 const navigation = [
   { href: "/shop", label: "Shop" },
@@ -8,15 +11,59 @@ const navigation = [
 ];
 
 export function SiteHeader() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isMenuOpen) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isMenuOpen]);
+
   return (
     <header className="site-header">
       <div className="container site-header-inner">
-        <Link href="/" className="brand">
+        <Link href="/" className="brand" onClick={() => setIsMenuOpen(false)}>
           Signature Swings
         </Link>
-        <nav aria-label="Primary navigation" className="nav-links">
+        <button
+          ref={menuButtonRef}
+          type="button"
+          className="menu-toggle"
+          aria-controls="primary-navigation"
+          aria-expanded={isMenuOpen}
+          aria-label={isMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+          onClick={() => setIsMenuOpen((isOpen) => !isOpen)}
+        >
+          <span>Menu</span>
+          <span className={`menu-icon${isMenuOpen ? " is-open" : ""}`} aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+        </button>
+        <nav
+          id="primary-navigation"
+          aria-label="Primary navigation"
+          className={`nav-links${isMenuOpen ? " is-open" : ""}`}
+        >
           {navigation.map((item) => (
-            <Link key={item.href} href={item.href} className="nav-link">
+            <Link
+              key={item.href}
+              href={item.href}
+              className="nav-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
               {item.label}
             </Link>
           ))}
