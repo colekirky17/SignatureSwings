@@ -2,15 +2,17 @@ export default function ContactPage() {
   return (
     <main className="page">
       <section className="page-header">
-        <h1>Contact Signature Swings</h1>
+        <h1>Custom Order Inquiries</h1>
         <p className="page-intro">
-          A request form will be connected here in a later phase.
+          Interested in custom golf accessories, personalized golf gifts, or a bulk custom
+          order? Our online inquiry form is coming soon. If you are already in contact with
+          Signature Swings, please continue that conversation directly for now.
         </p>
       </section>
 
       <section className="form-card">
-        <h2>Contact request placeholder</h2>
-        <form className="form-grid" aria-label="Contact request placeholder">
+        <h2>Custom order inquiry coming soon</h2>
+        <form className="form-grid" aria-label="Custom order inquiry form coming soon">
           <label className="field">
             Name
             <input
@@ -32,7 +34,7 @@ export default function ContactPage() {
             <textarea disabled rows={4} className="field-input" />
           </label>
           <button type="button" disabled className="button button-muted">
-            Submission coming later
+            Online Inquiry Coming Soon
           </button>
         </form>
       </section>

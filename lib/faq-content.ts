@@ -9,7 +9,7 @@ export const faqItems: FaqItem[] = [
     id: "custom-products",
     question: "What types of golf products can you customize?",
     answer:
-      "We specialize in custom golf accessories including custom golf ball markers, personalized divot repair tools, club links, golf gift sets, event items, and bulk custom orders. If you have an idea for something that is not currently listed on our website, reach out to us and we'll let you know if we can create it.",
+      "We specialize in custom golf accessories including custom golf ball markers, custom divot repair tools, club links, personalized golf gifts, event items, and bulk custom golf accessories. The website currently offers a preview of product categories; unique product discussions are handled through direct inquiry while website ordering is coming soon.",
   },
   {
     id: "ball-markers",
@@ -27,7 +27,7 @@ export const faqItems: FaqItem[] = [
     id: "design-help",
     question: "Can you help if I do not have a finished design?",
     answer:
-      "Absolutely. You do not need to be a designer to create custom golf accessories with Signature Swings. Just describe your idea, send over any logo, reference image, text, or concept you have, and our team will help turn it into a clean design that works for the product.",
+      "Absolutely. You do not need to be a designer to plan custom golf accessories with Signature Swings. During a direct inquiry, you can share a logo, reference image, text, or concept, and our team can help shape a clean design that works for the product. Online inquiry tools are coming soon.",
   },
   {
     id: "design-detail",
@@ -39,19 +39,19 @@ export const faqItems: FaqItem[] = [
     id: "minimum-order",
     question: "What is the minimum order quantity?",
     answer:
-      "Our typical minimum order quantity is 5 units, but we may be flexible depending on the product, design, and order type. If you need a smaller custom order or are planning a larger event order, contact us and we'll walk you through the best option.",
+      "Our typical minimum order quantity is 5 units, but we may be flexible depending on the product, design, and order type. Smaller custom orders and larger event orders can be discussed through direct inquiry for now.",
   },
   {
     id: "bulk-pricing",
     question: "Do you offer bulk pricing or discounts for large orders?",
     answer:
-      "Yes. We offer custom pricing for bulk orders, large events, corporate golf gifts, tournaments, country clubs, weddings, and other group orders. Reach out with your quantity, product type, and design idea, and we'll provide itemized pricing based on your order.",
+      "Yes. We offer custom pricing for bulk custom golf accessories, large events, corporate golf gifts, tournaments, country clubs, weddings, and other group orders. Pricing discussions will be handled through direct inquiry; the online inquiry form is coming soon.",
   },
   {
     id: "turnaround",
     question: "How long does it take to receive my custom order?",
     answer:
-      "Most custom golf accessory orders are produced and shipped within 1-2 weeks, depending on the design complexity, order size, and current production schedule. Rush options may be available for time-sensitive orders, so contact us if you need your order by a specific date.",
+      "Most confirmed custom golf accessory orders are produced and shipped within 1-2 weeks, depending on design complexity, order size, and the current production schedule. Time-sensitive needs can be discussed during a direct inquiry.",
   },
   {
     id: "mockup",
@@ -61,9 +61,9 @@ export const faqItems: FaqItem[] = [
   },
   {
     id: "placing-order",
-    question: "How do I place a custom order?",
+    question: "How can I inquire about a custom order?",
     answer:
-      "You can place an order directly through our website for available products. For unique designs, bulk orders, corporate gifts, tournament items, wedding gifts, or anything more custom, use our contact form and tell us what you're looking for.",
+      "Website ordering and checkout are not available yet. You can browse current product categories on this site, and custom, bulk, corporate gift, tournament, or wedding gift orders will be discussed through direct inquiry. The online inquiry form is coming soon.",
   },
   {
     id: "gift-orders",
@@ -75,7 +75,7 @@ export const faqItems: FaqItem[] = [
     id: "international-shipping",
     question: "Do you ship internationally?",
     answer:
-      "Yes, we can ship internationally. International shipping times and pricing may vary depending on your location, order size, and delivery needs. Contact us with your shipping details and we'll help confirm the best option.",
+      "Yes, we can ship internationally. International shipping times and pricing may vary depending on your location, order size, and delivery needs. Shipping details can be confirmed during a direct inquiry.",
   },
 ];
 

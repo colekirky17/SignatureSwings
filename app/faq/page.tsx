@@ -14,8 +14,8 @@ export default function FaqPage() {
         <p className="faq-kicker">Customer Support</p>
         <h1 id="faq-heading">Frequently Asked Questions</h1>
         <p className="faq-intro">
-          Learn more about our custom golf accessories, order process, personalized golf gifts,
-          and bulk orders.
+          Learn more about our custom golf accessories, personalized golf gifts, and how to
+          discuss custom or bulk order ideas while online inquiry tools are coming soon.
         </p>
       </section>
 

@@ -13,7 +13,7 @@ const products = [
     handle: "custom-ball-marker",
     category: "Golf Ball Markers",
     description: "Engraved detail for a personal finish on every green.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Ball marker image",
   },
   {
@@ -21,7 +21,7 @@ const products = [
     handle: "premium-divot-repair-tool",
     category: "Divot Repair Tools",
     description: "A precision course essential with a refined feel.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Divot tool image",
   },
   {
@@ -29,7 +29,7 @@ const products = [
     handle: "club-link-tag",
     category: "Club Links",
     description: "A clean custom tag made to identify your club.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Club link image",
   },
   {
@@ -37,7 +37,7 @@ const products = [
     handle: "signature-bundle",
     category: "Bundles",
     description: "Coordinated golf accessories presented as one giftable set.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Bundle image",
   },
   {
@@ -45,7 +45,7 @@ const products = [
     handle: "groomsmen-gift-set",
     category: "Bundles",
     description: "Personalized pieces for the golfers in your wedding party.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Gift set image",
   },
   {
@@ -53,7 +53,7 @@ const products = [
     handle: "custom-event-marker",
     category: "Golf Ball Markers",
     description: "Event-ready markers for outings and memorable occasions.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Event marker image",
   },
   {
@@ -61,7 +61,7 @@ const products = [
     handle: "miscellaneous-golf-accessory",
     category: "Miscellaneous",
     description: "A small premium addition made to complement your gear.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Accessory image",
   },
   {
@@ -69,7 +69,7 @@ const products = [
     handle: "bulk-order-starter-pack",
     category: "Bundles",
     description: "A simple starting point for tournaments and group gifts.",
-    priceLabel: "From $XX",
+    priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "Bulk order image",
   },
 ];
@@ -79,8 +79,11 @@ export default function ShopPage() {
     <main className="shop-page">
       <section className="shop-hero">
         <p className="shop-kicker">Signature Collection</p>
-        <h1>Shop Signature Swings</h1>
-        <p>Custom golf accessories built to represent your game.</p>
+        <h1>Browse Signature Swings</h1>
+        <p>
+          Preview custom golf accessories built to represent your game. Website ordering is
+          coming soon; custom and bulk orders are currently discussed through direct inquiry.
+        </p>
       </section>
 
       <section className="shop-category-panel" aria-labelledby="shop-category-heading">
@@ -97,10 +100,10 @@ export default function ShopPage() {
       <section className="product-section" aria-labelledby="product-grid-heading">
         <div className="product-section-heading">
           <div>
-            <p className="shop-kicker">All Products</p>
+            <p className="shop-kicker">Product Preview</p>
             <h2 id="product-grid-heading">Explore The Collection</h2>
           </div>
-          <p className="product-count">{products.length} products</p>
+          <p className="product-count">{products.length} product previews</p>
         </div>
 
         <div className="product-grid">
@@ -116,7 +119,7 @@ export default function ShopPage() {
                 <div className="product-actions">
                   <p className="product-price">{product.priceLabel}</p>
                   <button className="product-button" type="button" disabled>
-                    View Product
+                    Inquiry Coming Soon
                   </button>
                 </div>
               </div>

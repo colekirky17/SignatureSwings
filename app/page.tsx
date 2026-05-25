@@ -5,25 +5,25 @@ const categories = [
   {
     title: "Ball Markers",
     copy: "Make your mark. Stand out on every green.",
-    cta: "Shop Ball Markers",
+    cta: "Explore Ball Markers",
     icon: "01",
   },
   {
     title: "Divot Tools",
     copy: "Precision tools for course perfection.",
-    cta: "Shop Divot Tools",
+    cta: "Explore Divot Tools",
     icon: "02",
   },
   {
     title: "Club Links",
     copy: "The perfect touch for your club.",
-    cta: "Shop Club Links",
+    cta: "Explore Club Links",
     icon: "03",
   },
   {
     title: "Bundles",
     copy: "Curated sets. Better together.",
-    cta: "Shop Bundles",
+    cta: "Explore Bundles",
     icon: "04",
   },
 ];
@@ -61,7 +61,7 @@ export default function Home() {
           <p className="home-hero-copy">
             Custom designed. Premium crafted.
             <br />
-            Built to represent your game.
+            Browse the collection. Website ordering coming soon.
           </p>
           <Link href="/shop" className="home-button">
             Explore Collection
@@ -80,7 +80,7 @@ export default function Home() {
 
       <section className="home-categories" aria-labelledby="categories-heading">
         <h2 id="categories-heading" className="home-section-title">
-          Shop By Category
+          Browse By Category
         </h2>
         <div className="home-category-grid">
           {categories.map((category) => (
