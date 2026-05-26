@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { productCategories } from "../lib/catalog";
 import { homepageFaqItems } from "../lib/faq-content";
 
 export const metadata: Metadata = {
@@ -10,32 +11,12 @@ export const metadata: Metadata = {
     "Explore Signature Swings custom golf accessories, including custom golf ball markers, custom divot repair tools, personalized golf gifts, and bulk order ideas.",
 };
 
-const categories = [
-  {
-    title: "Ball Markers",
-    copy: "Make your mark. Stand out on every green.",
-    cta: "Explore Ball Markers",
-    icon: "01",
-  },
-  {
-    title: "Divot Tools",
-    copy: "Precision tools for course perfection.",
-    cta: "Explore Divot Tools",
-    icon: "02",
-  },
-  {
-    title: "Club Links",
-    copy: "The perfect touch for your club.",
-    cta: "Explore Club Links",
-    icon: "03",
-  },
-  {
-    title: "Bundles",
-    copy: "Curated sets. Better together.",
-    cta: "Explore Bundles",
-    icon: "04",
-  },
-];
+const homepageCategories = productCategories
+  .filter((category) => category.slug !== "miscellaneous")
+  .map((category, index) => ({
+    ...category,
+    icon: `0${index + 1}`,
+  }));
 
 const benefits = [
   {
@@ -92,8 +73,8 @@ export default function Home() {
           Browse By Category
         </h2>
         <div className="home-category-grid">
-          {categories.map((category) => (
-            <article key={category.title} className="home-category-card">
+          {homepageCategories.map((category) => (
+            <article key={category.slug} className="home-category-card">
               <div className="category-media">
                 <span className="media-label">Image placeholder</span>
               </div>
@@ -102,9 +83,9 @@ export default function Home() {
                   {category.icon}
                 </span>
                 <h3>{category.title}</h3>
-                <p>{category.copy}</p>
+                <p>{category.shortDescription}</p>
                 <Link href="/shop" className="category-link">
-                  {category.cta}
+                  Explore {category.title}
                   <span aria-hidden="true">-&gt;</span>
                 </Link>
               </div>

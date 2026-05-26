@@ -1,86 +1,11 @@
 import type { Metadata } from "next";
+import { getProductCategory, productCategories, products } from "../../lib/catalog";
 
 export const metadata: Metadata = {
   title: "Custom Golf Accessories Collection",
   description:
     "Browse previews of custom golf ball markers, custom divot repair tools, personalized golf gifts, and bulk custom golf accessories from Signature Swings.",
 };
-
-const categories = [
-  "Golf Ball Markers",
-  "Divot Repair Tools",
-  "Club Links",
-  "Miscellaneous",
-  "Bundles",
-];
-
-// Replace this placeholder catalog with mapped Shopify product data when commerce is connected.
-const products = [
-  {
-    title: "Custom Ball Marker",
-    handle: "custom-ball-marker",
-    category: "Golf Ball Markers",
-    description: "Engraved detail for a personal finish on every green.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Ball marker image",
-  },
-  {
-    title: "Premium Divot Repair Tool",
-    handle: "premium-divot-repair-tool",
-    category: "Divot Repair Tools",
-    description: "A precision course essential with a refined feel.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Divot tool image",
-  },
-  {
-    title: "Club Link Tag",
-    handle: "club-link-tag",
-    category: "Club Links",
-    description: "A clean custom tag made to identify your club.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Club link image",
-  },
-  {
-    title: "Signature Bundle",
-    handle: "signature-bundle",
-    category: "Bundles",
-    description: "Coordinated golf accessories presented as one giftable set.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Bundle image",
-  },
-  {
-    title: "Groomsmen Gift Set",
-    handle: "groomsmen-gift-set",
-    category: "Bundles",
-    description: "Personalized pieces for the golfers in your wedding party.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Gift set image",
-  },
-  {
-    title: "Custom Event Marker",
-    handle: "custom-event-marker",
-    category: "Golf Ball Markers",
-    description: "Event-ready markers for outings and memorable occasions.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Event marker image",
-  },
-  {
-    title: "Miscellaneous Golf Accessory",
-    handle: "miscellaneous-golf-accessory",
-    category: "Miscellaneous",
-    description: "A small premium addition made to complement your gear.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Accessory image",
-  },
-  {
-    title: "Bulk Order Starter Pack",
-    handle: "bulk-order-starter-pack",
-    category: "Bundles",
-    description: "A simple starting point for tournaments and group gifts.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Bulk order image",
-  },
-];
 
 export default function ShopPage() {
   return (
@@ -97,9 +22,9 @@ export default function ShopPage() {
       <section className="shop-category-panel" aria-labelledby="shop-category-heading">
         <h2 id="shop-category-heading">Browse Categories</h2>
         <div className="shop-tabs" aria-label="Product categories">
-          {categories.map((category) => (
-            <span key={category} className="shop-tab">
-              {category}
+          {productCategories.map((category) => (
+            <span key={category.slug} className="shop-tab">
+              {category.title}
             </span>
           ))}
         </div>
@@ -121,13 +46,13 @@ export default function ShopPage() {
                 <span className="media-label">{product.imagePlaceholderLabel}</span>
               </div>
               <div className="product-body">
-                <p className="product-category">{product.category}</p>
+                <p className="product-category">{getProductCategory(product.categorySlug).title}</p>
                 <h3>{product.title}</h3>
-                <p className="product-description">{product.description}</p>
+                <p className="product-description">{product.shortDescription}</p>
                 <div className="product-actions">
                   <p className="product-price">{product.priceLabel}</p>
                   <button className="product-button" type="button" disabled>
-                    Inquiry Coming Soon
+                    {product.ctaLabel}
                   </button>
                 </div>
               </div>
