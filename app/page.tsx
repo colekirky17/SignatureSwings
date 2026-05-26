@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CategoryCard } from "../components/category-card";
 import { FaqList } from "../components/faq-list";
-import { productCategories } from "../lib/catalog";
+import { FeaturedProductsCarousel } from "../components/featured-products-carousel";
+import { getAllProducts, productCategories } from "../lib/catalog";
 import { homepageFaqItems } from "../lib/faq-content";
 import "./home-custom.css";
 
@@ -45,6 +46,8 @@ const benefits = [
 ];
 
 export default function Home() {
+  const featuredProducts = getAllProducts();
+
   return (
     <main className="home-page">
       <section className="home-hero" aria-label="Featured collection">
@@ -97,6 +100,8 @@ export default function Home() {
           <span className="media-label">Custom image banner placeholder</span>
         </div>
       </section>
+
+      <FeaturedProductsCarousel products={featuredProducts} />
 
       <section className="home-benefits" aria-label="Signature Swings benefits">
         {benefits.map((benefit) => (

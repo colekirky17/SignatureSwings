@@ -527,6 +527,196 @@ p {
   text-transform: uppercase;
 }
 
+.home-featured {
+  margin-top: 3.5rem;
+}
+
+.home-featured-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.home-featured-header h2,
+.featured-product-card h3 {
+  font-family: Impact, "Arial Narrow", Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.home-featured-header h2 {
+  color: var(--text);
+  font-size: clamp(2rem, 4vw, 2.65rem);
+  line-height: 1;
+}
+
+.home-featured-header p {
+  max-width: 41rem;
+  margin-top: 0.8rem;
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.home-featured-arrows {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.home-featured-arrows button {
+  display: inline-flex;
+  width: 2.9rem;
+  height: 2.9rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #31463b;
+  border-radius: 50%;
+  background: #101d17;
+  color: var(--text);
+  font: inherit;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.home-featured-arrows button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.home-featured-tabs {
+  display: flex;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.home-featured-tabs button {
+  position: relative;
+  flex: 0 0 auto;
+  padding: 0 0 1rem;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.home-featured-tabs button.is-active {
+  color: var(--text);
+}
+
+.home-featured-tabs button.is-active::after {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 0.18rem;
+  background: var(--accent);
+  content: "";
+}
+
+.home-featured-note {
+  margin-top: 1rem;
+  color: #849289;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.home-featured-track {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.3rem;
+  overflow-x: auto;
+  padding-bottom: 0.45rem;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-color: var(--accent) #17231e;
+  scrollbar-width: thin;
+}
+
+.featured-product-card {
+  display: flex;
+  width: calc((100% - 3rem) / 4);
+  min-width: calc((100% - 3rem) / 4);
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: #09130f;
+  scroll-snap-align: start;
+}
+
+.featured-product-media {
+  display: flex;
+  min-height: 14rem;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(120, 184, 70, 0.1), transparent 44%),
+    #14241d;
+}
+
+.featured-product-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 1.15rem 1rem 1.1rem;
+}
+
+.featured-product-category {
+  color: var(--accent);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.featured-product-card h3 {
+  margin-top: 0.65rem;
+  color: var(--text);
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.featured-product-description {
+  margin-top: 0.65rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.featured-product-price {
+  margin-top: auto;
+  padding-top: 1.05rem;
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.featured-product-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.featured-product-link span {
+  font-size: 1.05rem;
+}
+
 .home-benefits {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1290,6 +1480,42 @@ p {
 
   .category-link {
     font-size: 0.66rem;
+  }
+
+  .home-featured {
+    margin-top: 2.5rem;
+  }
+
+  .home-featured-header {
+    align-items: flex-start;
+    margin-bottom: 1.65rem;
+  }
+
+  .home-featured-header h2 {
+    font-size: 2rem;
+  }
+
+  .home-featured-arrows {
+    display: none;
+  }
+
+  .home-featured-tabs {
+    gap: 1.4rem;
+  }
+
+  .home-featured-track {
+    gap: 0.8rem;
+    margin-right: -1rem;
+    padding-right: 1rem;
+  }
+
+  .featured-product-card {
+    width: calc(100% - 2.25rem);
+    min-width: calc(100% - 2.25rem);
+  }
+
+  .featured-product-media {
+    min-height: 13rem;
   }
 
   .home-benefits {
