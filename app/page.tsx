@@ -4,6 +4,7 @@ import { CategoryCard } from "../components/category-card";
 import { FaqList } from "../components/faq-list";
 import { productCategories } from "../lib/catalog";
 import { homepageFaqItems } from "../lib/faq-content";
+import "./home-custom.css";
 
 export const metadata: Metadata = {
   title: {
@@ -78,6 +79,22 @@ export default function Home() {
           {homepageCategories.map((category) => (
             <CategoryCard key={category.slug} category={category} icon={category.icon} />
           ))}
+        </div>
+      </section>
+
+      <section className="home-custom" aria-labelledby="home-custom-heading">
+        <div className="home-custom-content">
+          <h2 id="home-custom-heading">Make It Custom</h2>
+          <p className="home-custom-copy">
+            Add names, initials, logos, images &mdash; or let us help turn your idea into a design
+            that feels made for your game.
+          </p>
+          <Link href="/contact" className="home-custom-button">
+            Start Custom Order
+          </Link>
+        </div>
+        <div className="home-custom-media">
+          <span className="media-label">Custom image banner placeholder</span>
         </div>
       </section>
 
