@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { FaqList } from "../../components/faq-list";
 import { faqItems } from "../../lib/faq-content";
 
 export const metadata: Metadata = {
@@ -19,18 +20,7 @@ export default function FaqPage() {
         </p>
       </section>
 
-      <dl className="faq-list">
-        {faqItems.map((item) => (
-          <div key={item.id} className="faq-item">
-            <dt>
-              <h2>{item.question}</h2>
-            </dt>
-            <dd>
-              <p>{item.answer}</p>
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <FaqList items={faqItems} />
     </main>
   );
 }

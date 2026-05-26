@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CategoryCard } from "../components/category-card";
+import { FaqList } from "../components/faq-list";
 import { productCategories } from "../lib/catalog";
 import { homepageFaqItems } from "../lib/faq-content";
 
@@ -74,22 +76,7 @@ export default function Home() {
         </h2>
         <div className="home-category-grid">
           {homepageCategories.map((category) => (
-            <article key={category.slug} className="home-category-card">
-              <div className="category-media">
-                <span className="media-label">Image placeholder</span>
-              </div>
-              <div className="category-body">
-                <span className="category-icon" aria-hidden="true">
-                  {category.icon}
-                </span>
-                <h3>{category.title}</h3>
-                <p>{category.shortDescription}</p>
-                <Link href="/shop" className="category-link">
-                  Explore {category.title}
-                  <span aria-hidden="true">-&gt;</span>
-                </Link>
-              </div>
-            </article>
+            <CategoryCard key={category.slug} category={category} icon={category.icon} />
           ))}
         </div>
       </section>
@@ -121,18 +108,7 @@ export default function Home() {
             <span aria-hidden="true">-&gt;</span>
           </Link>
         </div>
-        <dl className="home-faq-grid">
-          {homepageFaqItems.map((item) => (
-            <div key={item.id} className="faq-item home-faq-item">
-              <dt>
-                <h3>{item.question}</h3>
-              </dt>
-              <dd>
-                <p>{item.answer}</p>
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <FaqList items={homepageFaqItems} variant="preview" />
       </section>
     </main>
   );

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { getProductCategory, productCategories, products } from "../../lib/catalog";
+import { CatalogProductCard } from "../../components/catalog-product-card";
+import { productCategories, products } from "../../lib/catalog";
 
 export const metadata: Metadata = {
   title: "Custom Golf Accessories Collection",
@@ -41,22 +42,7 @@ export default function ShopPage() {
 
         <div className="product-grid">
           {products.map((product) => (
-            <article key={product.handle} className="product-card">
-              <div className="product-media">
-                <span className="media-label">{product.imagePlaceholderLabel}</span>
-              </div>
-              <div className="product-body">
-                <p className="product-category">{getProductCategory(product.categorySlug).title}</p>
-                <h3>{product.title}</h3>
-                <p className="product-description">{product.shortDescription}</p>
-                <div className="product-actions">
-                  <p className="product-price">{product.priceLabel}</p>
-                  <button className="product-button" type="button" disabled>
-                    {product.ctaLabel}
-                  </button>
-                </div>
-              </div>
-            </article>
+            <CatalogProductCard key={product.handle} product={product} />
           ))}
         </div>
       </section>
