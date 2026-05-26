@@ -23,13 +23,13 @@ const homepageCategories = productCategories
 const benefits = [
   {
     title: "Premium Quality",
-    copy: "Crafted from the finest materials.",
+    copy: "Crafted to feel polished, durable, and gift-worthy.",
     icon: "PQ",
   },
   {
-    title: "Fully Customizable",
-    copy: "Personalize every detail to represent you.",
-    icon: "FC",
+    title: "Customized for You",
+    copy: "Personalize every detail to represent your game.",
+    icon: "CY",
   },
   {
     title: "Fast Turnaround",
@@ -37,9 +37,9 @@ const benefits = [
     icon: "FT",
   },
   {
-    title: "Dedicated Support",
-    copy: "We're here to help every step of the way.",
-    icon: "DS",
+    title: "Perfect Golf Gift",
+    copy: "Made for golfers, tournaments, weddings, and special moments.",
+    icon: "GG",
   },
 ];
 
