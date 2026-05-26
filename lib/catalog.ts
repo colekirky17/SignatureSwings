@@ -139,3 +139,15 @@ export function getProductCategory(slug: ProductCategorySlug): ProductCategory {
 
   return category;
 }
+
+export function getAllProducts(): ProductSummary[] {
+  return products;
+}
+
+export function getProductByHandle(handle: string): ProductSummary | undefined {
+  return products.find((product) => product.handle === handle);
+}
+
+export function getProductsByCategory(categorySlug: ProductCategorySlug): ProductSummary[] {
+  return products.filter((product) => product.categorySlug === categorySlug);
+}

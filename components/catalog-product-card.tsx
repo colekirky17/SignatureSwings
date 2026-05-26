@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getProductCategory, type ProductSummary } from "../lib/catalog";
 
 type CatalogProductCardProps = {
@@ -18,9 +19,9 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
         <p className="product-description">{product.shortDescription}</p>
         <div className="product-actions">
           <p className="product-price">{product.priceLabel}</p>
-          <button className="product-button" type="button" disabled>
-            {product.ctaLabel}
-          </button>
+          <Link href={`/shop/${product.handle}`} className="product-button">
+            View Product
+          </Link>
         </div>
       </div>
     </article>

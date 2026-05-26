@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { CatalogProductCard } from "../../components/catalog-product-card";
-import { productCategories, products } from "../../lib/catalog";
+import { getAllProducts, productCategories } from "../../lib/catalog";
 
 export const metadata: Metadata = {
   title: "Custom Golf Accessories Collection",
@@ -9,6 +9,8 @@ export const metadata: Metadata = {
 };
 
 export default function ShopPage() {
+  const products = getAllProducts();
+
   return (
     <main className="shop-page">
       <section className="shop-hero">
