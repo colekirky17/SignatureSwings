@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AnalyticsScripts } from "../components/analytics-scripts";
 import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { siteUrl } from "../lib/site-config";
@@ -45,6 +46,7 @@ export default function RootLayout({
           </div>
           <SiteFooter />
         </div>
+        <AnalyticsScripts />
       </body>
     </html>
   );
