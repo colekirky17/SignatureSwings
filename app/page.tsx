@@ -17,9 +17,9 @@ export const metadata: Metadata = {
 
 const homepageCategories = productCategories
   .filter((category) => category.slug !== "miscellaneous")
-  .map((category, index) => ({
+  .map((category) => ({
     ...category,
-    icon: `0${index + 1}`,
+    title: category.slug === "divot-repair-tools" ? "Divot Tools" : category.title,
   }));
 
 const benefits = [
@@ -51,26 +51,28 @@ export default function Home() {
   return (
     <main className="home-page">
       <section className="home-hero" aria-label="Featured collection">
-        <div className="home-hero-content">
-          <p className="home-eyebrow">Custom Golf Accessories</p>
-          <h1>Elevate Every Round</h1>
-          <p className="home-hero-copy">
-            Custom designed. Premium crafted.
-            <br />
-            Browse the collection. Website ordering coming soon.
-          </p>
-          <Link href="/shop" className="home-button">
-            Explore Collection
-            <span aria-hidden="true">-&gt;</span>
-          </Link>
-        </div>
         <div className="home-hero-media">
           <span className="media-label">Golf lifestyle image placeholder</span>
         </div>
-        <div className="hero-dots" aria-hidden="true">
-          <span className="active" />
-          <span />
-          <span />
+        <div className="container home-hero-layout">
+          <div className="home-hero-content">
+            <p className="home-eyebrow">Custom Golf Accessories</p>
+            <h1>Elevate Every Round</h1>
+            <p className="home-hero-copy">
+              Custom designed. Premium crafted.
+              <br />
+              Browse the collection. Website ordering coming soon.
+            </p>
+            <Link href="/shop" className="home-button">
+              Explore Collection
+              <span aria-hidden="true">-&gt;</span>
+            </Link>
+          </div>
+          <div className="hero-dots" aria-hidden="true">
+            <span className="active" />
+            <span />
+            <span />
+          </div>
         </div>
       </section>
 
@@ -80,7 +82,7 @@ export default function Home() {
         </h2>
         <div className="home-category-grid">
           {homepageCategories.map((category) => (
-            <CategoryCard key={category.slug} category={category} icon={category.icon} />
+            <CategoryCard key={category.slug} category={category} />
           ))}
         </div>
       </section>

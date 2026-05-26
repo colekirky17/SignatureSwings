@@ -55,8 +55,8 @@ p {
 }
 
 .site-header {
-  border-bottom: 1px solid var(--border);
-  background: #08120e;
+  border-bottom: 1px solid #1c1c1c;
+  background: #000;
 }
 
 .site-header-inner {
@@ -308,19 +308,18 @@ p {
 }
 
 .home-page {
-  padding: 2rem 0 3.5rem;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  padding: 0 0 3.5rem;
+  overflow: hidden;
 }
 
 .home-hero {
   position: relative;
-  display: flex;
-  min-height: clamp(33rem, 56vw, 39rem);
-  align-items: stretch;
+  width: 100%;
+  min-height: calc(100svh - 4.15rem);
   isolation: isolate;
-  margin-bottom: 3.5rem;
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
   background: var(--surface);
 }
 
@@ -335,14 +334,24 @@ p {
   pointer-events: none;
 }
 
-.home-hero-content {
+.home-hero-layout {
   position: relative;
   z-index: 2;
+  display: flex;
+  width: 100%;
+  max-width: none;
+  min-height: inherit;
+  align-items: stretch;
+  padding: 0 clamp(1.25rem, 4vw, 4.5rem);
+}
+
+.home-hero-content {
+  position: relative;
   display: flex;
   width: min(100%, 35rem);
   flex-direction: column;
   justify-content: center;
-  padding: 3.25rem 2.75rem 4.75rem;
+  padding: 3.25rem 0 4.75rem;
 }
 
 .home-eyebrow {
@@ -441,7 +450,6 @@ p {
 
 .hero-dots {
   position: absolute;
-  z-index: 2;
   bottom: 1.55rem;
   left: 2.75rem;
   display: flex;
@@ -466,9 +474,14 @@ p {
   font-size: 1.4rem;
 }
 
+.home-categories {
+  padding: clamp(2.5rem, 4vw, 4rem) clamp(1rem, 3vw, 3rem) 0;
+}
+
 .home-category-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: start;
   gap: 1rem;
 }
 
@@ -485,22 +498,7 @@ p {
 }
 
 .category-body {
-  padding: 1.15rem 1.1rem 1.25rem;
-}
-
-.category-icon {
-  display: inline-flex;
-  width: 2.2rem;
-  height: 2.2rem;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  border: 1px solid #395027;
-  border-radius: 50%;
-  background: #152019;
-  color: var(--accent);
-  font-size: 0.7rem;
-  font-weight: 700;
+  padding: 1.15rem 1.1rem 1rem;
 }
 
 .home-category-card h3 {
@@ -509,7 +507,6 @@ p {
 }
 
 .home-category-card p {
-  min-height: 3rem;
   margin-top: 0.65rem;
   color: var(--muted);
   font-size: 0.9rem;
@@ -520,7 +517,7 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
-  margin-top: 1.2rem;
+  margin-top: 1rem;
   color: var(--accent);
   font-size: 0.74rem;
   font-weight: 700;
@@ -529,6 +526,7 @@ p {
 
 .home-featured {
   margin-top: 3.5rem;
+  padding: 0 clamp(1rem, 3vw, 3rem);
 }
 
 .home-featured-header {
@@ -722,7 +720,7 @@ p {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1.5rem;
   margin-top: 3.25rem;
-  padding: 2.25rem 0 0.5rem;
+  padding: 2.25rem clamp(1rem, 3vw, 3rem) 0.5rem;
   border-top: 1px solid var(--border);
 }
 
@@ -760,7 +758,7 @@ p {
 
 .home-faq-preview {
   margin-top: 3.5rem;
-  padding-top: 3rem;
+  padding: 3rem clamp(1rem, 3vw, 3rem) 0;
   border-top: 1px solid var(--border);
 }
 
@@ -1413,18 +1411,23 @@ p {
   }
 
   .home-page {
-    padding: 1rem 0 2.5rem;
+    padding: 0 0 2.5rem;
   }
 
   .home-hero {
-    min-height: 38rem;
+    min-height: calc(100svh - 4.75rem);
     margin-bottom: 2.25rem;
   }
 
+  .home-hero-layout {
+    width: 100%;
+    padding: 0 1rem;
+  }
+
   .home-hero-content {
-    min-height: 38rem;
+    min-height: inherit;
     justify-content: flex-start;
-    padding: 2.25rem 1.35rem 8.5rem;
+    padding: 2.25rem 0.35rem 8.5rem;
   }
 
   .home-hero-media {
@@ -1452,6 +1455,10 @@ p {
     font-size: 1.25rem;
   }
 
+  .home-categories {
+    padding: 2.25rem 1rem 0;
+  }
+
   .home-category-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.7rem;
@@ -1463,10 +1470,6 @@ p {
 
   .category-body {
     padding: 0.85rem 0.75rem 1rem;
-  }
-
-  .category-icon {
-    margin-bottom: 0.75rem;
   }
 
   .home-category-card h3 {
@@ -1484,6 +1487,7 @@ p {
 
   .home-featured {
     margin-top: 2.5rem;
+    padding: 0 1rem;
   }
 
   .home-featured-header {
@@ -1522,12 +1526,12 @@ p {
     grid-template-columns: 1fr;
     gap: 1.4rem;
     margin-top: 2.25rem;
-    padding-top: 1.75rem;
+    padding: 1.75rem 1rem 0.5rem;
   }
 
   .home-faq-preview {
     margin-top: 2.25rem;
-    padding-top: 2rem;
+    padding: 2rem 1rem 0;
   }
 
   .home-faq-header {

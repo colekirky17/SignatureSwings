@@ -1,11 +1,11 @@
 .home-custom {
   display: grid;
   grid-template-columns: minmax(18rem, 0.95fr) minmax(20rem, 1.05fr);
-  min-height: 24rem;
+  min-height: clamp(25rem, 34vw, 33rem);
   margin-top: 3.25rem;
   overflow: hidden;
-  border: 1px solid #30443a;
-  border-radius: 0.65rem;
+  border-top: 1px solid #30443a;
+  border-bottom: 1px solid #30443a;
   background: linear-gradient(135deg, #101d17 0%, #09130f 100%);
   box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.16);
 }
@@ -15,7 +15,7 @@
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: clamp(2rem, 4vw, 3rem);
+  padding: clamp(2rem, 4vw, 4rem) clamp(1.25rem, 5vw, 5rem);
 }
 
 .home-custom h2 {
@@ -59,7 +59,7 @@
 .home-custom-media {
   position: relative;
   display: flex;
-  min-height: 24rem;
+  min-height: inherit;
   align-items: center;
   justify-content: center;
   border-left: 1px solid #30443a;
