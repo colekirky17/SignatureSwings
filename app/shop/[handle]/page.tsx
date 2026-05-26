@@ -30,6 +30,12 @@ export async function generateMetadata({
   return {
     title: product.title,
     description: `${product.shortDescription} Preview this custom golf accessory from Signature Swings. Product inquiries are coming soon.`,
+    // Temporarily noindex product pages while placeholder content is used.
+    // Remove this once real product content and Shopify-backed data are launch-ready.
+    robots: {
+      index: false,
+      follow: true,
+    },
   };
 }
 
