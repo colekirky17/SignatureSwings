@@ -3,6 +3,7 @@ import Link from "next/link";
 const footerNavigation = [
   { href: "/shop", label: "Shop" },
   { href: "/about", label: "About Us" },
+  { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact Us" },
 ];
 
