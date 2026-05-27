@@ -3,8 +3,16 @@ import Link from "next/link";
 import { CategoryCard } from "../components/category-card";
 import { FaqList } from "../components/faq-list";
 import { FeaturedProductsCarousel } from "../components/featured-products-carousel";
-import { getAllProducts, productCategories } from "../lib/catalog";
+import {
+  getAllProducts,
+  homepageFeaturedCollections,
+  productCategories,
+} from "../lib/catalog";
 import { homepageFaqItems } from "../lib/faq-content";
+import {
+  fetchShopifyCollectionProductGroups,
+  fetchShopifyProducts,
+} from "../lib/shopify";
 import "./home-custom.css";
 
 export const metadata: Metadata = {
@@ -45,8 +53,15 @@ const benefits = [
   },
 ];
 
-export default function Home() {
-  const featuredProducts = getAllProducts();
+export const revalidate = 300;
+
+export default async function Home() {
+  const [shopifyProducts, featuredCollectionGroups] = await Promise.all([
+    fetchShopifyProducts(),
+    fetchShopifyCollectionProductGroups(homepageFeaturedCollections),
+  ]);
+  const usingShopify = Boolean(shopifyProducts?.length);
+  const featuredProducts = usingShopify ? shopifyProducts! : getAllProducts();
 
   return (
     <main className="home-page">
@@ -103,7 +118,10 @@ export default function Home() {
         </div>
       </section>
 
-      <FeaturedProductsCarousel products={featuredProducts} />
+      <FeaturedProductsCarousel
+        products={featuredProducts}
+        collectionGroups={usingShopify ? featuredCollectionGroups ?? [] : featuredCollectionGroups}
+      />
 
       <section className="home-benefits" aria-label="Signature Swings benefits">
         {benefits.map((benefit) => (

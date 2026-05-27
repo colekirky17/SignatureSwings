@@ -12,6 +12,14 @@ export type ProductCategory = {
   shopifyCollectionHandle?: string;
 };
 
+export type ShopifyCollectionPlacement = {
+  id: string;
+  title: string;
+  handle: string;
+  fallbackHandles?: string[];
+  categorySlug?: ProductCategorySlug;
+};
+
 export type ProductSummary = {
   title: string;
   handle: string;
@@ -29,37 +37,103 @@ export type ProductSummary = {
   ctaLabel: string;
   shopifyProductHandle?: string;
   shopifyProductId?: string;
+  collectionHandles?: string[];
+  collectionTitles?: string[];
   source?: "shopify";
 };
 
-// Category slugs can later map to Shopify collections, tags, or metafields.
+// Shopify collections control where products appear on the website.
 export const productCategories: ProductCategory[] = [
   {
     title: "Ball Markers",
     slug: "ball-markers",
     shortDescription: "Make your mark. Stand out on every green.",
+    shopifyCollectionHandle: "ball-markers",
   },
   {
     title: "Divot Repair Tools",
     slug: "divot-repair-tools",
     shortDescription: "Precision tools for course perfection.",
+    shopifyCollectionHandle: "divot-tools",
   },
   {
     title: "Club Links",
     slug: "club-links",
     shortDescription: "The perfect touch for your club.",
+    shopifyCollectionHandle: "club-links",
   },
   {
     title: "Miscellaneous",
     slug: "miscellaneous",
     shortDescription: "Premium additions made to complement your gear.",
+    shopifyCollectionHandle: "miscellaneous",
   },
   {
     title: "Bundles",
     slug: "bundles",
     shortDescription: "Curated sets. Better together.",
+    shopifyCollectionHandle: "bundles",
   },
 ];
+
+export const shopCategoryCollections: ShopifyCollectionPlacement[] = [
+  {
+    id: "ball-markers",
+    title: "Ball Markers",
+    handle: "ball-markers",
+    categorySlug: "ball-markers",
+  },
+  {
+    id: "divot-tools",
+    title: "Divot Tools",
+    handle: "divot-tools",
+    fallbackHandles: ["divot-repair-tools"],
+    categorySlug: "divot-repair-tools",
+  },
+  {
+    id: "club-links",
+    title: "Club Links",
+    handle: "club-links",
+    categorySlug: "club-links",
+  },
+  {
+    id: "bundles",
+    title: "Bundles",
+    handle: "bundles",
+    categorySlug: "bundles",
+  },
+  {
+    id: "miscellaneous",
+    title: "Miscellaneous",
+    handle: "miscellaneous",
+    categorySlug: "miscellaneous",
+  },
+];
+
+export const homepageFeaturedCollections: ShopifyCollectionPlacement[] = [
+  {
+    id: "best-sellers",
+    title: "Best Sellers",
+    handle: "best-sellers",
+  },
+  {
+    id: "offers",
+    title: "20% Off",
+    handle: "20-off",
+    fallbackHandles: ["20-percent-off", "twenty-percent-off", "twenty-off"],
+  },
+  {
+    id: "seasonal",
+    title: "Seasonal",
+    handle: "seasonal",
+  },
+];
+
+export const homepageFeaturedCollection: ShopifyCollectionPlacement = {
+  id: "homepage-featured",
+  title: "Homepage Featured",
+  handle: "homepage-featured",
+};
 
 // Shopify will later be the source of truth for products, variants, prices, and availability.
 // These handles are kept ready to map to Shopify product handles when commerce is connected.

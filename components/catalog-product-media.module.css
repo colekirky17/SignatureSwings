@@ -21,6 +21,39 @@
   object-fit: contain;
 }
 
+.shopTabLink {
+  display: inline-flex;
+}
+
+.collectionSectionList {
+  display: grid;
+  gap: 3.25rem;
+  margin-top: 3.5rem;
+}
+
+.collectionSection {
+  scroll-margin-top: 5.5rem;
+}
+
+.emptyState {
+  padding: 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.emptyState h3 {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.emptyState p {
+  margin-top: 0.65rem;
+  color: var(--muted);
+  font-size: 0.91rem;
+  line-height: 1.6;
+}
+
 @media (max-width: 640px) {
   .cardImage {
     height: 14rem;

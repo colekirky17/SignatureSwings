@@ -1,14 +1,22 @@
 import "server-only";
 
 import {
+  shopCategoryCollections,
   productCategories,
   type ProductCategorySlug,
+  type ShopifyCollectionPlacement,
   type ProductSummary,
 } from "./catalog";
 
 export type ShopifyCollectionSummary = {
+  id?: string;
   title: string;
   handle: string;
+};
+
+export type ShopifyCollectionProductGroup = ShopifyCollectionSummary & {
+  placementId?: string;
+  products: ProductSummary[];
 };
 
 type StorefrontConfiguration = {
@@ -47,6 +55,15 @@ type ShopifyProductNode = {
   };
 };
 
+type ShopifyCollectionNode = {
+  id: string;
+  title: string;
+  handle: string;
+  products: {
+    nodes: ShopifyProductNode[];
+  };
+};
+
 const PRODUCT_FIELDS = `
   id
   title
@@ -69,8 +86,9 @@ const PRODUCT_FIELDS = `
       currencyCode
     }
   }
-  collections(first: 1) {
+  collections(first: 10) {
     nodes {
+      id
       title
       handle
     }
@@ -99,8 +117,41 @@ const COLLECTIONS_QUERY = `
   query Collections {
     collections(first: 100, sortKey: TITLE) {
       nodes {
+        id
         title
         handle
+      }
+    }
+  }
+`;
+
+const COLLECTION_WITH_PRODUCTS_QUERY = `
+  query CollectionWithProducts($handle: String!) {
+    collection(handle: $handle) {
+      id
+      title
+      handle
+      products(first: 100, sortKey: TITLE) {
+        nodes {
+          ${PRODUCT_FIELDS}
+        }
+      }
+    }
+  }
+`;
+
+const COLLECTIONS_WITH_PRODUCTS_QUERY = `
+  query CollectionsWithProducts {
+    collections(first: 100, sortKey: TITLE) {
+      nodes {
+        id
+        title
+        handle
+        products(first: 100, sortKey: TITLE) {
+          nodes {
+            ${PRODUCT_FIELDS}
+          }
+        }
       }
     }
   }
@@ -119,7 +170,10 @@ function getStorefrontConfiguration(): StorefrontConfiguration | null {
     .replace(/^https?:\/\//i, "")
     .replace(/\/+$/, "");
 
-  if (!/^[a-z0-9.-]+$/i.test(storeDomain) || !/^(?:\d{4}-\d{2}|latest|unstable)$/.test(apiVersion)) {
+  if (
+    !/^[a-z0-9.-]+$/i.test(storeDomain) ||
+    !/^(?:\d{4}-\d{2}|latest|unstable)$/.test(apiVersion)
+  ) {
     return null;
   }
 
@@ -127,6 +181,32 @@ function getStorefrontConfiguration(): StorefrontConfiguration | null {
     endpoint: `https://${storeDomain}/api/${apiVersion}/graphql.json`,
     privateToken,
   };
+}
+
+function normalizeCollectionKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/%/g, " percent ")
+    .replace(/&/g, " and ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function collectionMatchesPlacement(
+  collection: ShopifyCollectionSummary,
+  placement: ShopifyCollectionPlacement,
+): boolean {
+  const acceptedKeys = [
+    placement.title,
+    placement.handle,
+    ...(placement.fallbackHandles ?? []),
+  ].map(normalizeCollectionKey);
+
+  return (
+    acceptedKeys.includes(normalizeCollectionKey(collection.handle)) ||
+    acceptedKeys.includes(normalizeCollectionKey(collection.title))
+  );
 }
 
 async function queryStorefront<T>(
@@ -197,8 +277,28 @@ function getPriceLabel(product: ShopifyProductNode): string {
   return `${minimumPrice} - inquiry only`;
 }
 
-function mapProduct(product: ShopifyProductNode): ProductSummary {
-  const collection = product.collections.nodes[0];
+function getDisplayCollection(
+  product: ShopifyProductNode,
+  collectionContext?: ShopifyCollectionSummary,
+): ShopifyCollectionSummary | undefined {
+  if (collectionContext) {
+    return collectionContext;
+  }
+
+  return (
+    product.collections.nodes.find((collection) =>
+      shopCategoryCollections.some((placement) =>
+        collectionMatchesPlacement(collection, placement),
+      ),
+    ) ?? product.collections.nodes[0]
+  );
+}
+
+function mapProduct(
+  product: ShopifyProductNode,
+  collectionContext?: ShopifyCollectionSummary,
+): ProductSummary {
+  const collection = getDisplayCollection(product, collectionContext);
 
   return {
     title: product.title,
@@ -214,7 +314,22 @@ function mapProduct(product: ShopifyProductNode): ProductSummary {
     ctaLabel: "Product Inquiry",
     shopifyProductHandle: product.handle,
     shopifyProductId: product.id,
+    collectionHandles: product.collections.nodes.map((item) => item.handle),
+    collectionTitles: product.collections.nodes.map((item) => item.title),
     source: "shopify",
+  };
+}
+
+function mapCollectionGroup(
+  collection: ShopifyCollectionNode,
+  placement?: ShopifyCollectionPlacement,
+): ShopifyCollectionProductGroup {
+  return {
+    id: collection.id,
+    title: collection.title,
+    handle: collection.handle,
+    placementId: placement?.id,
+    products: collection.products.nodes.map((product) => mapProduct(product, collection)),
   };
 }
 
@@ -223,7 +338,7 @@ export async function fetchShopifyProducts(): Promise<ProductSummary[] | null> {
     PRODUCTS_QUERY,
   );
 
-  return data ? data.products.nodes.map(mapProduct) : null;
+  return data ? data.products.nodes.map((product) => mapProduct(product)) : null;
 }
 
 export async function fetchShopifyProductByHandle(
@@ -243,4 +358,64 @@ export async function fetchShopifyCollections(): Promise<ShopifyCollectionSummar
   );
 
   return data?.collections.nodes ?? null;
+}
+
+export async function fetchShopifyProductsByCollectionHandle(
+  handle: string,
+): Promise<ProductSummary[] | null> {
+  const data = await queryStorefront<{ collection: ShopifyCollectionNode | null }>(
+    COLLECTION_WITH_PRODUCTS_QUERY,
+    { handle },
+  );
+
+  const collection = data?.collection;
+
+  return collection
+    ? collection.products.nodes.map((product) => mapProduct(product, collection))
+    : null;
+}
+
+export async function fetchShopifyProductsByCollectionTitle(
+  title: string,
+): Promise<ProductSummary[] | null> {
+  const groups = await fetchShopifyCollectionProductGroups([
+    {
+      id: normalizeCollectionKey(title),
+      title,
+      handle: normalizeCollectionKey(title),
+    },
+  ]);
+
+  return groups ? groups[0]?.products ?? [] : null;
+}
+
+export async function fetchShopifyCollectionProductGroups(
+  placements: ShopifyCollectionPlacement[],
+): Promise<ShopifyCollectionProductGroup[] | null> {
+  const data = await queryStorefront<{
+    collections: { nodes: ShopifyCollectionNode[] };
+  }>(COLLECTIONS_WITH_PRODUCTS_QUERY);
+
+  if (!data) {
+    return null;
+  }
+
+  // Shopify collections are the placement controls; adding a product to one of
+  // these collections in Shopify Admin moves it into that website section.
+  return placements.map((placement) => {
+    const collection = data.collections.nodes.find((item) =>
+      collectionMatchesPlacement(item, placement),
+    );
+
+    if (!collection) {
+      return {
+        title: placement.title,
+        handle: placement.handle,
+        placementId: placement.id,
+        products: [],
+      };
+    }
+
+    return mapCollectionGroup(collection, placement);
+  });
 }
