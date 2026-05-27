@@ -6,6 +6,8 @@ type CategoryCardProps = {
 };
 
 export function CategoryCard({ category }: CategoryCardProps) {
+  const shopHref = `/shop#collection-${category.shopifyCollectionHandle ?? category.slug}`;
+
   return (
     <article className="home-category-card">
       <div className="category-media">
@@ -14,7 +16,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
       <div className="category-body">
         <h3>{category.title}</h3>
         <p>{category.shortDescription}</p>
-        <Link href="/shop" className="category-link">
+        <Link href={shopHref} className="category-link">
           Shop
           <span aria-hidden="true">-&gt;</span>
         </Link>

@@ -2,61 +2,85 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { getProductCategory, type ProductSummary } from "../lib/catalog";
+import {
+  getProductCategoryTitle,
+  homepageFeaturedCollections,
+  type ProductSummary,
+} from "../lib/catalog";
+import type { ShopifyCollectionProductGroup } from "../lib/shopify";
+import styles from "./catalog-product-media.module.css";
 
 type FeaturedProductsCarouselProps = {
   products: ProductSummary[];
+  collectionGroups?: ShopifyCollectionProductGroup[] | null;
 };
 
 type FeaturedCollection = {
   id: string;
   label: string;
-  handles: string[];
+  products: ProductSummary[];
 };
 
-const featuredCollections: FeaturedCollection[] = [
-  {
-    id: "best-sellers",
-    label: "Best Sellers",
-    handles: [
-      "custom-ball-marker",
-      "premium-divot-repair-tool",
-      "club-link-tag",
-      "signature-bundle",
-      "custom-event-marker",
-    ],
-  },
-  {
-    id: "offers",
-    label: "20% Off",
-    handles: [
-      "signature-bundle",
-      "groomsmen-gift-set",
-      "bulk-order-starter-pack",
-      "custom-ball-marker",
-    ],
-  },
-  {
-    id: "seasonal",
-    label: "Seasonal",
-    handles: [
-      "custom-event-marker",
-      "groomsmen-gift-set",
-      "signature-bundle",
-      "club-link-tag",
-    ],
-  },
-];
+const staticFeaturedHandles = {
+  "best-sellers": [
+    "custom-ball-marker",
+    "premium-divot-repair-tool",
+    "club-link-tag",
+    "signature-bundle",
+    "custom-event-marker",
+  ],
+  offers: [
+    "signature-bundle",
+    "groomsmen-gift-set",
+    "bulk-order-starter-pack",
+    "custom-ball-marker",
+  ],
+  seasonal: [
+    "custom-event-marker",
+    "groomsmen-gift-set",
+    "signature-bundle",
+    "club-link-tag",
+  ],
+};
 
-export function FeaturedProductsCarousel({ products }: FeaturedProductsCarouselProps) {
+function getFeaturedCollections(
+  products: ProductSummary[],
+  collectionGroups: ShopifyCollectionProductGroup[] | null | undefined,
+): FeaturedCollection[] {
+  if (collectionGroups) {
+    return homepageFeaturedCollections.map((placement) => {
+      const group = collectionGroups.find(
+        (collection) => collection.placementId === placement.id,
+      );
+
+      return {
+        id: placement.id,
+        label: group?.title ?? placement.title,
+        products: group?.products ?? [],
+      };
+    });
+  }
+
+  return homepageFeaturedCollections.map((placement) => ({
+    id: placement.id,
+    label: placement.title,
+    products: (staticFeaturedHandles[placement.id as keyof typeof staticFeaturedHandles] ?? [])
+      .map((handle) => products.find((product) => product.handle === handle))
+      .filter((product): product is ProductSummary => product !== undefined),
+  }));
+}
+
+export function FeaturedProductsCarousel({
+  products,
+  collectionGroups,
+}: FeaturedProductsCarouselProps) {
+  const featuredCollections = getFeaturedCollections(products, collectionGroups);
   const [activeCollectionId, setActiveCollectionId] = useState(featuredCollections[0].id);
   const trackRef = useRef<HTMLDivElement>(null);
   const activeCollection =
     featuredCollections.find((collection) => collection.id === activeCollectionId) ??
     featuredCollections[0];
-  const visibleProducts = activeCollection.handles
-    .map((handle) => products.find((product) => product.handle === handle))
-    .filter((product): product is ProductSummary => product !== undefined);
+  const visibleProducts = activeCollection.products;
 
   useEffect(() => {
     trackRef.current?.scrollTo({ left: 0, behavior: "smooth" });
@@ -119,7 +143,9 @@ export function FeaturedProductsCarousel({ products }: FeaturedProductsCarouselP
           </button>
         ))}
       </div>
-      <p className="home-featured-note">Preview collections only. Pricing remains by inquiry.</p>
+      <p className="home-featured-note">
+        Shopify collections control featured placement. Pricing remains by inquiry.
+      </p>
 
       <div
         ref={trackRef}
@@ -128,27 +154,56 @@ export function FeaturedProductsCarousel({ products }: FeaturedProductsCarouselP
         role="tabpanel"
         aria-labelledby={`featured-tab-${activeCollection.id}`}
       >
-        {visibleProducts.map((product) => {
-          const category = getProductCategory(product.categorySlug);
+        {visibleProducts.length ? (
+          visibleProducts.map((product) => {
+            const categoryTitle = getProductCategoryTitle(product);
 
-          return (
-            <article key={product.handle} className="featured-product-card">
-              <div className="featured-product-media">
-                <span className="media-label">{product.imagePlaceholderLabel}</span>
-              </div>
-              <div className="featured-product-body">
-                <p className="featured-product-category">{category.title}</p>
-                <h3>{product.title}</h3>
-                <p className="featured-product-description">{product.shortDescription}</p>
-                <p className="featured-product-price">{product.priceLabel}</p>
-                <Link href={`/shop/${product.handle}`} className="featured-product-link">
-                  View Product
-                  <span aria-hidden="true">-&gt;</span>
-                </Link>
-              </div>
-            </article>
-          );
-        })}
+            return (
+              <article key={product.handle} className="featured-product-card">
+                <div className="featured-product-media">
+                  {product.image ? (
+                    <img
+                      className={styles.cardImage}
+                      src={product.image.url}
+                      alt={product.image.altText || product.title}
+                      width={product.image.width ?? undefined}
+                      height={product.image.height ?? undefined}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="media-label">{product.imagePlaceholderLabel}</span>
+                  )}
+                </div>
+                <div className="featured-product-body">
+                  {categoryTitle ? (
+                    <p className="featured-product-category">{categoryTitle}</p>
+                  ) : null}
+                  <h3>{product.title}</h3>
+                  <p className="featured-product-description">{product.shortDescription}</p>
+                  <p className="featured-product-price">{product.priceLabel}</p>
+                  <Link href={`/shop/${product.handle}`} className="featured-product-link">
+                    View Product
+                    <span aria-hidden="true">-&gt;</span>
+                  </Link>
+                </div>
+              </article>
+            );
+          })
+        ) : (
+          <article className="featured-product-card featured-product-empty">
+            <div className="featured-product-body">
+              <p className="featured-product-category">{activeCollection.label}</p>
+              <h3>Collection Coming Soon</h3>
+              <p className="featured-product-description">
+                Add products to this Shopify collection to feature them here.
+              </p>
+              <Link href="/shop" className="featured-product-link">
+                View All Products
+                <span aria-hidden="true">-&gt;</span>
+              </Link>
+            </div>
+          </article>
+        )}
       </div>
     </section>
   );
