@@ -102,12 +102,6 @@ export const shopCategoryCollections: ShopifyCollectionPlacement[] = [
     handle: "bundles",
     categorySlug: "bundles",
   },
-  {
-    id: "miscellaneous",
-    title: "Miscellaneous",
-    handle: "miscellaneous",
-    categorySlug: "miscellaneous",
-  },
 ];
 
 export const homepageFeaturedCollections: ShopifyCollectionPlacement[] = [

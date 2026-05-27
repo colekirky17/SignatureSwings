@@ -22,25 +22,18 @@ export const metadata: Metadata = {
 };
 
 function getFallbackCollectionGroups(): ShopifyCollectionProductGroup[] {
-  return shopCategoryCollections.map((collection) => ({
-    title:
-      productCategories.find((category) => category.slug === collection.categorySlug)?.title ??
-      collection.title,
-    handle: collection.handle,
-    placementId: collection.id,
-    products: collection.categorySlug
-      ? getProductsByCategory(collection.categorySlug)
-      : [],
-  }));
-}
-
-function getEmptyShopifyCollectionGroups(): ShopifyCollectionProductGroup[] {
-  return shopCategoryCollections.map((collection) => ({
-    title: collection.title,
-    handle: collection.handle,
-    placementId: collection.id,
-    products: [],
-  }));
+  return shopCategoryCollections
+    .map((collection) => ({
+      title:
+        productCategories.find((category) => category.slug === collection.categorySlug)?.title ??
+        collection.title,
+      handle: collection.handle,
+      placementId: collection.id,
+      products: collection.categorySlug
+        ? getProductsByCategory(collection.categorySlug)
+        : [],
+    }))
+    .filter((collection) => collection.products.length > 0);
 }
 
 export default async function ShopPage() {
@@ -48,11 +41,11 @@ export default async function ShopPage() {
     fetchShopifyProducts(),
     fetchShopifyCollectionProductGroups(shopCategoryCollections),
   ]);
-  const usingShopify = Boolean(shopifyProducts?.length);
-  const products = usingShopify ? shopifyProducts! : getAllProducts();
-  const collectionGroups = usingShopify
-    ? shopifyCollectionGroups ?? getEmptyShopifyCollectionGroups()
-    : getFallbackCollectionGroups();
+  const usingShopify = shopifyProducts !== null;
+  const products = usingShopify ? shopifyProducts : getAllProducts();
+  const collectionGroups = (
+    usingShopify ? shopifyCollectionGroups ?? [] : getFallbackCollectionGroups()
+  ).filter((collection) => collection.products.length > 0);
 
   return (
     <main className="shop-page">
@@ -65,20 +58,22 @@ export default async function ShopPage() {
         </p>
       </section>
 
-      <section className="shop-category-panel" aria-labelledby="shop-category-heading">
-        <h2 id="shop-category-heading">Browse Categories</h2>
-        <div className="shop-tabs" aria-label="Product categories">
-          {collectionGroups.map((collection) => (
-            <a
-              key={collection.handle}
-              href={`#collection-${collection.handle}`}
-              className={`shop-tab ${styles.shopTabLink}`}
-            >
-              {collection.title}
-            </a>
-          ))}
-        </div>
-      </section>
+      {collectionGroups.length ? (
+        <section className="shop-category-panel" aria-labelledby="shop-category-heading">
+          <h2 id="shop-category-heading">Browse Categories</h2>
+          <div className="shop-tabs" aria-label="Product categories">
+            {collectionGroups.map((collection) => (
+              <a
+                key={collection.handle}
+                href={`#collection-${collection.handle}`}
+                className={`shop-tab ${styles.shopTabLink}`}
+              >
+                {collection.title}
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="product-section" aria-labelledby="product-grid-heading">
         <div className="product-section-heading">
@@ -98,29 +93,29 @@ export default async function ShopPage() {
         </div>
       </section>
 
-      <section
-        className={`product-section ${styles.collectionSectionList}`}
-        aria-label="Shopify collections"
-      >
-        {collectionGroups.map((collection) => (
-          <section
-            key={collection.handle}
-            id={`collection-${collection.handle}`}
-            className={styles.collectionSection}
-            aria-labelledby={`collection-heading-${collection.handle}`}
-          >
-            <div className="product-section-heading">
-              <div>
-                <p className="shop-kicker">Shopify Collection</p>
-                <h2 id={`collection-heading-${collection.handle}`}>{collection.title}</h2>
+      {collectionGroups.length ? (
+        <section
+          className={`product-section ${styles.collectionSectionList}`}
+          aria-label="Shopify collections"
+        >
+          {collectionGroups.map((collection) => (
+            <section
+              key={collection.handle}
+              id={`collection-${collection.handle}`}
+              className={styles.collectionSection}
+              aria-labelledby={`collection-heading-${collection.handle}`}
+            >
+              <div className="product-section-heading">
+                <div>
+                  <p className="shop-kicker">Shopify Collection</p>
+                  <h2 id={`collection-heading-${collection.handle}`}>{collection.title}</h2>
+                </div>
+                <p className="product-count">
+                  {collection.products.length}{" "}
+                  {collection.products.length === 1 ? "product" : "products"}
+                </p>
               </div>
-              <p className="product-count">
-                {collection.products.length}{" "}
-                {collection.products.length === 1 ? "product" : "products"}
-              </p>
-            </div>
 
-            {collection.products.length ? (
               <div className="product-grid">
                 {collection.products.map((product) => (
                   <CatalogProductCard
@@ -129,17 +124,10 @@ export default async function ShopPage() {
                   />
                 ))}
               </div>
-            ) : (
-              <div className={styles.emptyState}>
-                <h3>{collection.title} products coming soon</h3>
-                <p>
-                  Add products to this Shopify collection to place them in this section.
-                </p>
-              </div>
-            )}
-          </section>
-        ))}
-      </section>
+            </section>
+          ))}
+        </section>
+      ) : null}
     </main>
   );
 }

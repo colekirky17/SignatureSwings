@@ -60,8 +60,8 @@ export default async function Home() {
     fetchShopifyProducts(),
     fetchShopifyCollectionProductGroups(homepageFeaturedCollections),
   ]);
-  const usingShopify = Boolean(shopifyProducts?.length);
-  const featuredProducts = usingShopify ? shopifyProducts! : getAllProducts();
+  const usingShopify = shopifyProducts !== null;
+  const featuredProducts = usingShopify ? shopifyProducts : getAllProducts();
 
   return (
     <main className="home-page">
@@ -120,7 +120,7 @@ export default async function Home() {
 
       <FeaturedProductsCarousel
         products={featuredProducts}
-        collectionGroups={usingShopify ? featuredCollectionGroups ?? [] : featuredCollectionGroups}
+        collectionGroups={usingShopify ? featuredCollectionGroups ?? [] : null}
       />
 
       <section className="home-benefits" aria-label="Signature Swings benefits">
