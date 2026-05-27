@@ -16,12 +16,20 @@ export type ProductSummary = {
   title: string;
   handle: string;
   categorySlug: ProductCategorySlug;
+  categoryTitle?: string;
   shortDescription: string;
   priceLabel: string;
   imagePlaceholderLabel: string;
+  image?: {
+    url: string;
+    altText?: string | null;
+    width?: number | null;
+    height?: number | null;
+  };
   ctaLabel: string;
   shopifyProductHandle?: string;
   shopifyProductId?: string;
+  source?: "shopify";
 };
 
 // Category slugs can later map to Shopify collections, tags, or metafields.
@@ -138,6 +146,18 @@ export function getProductCategory(slug: ProductCategorySlug): ProductCategory {
   }
 
   return category;
+}
+
+export function getProductCategoryTitle(product: ProductSummary): string | undefined {
+  if (product.categoryTitle) {
+    return product.categoryTitle;
+  }
+
+  if (product.source === "shopify") {
+    return undefined;
+  }
+
+  return getProductCategory(product.categorySlug).title;
 }
 
 export function getAllProducts(): ProductSummary[] {
