@@ -1,18 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import styles from "../../../components/catalog-product-media.module.css";
 import {
   getAllProducts,
   getProductByHandle,
-  getProductCategory,
+  getProductCategoryTitle,
 } from "../../../lib/catalog";
+import {
+  fetchShopifyProductByHandle,
+  fetchShopifyProducts,
+} from "../../../lib/shopify";
 
 type ProductDetailPageProps = {
   params: Promise<{ handle: string }>;
 };
 
-export function generateStaticParams() {
-  return getAllProducts().map((product) => ({
+export const revalidate = 300;
+
+async function getAvailableProduct(handle: string) {
+  return (await fetchShopifyProductByHandle(handle)) ?? getProductByHandle(handle);
+}
+
+export async function generateStaticParams() {
+  const shopifyProducts = await fetchShopifyProducts();
+  const products = shopifyProducts?.length ? shopifyProducts : getAllProducts();
+
+  return products.map((product) => ({
     handle: product.handle,
   }));
 }
@@ -21,7 +35,7 @@ export async function generateMetadata({
   params,
 }: ProductDetailPageProps): Promise<Metadata> {
   const { handle } = await params;
-  const product = getProductByHandle(handle);
+  const product = await getAvailableProduct(handle);
 
   if (!product) {
     return {};
@@ -29,9 +43,8 @@ export async function generateMetadata({
 
   return {
     title: product.title,
-    description: `${product.shortDescription} Preview this custom golf accessory from Signature Swings. Product inquiries are coming soon.`,
-    // Temporarily noindex product pages while placeholder content is used.
-    // Remove this once real product content and Shopify-backed data are launch-ready.
+    description: `${product.shortDescription} Contact Signature Swings to inquire about this product.`,
+    // Keep individual products out of search until the catalog content is launch-ready.
     robots: {
       index: false,
       follow: true,
@@ -41,13 +54,13 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { handle } = await params;
-  const product = getProductByHandle(handle);
+  const product = await getAvailableProduct(handle);
 
   if (!product) {
     notFound();
   }
 
-  const category = getProductCategory(product.categorySlug);
+  const categoryTitle = getProductCategoryTitle(product);
 
   return (
     <main className="product-detail-page">
@@ -57,23 +70,34 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
       <article className="product-detail">
         <div className="product-detail-media">
-          <span className="media-label">{product.imagePlaceholderLabel}</span>
+          {product.image ? (
+            <img
+              className={styles.detailImage}
+              src={product.image.url}
+              alt={product.image.altText || product.title}
+              width={product.image.width ?? undefined}
+              height={product.image.height ?? undefined}
+            />
+          ) : (
+            <span className="media-label">{product.imagePlaceholderLabel}</span>
+          )}
         </div>
 
         <div className="product-detail-summary">
-          <p className="product-category">{category.title}</p>
+          {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
           <h1>{product.title}</h1>
+          <p className={styles.handle}>/{product.handle}</p>
           <p className="product-detail-description">{product.shortDescription}</p>
           <p className="product-detail-price">{product.priceLabel}</p>
 
           <section className="product-detail-notice" aria-label="Product inquiry availability">
-            <h2>{product.ctaLabel}</h2>
+            <h2>Product Inquiry</h2>
             <p>
-              Live purchasing and add to cart are not available yet. Contact us to discuss
-              this product while online inquiry tools and future Shopify checkout are prepared.
+              Contact us to discuss customization, quantities, and availability for this
+              product. We will help plan the right details for your order.
             </p>
             <Link href="/contact" className="product-detail-contact-link">
-              View Inquiry Information
+              Start An Inquiry
               <span aria-hidden="true">-&gt;</span>
             </Link>
           </section>
@@ -89,10 +113,10 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </p>
         </article>
         <article className="product-detail-panel">
-          <h2>Future Product Details</h2>
+          <h2>Product Information</h2>
           <p>
-            Final variants, pricing, availability, and Shopify-powered checkout will be added
-            later when the product catalog is connected for live ordering.
+            Pricing and available product imagery shown here come from the current catalog
+            when provided. Contact us for current customization and fulfillment details.
           </p>
         </article>
       </section>
