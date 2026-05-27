@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import {
-  getProductCategoryTitle,
-  homepageFeaturedCollections,
-  type ProductSummary,
-} from "../lib/catalog";
+import { homepageFeaturedCollections, type ProductSummary } from "../lib/catalog";
 import type { ShopifyCollectionProductGroup } from "../lib/shopify";
 import styles from "./catalog-product-media.module.css";
 
@@ -70,6 +66,19 @@ function getFeaturedCollections(
       .map((handle) => products.find((product) => product.handle === handle))
       .filter((product): product is ProductSummary => product !== undefined),
   }));
+}
+
+function getPreviewPriceLabel(priceLabel: string): string | undefined {
+  const cleanPrice = priceLabel
+    .replace(/\s*-\s*inquiry only\s*$/i, "")
+    .replace(/\binquiry only\b/gi, "")
+    .trim();
+
+  if (!cleanPrice || /^pricing by inquiry$/i.test(cleanPrice)) {
+    return "Price coming soon";
+  }
+
+  return cleanPrice;
 }
 
 export function FeaturedProductsCarousel({
@@ -161,36 +170,30 @@ export function FeaturedProductsCarousel({
         aria-labelledby={`featured-tab-${activeCollection.id}`}
       >
         {visibleProducts.map((product) => {
-          const categoryTitle = getProductCategoryTitle(product);
+          const priceLabel = getPreviewPriceLabel(product.priceLabel);
 
           return (
             <article key={product.handle} className="featured-product-card">
-              <div className="featured-product-media">
-                {product.image ? (
-                  <img
-                    className={styles.cardImage}
-                    src={product.image.url}
-                    alt={product.image.altText || product.title}
-                    width={product.image.width ?? undefined}
-                    height={product.image.height ?? undefined}
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className="media-label">{product.imagePlaceholderLabel}</span>
-                )}
-              </div>
-              <div className="featured-product-body">
-                {categoryTitle ? (
-                  <p className="featured-product-category">{categoryTitle}</p>
-                ) : null}
-                <h3>{product.title}</h3>
-                <p className="featured-product-description">{product.shortDescription}</p>
-                <p className="featured-product-price">{product.priceLabel}</p>
-                <Link href={`/shop/${product.handle}`} className="featured-product-link">
-                  View Product
-                  <span aria-hidden="true">-&gt;</span>
-                </Link>
-              </div>
+              <Link href={`/shop/${product.handle}`} className="featured-product-card-link">
+                <div className="featured-product-media">
+                  {product.image ? (
+                    <img
+                      className={styles.cardImage}
+                      src={product.image.url}
+                      alt={product.image.altText || product.title}
+                      width={product.image.width ?? undefined}
+                      height={product.image.height ?? undefined}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <span className="media-label">{product.imagePlaceholderLabel}</span>
+                  )}
+                </div>
+                <div className="featured-product-body">
+                  <h3>{product.title}</h3>
+                  {priceLabel ? <p className="featured-product-price">{priceLabel}</p> : null}
+                </div>
+              </Link>
             </article>
           );
         })}

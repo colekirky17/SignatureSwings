@@ -1,0 +1,438 @@
+.featured-product-card-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  color: inherit;
+}
+
+.featured-product-card h3 {
+  margin-top: 0;
+}
+
+.featured-product-price {
+  margin-top: 0.75rem;
+  padding-top: 0;
+}
+
+.product-card {
+  min-height: 0;
+}
+
+.product-card-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  color: inherit;
+}
+
+.product-price {
+  margin-top: 0.65rem;
+}
+
+.club-link-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.9fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.club-link-gallery {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(8rem, 0.95fr);
+  gap: 0.55rem;
+}
+
+.club-link-main-image,
+.club-link-thumbnail,
+.club-link-preview-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: #15251d;
+}
+
+.club-link-main-image {
+  min-height: 34rem;
+}
+
+.club-link-thumbnails {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.club-link-thumbnail {
+  min-height: 10.95rem;
+}
+
+.club-link-thumbnail img,
+.club-link-preview-image img {
+  height: 100%;
+  object-fit: cover;
+}
+
+.club-link-highlights {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.65rem;
+}
+
+.club-link-highlight {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  color: var(--muted);
+}
+
+.club-link-highlight > span {
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #0d1a15;
+}
+
+.club-link-highlight h2 {
+  color: var(--text);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.club-link-highlight p {
+  margin-top: 0.25rem;
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.club-link-summary {
+  padding-top: 0.15rem;
+}
+
+.club-link-summary h1 {
+  font-family: Impact, "Arial Narrow", Arial, sans-serif;
+  font-size: clamp(2.7rem, 5vw, 4rem);
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.club-link-price {
+  margin-top: 0.65rem;
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.club-link-intro {
+  max-width: 35rem;
+  margin-top: 0.9rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.club-link-reviews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+  margin-top: 1rem;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.club-link-reviews span:first-child {
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.club-link-reviews strong {
+  color: var(--text);
+}
+
+.club-link-option-block {
+  margin-top: 1.15rem;
+}
+
+.club-link-option-block h2,
+.club-link-customizer h2,
+.club-link-preview h2 {
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.club-link-finish-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+}
+
+.club-link-finish,
+.club-link-style,
+.club-link-upload-placeholder {
+  display: flex;
+  min-height: 2.55rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: #09130f;
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.club-link-finish:first-child {
+  border-color: var(--accent);
+}
+
+.club-link-finish {
+  justify-content: flex-start;
+  gap: 0.55rem;
+  padding: 0 0.75rem;
+}
+
+.club-link-swatch {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #dadbd6;
+}
+
+.club-link-swatch.is-black {
+  background: #151515;
+}
+
+.club-link-swatch.is-gold {
+  background: #d4bc89;
+}
+
+.club-link-swatch.is-gunmetal {
+  background: #737874;
+}
+
+.club-link-customizer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.34fr);
+  gap: 1rem;
+  margin-top: 1.1rem;
+  padding: 1.05rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: rgba(9, 19, 15, 0.78);
+}
+
+.club-link-customizer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.club-link-field,
+.club-link-notes,
+.club-link-logo-row {
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: #07110d;
+}
+
+.club-link-field,
+.club-link-notes {
+  min-height: 3.1rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.club-link-field span,
+.club-link-notes span,
+.club-link-logo-row span,
+.club-link-style-group > span {
+  color: var(--text);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.club-link-field p,
+.club-link-notes p,
+.club-link-logo-row p {
+  margin-top: 0.35rem;
+  color: #78867d;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.club-link-style-group {
+  grid-row: span 3;
+}
+
+.club-link-style-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin-top: 0.6rem;
+}
+
+.club-link-style:first-child {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.club-link-logo-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 0.85rem;
+  padding: 0.75rem;
+}
+
+.club-link-upload-placeholder {
+  min-width: 10rem;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.club-link-notes {
+  margin-top: 0.85rem;
+}
+
+.club-link-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.club-link-primary-action,
+.club-link-secondary-action {
+  display: inline-flex;
+  min-height: 2.8rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.club-link-primary-action {
+  background: var(--accent);
+  color: #08120e;
+}
+
+.club-link-secondary-action {
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.club-link-preview {
+  padding-left: 1rem;
+  border-left: 1px solid var(--border);
+}
+
+.club-link-preview-image {
+  width: 8.5rem;
+  height: 8.5rem;
+  margin: 1rem auto 0;
+  border-radius: 999px;
+}
+
+.club-link-preview p {
+  margin-top: 0.9rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.club-link-info-panels {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1.6rem;
+}
+
+.club-link-info-panel {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: rgba(9, 19, 15, 0.78);
+}
+
+.club-link-info-panel h2 {
+  color: var(--text);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.club-link-info-panel p {
+  margin-top: 0.65rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 640px) {
+  .club-link-detail,
+  .club-link-gallery,
+  .club-link-customizer,
+  .club-link-customizer-grid,
+  .club-link-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .club-link-main-image {
+    min-height: 18rem;
+  }
+
+  .club-link-thumbnails {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .club-link-thumbnail {
+    min-height: 6rem;
+  }
+
+  .club-link-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .club-link-finish-grid,
+  .club-link-style-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .club-link-style-group {
+    grid-row: auto;
+  }
+
+  .club-link-logo-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .club-link-upload-placeholder {
+    min-width: 0;
+  }
+
+  .club-link-preview {
+    padding-top: 1rem;
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+}

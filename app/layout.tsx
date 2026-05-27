@@ -4,6 +4,7 @@ import { SiteFooter } from "../components/site-footer";
 import { SiteHeader } from "../components/site-header";
 import { siteUrl } from "../lib/site-config";
 import "./globals.css";
+import "./product-preview-updates.css";
 
 const defaultTitle = "Signature Swings | Custom Golf Accessories";
 const defaultDescription =
