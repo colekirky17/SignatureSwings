@@ -31,15 +31,15 @@
 
 .club-link-detail {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(22rem, 0.9fr);
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1.08fr) minmax(30rem, 0.92fr);
+  gap: clamp(2rem, 3.5vw, 4rem);
   align-items: start;
 }
 
 .club-link-gallery {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(8rem, 0.95fr);
-  gap: 0.55rem;
+  grid-template-columns: minmax(0, 2.2fr) minmax(8rem, 0.82fr);
+  gap: 0.65rem;
 }
 
 .club-link-main-image,
@@ -55,7 +55,7 @@
 }
 
 .club-link-main-image {
-  min-height: 34rem;
+  min-height: clamp(34rem, 42vw, 48rem);
 }
 
 .club-link-thumbnails {
@@ -64,7 +64,7 @@
 }
 
 .club-link-thumbnail {
-  min-height: 10.95rem;
+  min-height: clamp(10.95rem, 13.3vw, 15.55rem);
 }
 
 .club-link-thumbnail img,
@@ -219,6 +219,10 @@
 
 .club-link-swatch.is-gold {
   background: #d4bc89;
+}
+
+.club-link-swatch.is-copper {
+  background: #b56a3f;
 }
 
 .club-link-swatch.is-gunmetal {

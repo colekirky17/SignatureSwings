@@ -110,4 +110,10 @@ export const homepageFaqItems: FaqItem[] = [
     answer:
       "Yes. We create personalized golf gifts for weddings, tournaments, corporate outings, and other events.",
   },
+  {
+    id: "bulk-pricing",
+    question: "Do you offer bulk pricing or discounts for large orders?",
+    answer:
+      "Yes. We offer custom pricing for bulk custom golf accessories, large events, corporate golf gifts, tournaments, country clubs, weddings, and other group orders. Pricing discussions will be handled through direct inquiry; the online inquiry form is coming soon.",
+  },
 ];

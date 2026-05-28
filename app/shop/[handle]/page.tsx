@@ -24,7 +24,16 @@ const clubLinkFinishes = [
   { name: "Gunmetal", swatchClassName: "is-gunmetal" },
 ];
 
+const ballMarkerFinishes = [
+  { name: "Polished Silver", swatchClassName: "is-silver" },
+  { name: "Brushed Black", swatchClassName: "is-black" },
+  { name: "Copper", swatchClassName: "is-copper" },
+  { name: "Champagne Gold", swatchClassName: "is-gold" },
+];
+
 const clubLinkDesignStyles = ["Classic", "Modern", "Initials", "Minimal"];
+
+const ballMarkerDesignStyles = ["Classic", "Logo", "Initials", "Event"];
 
 const clubLinkHighlights = [
   {
@@ -45,6 +54,25 @@ const clubLinkHighlights = [
   },
 ];
 
+const ballMarkerHighlights = [
+  {
+    title: "Premium Quality",
+    copy: "Polished metal finishes",
+  },
+  {
+    title: "Custom Engraved",
+    copy: "Logos, names, or artwork",
+  },
+  {
+    title: "Gift Ready",
+    copy: "Great for events and groups",
+  },
+  {
+    title: "Built To Last",
+    copy: "Durable everyday marker",
+  },
+];
+
 const clubLinkInfoPanels = [
   {
     title: "Description",
@@ -55,6 +83,28 @@ const clubLinkInfoPanels = [
     title: "Specifications",
     copy:
       "Placeholder specs: metal finish options, engraved name or phone number, optional initials, and sizing details to be finalized per product.",
+  },
+  {
+    title: "Reviews",
+    copy: "Placeholder review summary until review data is connected.",
+  },
+  {
+    title: "Shipping & Returns",
+    copy:
+      "Custom orders are handled by inquiry for now. Shipping timing and return details will be confirmed before production.",
+  },
+];
+
+const ballMarkerInfoPanels = [
+  {
+    title: "Description",
+    copy:
+      "Custom ball markers are circular engraved golf accessories designed for logos, initials, event branding, and personal artwork. This placeholder section will later pull richer product copy from Shopify.",
+  },
+  {
+    title: "Specifications",
+    copy:
+      "Placeholder specs: metal finish options, engraved logo or text, optional event details, and sizing details to be finalized per product.",
   },
   {
     title: "Reviews",
@@ -104,6 +154,24 @@ function isClubLinkProduct(product: ProductSummary, categoryTitle?: string): boo
   );
 }
 
+function isBallMarkerProduct(product: ProductSummary, categoryTitle?: string): boolean {
+  const collectionKeys = [
+    product.categorySlug,
+    categoryTitle,
+    ...(product.collectionHandles ?? []),
+    ...(product.collectionTitles ?? []),
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.toLowerCase());
+
+  return collectionKeys.some(
+    (value) =>
+      value === "ball-markers" ||
+      value === "ball markers" ||
+      value.includes("ball marker"),
+  );
+}
+
 function ProductImage({
   product,
   className,
@@ -127,11 +195,33 @@ function ProductImage({
 function ClubLinkProductDetail({
   product,
   categoryTitle,
+  variant = "club-link",
 }: {
   product: ProductSummary;
   categoryTitle?: string;
+  variant?: "club-link" | "ball-marker";
 }) {
   const priceLabel = getDisplayPriceLabel(product.priceLabel);
+  const isBallMarker = variant === "ball-marker";
+  const productTypeLabel = isBallMarker ? "Ball Markers" : "Club Links";
+  const finishes = isBallMarker ? ballMarkerFinishes : clubLinkFinishes;
+  const designStyles = isBallMarker ? ballMarkerDesignStyles : clubLinkDesignStyles;
+  const highlights = isBallMarker ? ballMarkerHighlights : clubLinkHighlights;
+  const infoPanels = isBallMarker ? ballMarkerInfoPanels : clubLinkInfoPanels;
+  const introCopy = isBallMarker
+    ? "Custom engraved ball markers made for logos, initials, events, and personal artwork with a clean circular finish. Final options and availability will be confirmed by inquiry."
+    : "Custom engraved Club Links made to personalize the top of your golf grip with a clean, durable finish. Final options and availability will be confirmed by inquiry.";
+  const customizationFields = isBallMarker
+    ? [
+        { label: "Name / Text", placeholder: "e.g., John Smith" },
+        { label: "Event / Organization", placeholder: "e.g., Member Guest" },
+        { label: "Initials / Short Text", placeholder: "e.g., JS" },
+      ]
+    : [
+        { label: "Name", placeholder: "e.g., John Smith" },
+        { label: "Phone Number", placeholder: "e.g., (800) 123-4561" },
+        { label: "Initials / Short Text", placeholder: "e.g., JS" },
+      ];
 
   return (
     <>
@@ -147,8 +237,8 @@ function ClubLinkProductDetail({
               </div>
             ))}
           </div>
-          <div className="club-link-highlights" aria-label="Club Links highlights">
-            {clubLinkHighlights.map((highlight) => (
+          <div className="club-link-highlights" aria-label={`${productTypeLabel} highlights`}>
+            {highlights.map((highlight) => (
               <div key={highlight.title} className="club-link-highlight">
                 <span aria-hidden="true" />
                 <div>
@@ -164,10 +254,7 @@ function ClubLinkProductDetail({
           {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
           <h1>{product.title}</h1>
           <p className="club-link-price">{priceLabel}</p>
-          <p className="club-link-intro">
-            Custom engraved Club Links made to personalize the top of your golf grip with a
-            clean, durable finish. Final options and availability will be confirmed by inquiry.
-          </p>
+          <p className="club-link-intro">{introCopy}</p>
           <div className="club-link-reviews" aria-label="Placeholder product reviews">
             <span aria-hidden="true">* * * * *</span>
             <strong>5.0</strong>
@@ -177,7 +264,7 @@ function ClubLinkProductDetail({
           <section className="club-link-option-block" aria-labelledby="club-link-finish-heading">
             <h2 id="club-link-finish-heading">Select Finish</h2>
             <div className="club-link-finish-grid">
-              {clubLinkFinishes.map((finish) => (
+              {finishes.map((finish) => (
                 <div key={finish.name} className="club-link-finish">
                   <span className={`club-link-swatch ${finish.swatchClassName}`} />
                   <span>{finish.name}</span>
@@ -193,22 +280,16 @@ function ClubLinkProductDetail({
             <div className="club-link-customizer-main">
               <h2 id="club-link-customizer-heading">Customize Your Design</h2>
               <div className="club-link-customizer-grid">
-                <div className="club-link-field">
-                  <span>Name</span>
-                  <p>e.g., John Smith</p>
-                </div>
-                <div className="club-link-field">
-                  <span>Phone Number</span>
-                  <p>e.g., (800) 123-4561</p>
-                </div>
-                <div className="club-link-field">
-                  <span>Initials / Short Text</span>
-                  <p>e.g., JS</p>
-                </div>
+                {customizationFields.map((field) => (
+                  <div key={field.label} className="club-link-field">
+                    <span>{field.label}</span>
+                    <p>{field.placeholder}</p>
+                  </div>
+                ))}
                 <div className="club-link-style-group">
                   <span>Design Style</span>
                   <div className="club-link-style-grid">
-                    {clubLinkDesignStyles.map((style) => (
+                    {designStyles.map((style) => (
                       <div key={style} className="club-link-style">
                         {style}
                       </div>
@@ -237,7 +318,7 @@ function ClubLinkProductDetail({
               </div>
             </div>
 
-            <aside className="club-link-preview" aria-label="Club Links live preview placeholder">
+            <aside className="club-link-preview" aria-label={`${productTypeLabel} live preview placeholder`}>
               <h2>Live Preview</h2>
               <div className="club-link-preview-image">
                 <ProductImage product={product} className={styles.detailImage} />
@@ -248,8 +329,8 @@ function ClubLinkProductDetail({
         </div>
       </article>
 
-      <section className="club-link-info-panels" aria-label="Club Links product information">
-        {clubLinkInfoPanels.map((panel) => (
+      <section className="club-link-info-panels" aria-label={`${productTypeLabel} product information`}>
+        {infoPanels.map((panel) => (
           <article key={panel.title} className="club-link-info-panel">
             <h2>{panel.title}</h2>
             <p>{panel.copy}</p>
@@ -306,8 +387,12 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         &lt;- Back To Collection
       </Link>
 
-      {isClubLinkProduct(product, categoryTitle) ? (
-        <ClubLinkProductDetail product={product} categoryTitle={categoryTitle} />
+      {isClubLinkProduct(product, categoryTitle) || isBallMarkerProduct(product, categoryTitle) ? (
+        <ClubLinkProductDetail
+          product={product}
+          categoryTitle={categoryTitle}
+          variant={isBallMarkerProduct(product, categoryTitle) ? "ball-marker" : "club-link"}
+        />
       ) : (
         <>
           <article className="product-detail">
