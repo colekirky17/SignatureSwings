@@ -35,7 +35,13 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="container site-header-inner">
         <Link href="/" className="brand" onClick={() => setIsMenuOpen(false)}>
-          Signature Swings
+          <img
+            src="/images/signature-swings-white-script.png"
+            alt="Signature Swings"
+            className="brand-logo"
+            width="889"
+            height="270"
+          />
         </Link>
         <button
           ref={menuButtonRef}

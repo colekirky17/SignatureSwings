@@ -329,29 +329,178 @@
 
 .club-link-info-panels {
   display: grid;
-  gap: 0.7rem;
-  margin-top: 1.6rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 0.8rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: rgba(9, 19, 15, 0.9);
 }
 
 .club-link-info-panel {
-  padding: 1rem 1.1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.45rem;
-  background: rgba(9, 19, 15, 0.78);
+  min-height: 7.65rem;
+  padding: 1rem;
+  border-right: 1px solid var(--border);
+  background: rgba(7, 17, 13, 0.72);
+}
+
+.club-link-info-panel:last-child {
+  border-right: 0;
+}
+
+.club-link-info-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.club-link-info-icon {
+  display: inline-flex;
+  width: 1.55rem;
+  height: 1.55rem;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: 1px solid rgba(120, 184, 70, 0.55);
+  border-radius: 999px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .club-link-info-panel h2 {
   color: var(--text);
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .club-link-info-panel p {
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.club-link-panel-rating {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: 0.75rem;
+}
+
+.club-link-panel-rating span {
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.club-link-panel-rating strong {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.club-link-upsell {
+  margin-top: clamp(2rem, 3.5vw, 3.2rem);
+  padding: clamp(1.2rem, 2.5vw, 1.7rem);
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background:
+    linear-gradient(180deg, rgba(16, 39, 27, 0.9), rgba(7, 17, 13, 0.92)),
+    #09130f;
+}
+
+.club-link-upsell-heading {
+  text-align: center;
+}
+
+.club-link-upsell-heading h2 {
+  font-size: clamp(1.45rem, 2.3vw, 1.95rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.club-link-upsell-heading p {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.club-link-upsell-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.8rem, 2vw, 1.7rem);
+  margin-top: 1.25rem;
+}
+
+.club-link-upsell-card {
+  overflow: hidden;
+  border: 1px solid rgba(39, 54, 47, 0.9);
+  border-radius: 0.45rem;
+  background: #07110d;
+}
+
+.club-link-upsell-media {
+  display: flex;
+  min-height: clamp(6rem, 10vw, 8.3rem);
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(218, 219, 214, 0.28), transparent 34%),
+    linear-gradient(135deg, rgba(218, 219, 214, 0.18), rgba(120, 184, 70, 0.07)),
+    #17231d;
+  color: rgba(245, 247, 242, 0.76);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.club-link-upsell-body {
+  padding: 0.9rem;
+}
+
+.club-link-upsell-body h3 {
+  color: var(--text);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.club-link-upsell-body p {
+  min-height: 2.8rem;
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.club-link-upsell-body strong {
+  display: block;
+  margin-top: 0.55rem;
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
+.club-link-upsell-action {
+  display: inline-flex;
+  width: 100%;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.75rem;
+  border: 1px solid rgba(120, 184, 70, 0.8);
+  border-radius: 0.28rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 @media (max-width: 640px) {
@@ -391,6 +540,21 @@
 
   .club-link-upload-placeholder {
     min-width: 0;
+  }
+
+  .club-link-upsell-grid,
+  .club-link-info-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .club-link-info-panel {
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .club-link-info-panel:last-child {
+    border-bottom: 0;
   }
 
 }

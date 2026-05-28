@@ -38,44 +38,89 @@ const ballMarkerDesignStyles = ["Classic", "Logo", "Initials", "Event"];
 const clubLinkInfoPanels = [
   {
     title: "Description",
+    icon: "i",
     copy:
       "Club Links are personalized golf club ID tags designed to add a clean custom detail to your grip. This placeholder section will later pull richer product copy from Shopify.",
   },
   {
-    title: "Specifications",
+    title: "Customization Details",
+    icon: "c",
     copy:
-      "Placeholder specs: metal finish options, engraved name or phone number, optional initials, and sizing details to be finalized per product.",
-  },
-  {
-    title: "Reviews",
-    copy: "Placeholder review summary until review data is connected.",
+      "Engraved with your name, phone number, initials, or logo. Made to fit securely on top of your golf grip.",
   },
   {
     title: "Shipping & Returns",
+    icon: "s",
     copy:
-      "Custom orders are handled by inquiry for now. Shipping timing and return details will be confirmed before production.",
+      "Free shipping on orders over $75. Custom products are non-returnable unless there is a defect.",
+  },
+  {
+    title: "Reviews",
+    icon: "r",
+    copy: "See what golfers are saying about Signature Swings.",
+    rating: "5.0 (24 reviews)",
   },
 ];
 
 const ballMarkerInfoPanels = [
   {
     title: "Description",
+    icon: "i",
     copy:
       "Custom ball markers are circular engraved golf accessories designed for logos, initials, event branding, and personal artwork. This placeholder section will later pull richer product copy from Shopify.",
   },
   {
-    title: "Specifications",
+    title: "Customization Details",
+    icon: "c",
     copy:
-      "Placeholder specs: metal finish options, engraved logo or text, optional event details, and sizing details to be finalized per product.",
-  },
-  {
-    title: "Reviews",
-    copy: "Placeholder review summary until review data is connected.",
+      "Add a logo, initials, event mark, or short line of text. Artwork will be confirmed before production.",
   },
   {
     title: "Shipping & Returns",
+    icon: "s",
     copy:
-      "Custom orders are handled by inquiry for now. Shipping timing and return details will be confirmed before production.",
+      "Free shipping on orders over $75. Custom products are non-returnable unless there is a defect.",
+  },
+  {
+    title: "Reviews",
+    icon: "r",
+    copy: "See what golfers are saying about Signature Swings.",
+    rating: "5.0 (24 reviews)",
+  },
+];
+
+const setupUpsells = [
+  {
+    title: "Custom Divot Tool",
+    copy: "Precision engraved tool to match your custom set.",
+    price: "$29.99",
+    cta: "Add To Cart",
+    href: "/shop/premium-divot-repair-tool",
+    imageLabel: "Divot tool",
+  },
+  {
+    title: "Custom Ball Markers",
+    copy: "Add matching markers to complete your set.",
+    price: "$24.99",
+    cta: "Add To Cart",
+    href: "/shop/custom-ball-marker",
+    imageLabel: "Ball markers",
+  },
+  {
+    title: "Gift Set Bundle",
+    copy: "Club Links, divot tool, and ball marker in a premium box.",
+    price: "$129.99",
+    cta: "View Bundle",
+    href: "/shop/signature-bundle",
+    imageLabel: "Gift bundle",
+  },
+  {
+    title: "Need 10 Or More?",
+    copy: "Get custom pricing for tournaments, events, or group gifts.",
+    price: "",
+    cta: "Request Bulk Order",
+    href: "/contact",
+    imageLabel: "Bulk order",
   },
 ];
 
@@ -281,10 +326,45 @@ function ClubLinkProductDetail({
         </div>
       </article>
 
+      <section className="club-link-upsell" aria-labelledby="club-link-upsell-heading">
+        <div className="club-link-upsell-heading">
+          <h2 id="club-link-upsell-heading">Complete Your Golf Setup</h2>
+          <p>Add matching accessories and make it a complete set.</p>
+        </div>
+        <div className="club-link-upsell-grid">
+          {setupUpsells.map((item) => (
+            <article key={item.title} className="club-link-upsell-card">
+              <div className="club-link-upsell-media" aria-hidden="true">
+                <span>{item.imageLabel}</span>
+              </div>
+              <div className="club-link-upsell-body">
+                <h3>{item.title}</h3>
+                <p>{item.copy}</p>
+                {item.price ? <strong>{item.price}</strong> : null}
+                <Link href={item.href} className="club-link-upsell-action">
+                  {item.cta}
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
       <section className="club-link-info-panels" aria-label={`${productTypeLabel} product information`}>
         {infoPanels.map((panel) => (
           <article key={panel.title} className="club-link-info-panel">
-            <h2>{panel.title}</h2>
+            <div className="club-link-info-heading">
+              <span className={`club-link-info-icon is-${panel.icon}`} aria-hidden="true">
+                {panel.icon}
+              </span>
+              <h2>{panel.title}</h2>
+            </div>
+            {panel.rating ? (
+              <div className="club-link-panel-rating" aria-label={`Rated ${panel.rating}`}>
+                <span aria-hidden="true">* * * * *</span>
+                <strong>{panel.rating}</strong>
+              </div>
+            ) : null}
             <p>{panel.copy}</p>
           </article>
         ))}
