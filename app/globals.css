@@ -1392,16 +1392,29 @@ p {
 }
 
 .product-detail-page {
-  padding: 2.8rem 0 4rem;
+  padding: 1.65rem 0 4rem;
 }
 
 .product-detail-back-link {
   display: inline-flex;
-  margin-bottom: 2rem;
+  min-height: 2.45rem;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1.25rem;
+  padding: 0 0.85rem;
+  border: 1px solid #31463b;
+  border-radius: 999px;
+  background: #09130f;
   color: var(--accent);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 700;
   text-transform: uppercase;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+.product-detail-back-link:hover {
+  border-color: var(--accent);
+  background: var(--surface);
 }
 
 .product-detail {
@@ -1975,7 +1988,7 @@ p {
   }
 
   .product-detail-page {
-    padding: 2rem 0 3rem;
+    padding: 1rem 0 3rem;
   }
 
   .product-detail {

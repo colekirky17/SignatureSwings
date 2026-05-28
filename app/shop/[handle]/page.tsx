@@ -35,44 +35,6 @@ const clubLinkDesignStyles = ["Classic", "Modern", "Initials", "Minimal"];
 
 const ballMarkerDesignStyles = ["Classic", "Logo", "Initials", "Event"];
 
-const clubLinkHighlights = [
-  {
-    title: "Premium Quality",
-    copy: "High-grade materials",
-  },
-  {
-    title: "Custom Engraved",
-    copy: "Your details, your style",
-  },
-  {
-    title: "Secure Fit",
-    copy: "Made to sit flush in the grip",
-  },
-  {
-    title: "Built To Last",
-    copy: "Durable and corrosion resistant",
-  },
-];
-
-const ballMarkerHighlights = [
-  {
-    title: "Premium Quality",
-    copy: "Polished metal finishes",
-  },
-  {
-    title: "Custom Engraved",
-    copy: "Logos, names, or artwork",
-  },
-  {
-    title: "Gift Ready",
-    copy: "Great for events and groups",
-  },
-  {
-    title: "Built To Last",
-    copy: "Durable everyday marker",
-  },
-];
-
 const clubLinkInfoPanels = [
   {
     title: "Description",
@@ -206,15 +168,14 @@ function ClubLinkProductDetail({
   const productTypeLabel = isBallMarker ? "Ball Markers" : "Club Links";
   const finishes = isBallMarker ? ballMarkerFinishes : clubLinkFinishes;
   const designStyles = isBallMarker ? ballMarkerDesignStyles : clubLinkDesignStyles;
-  const highlights = isBallMarker ? ballMarkerHighlights : clubLinkHighlights;
   const infoPanels = isBallMarker ? ballMarkerInfoPanels : clubLinkInfoPanels;
   const introCopy = isBallMarker
     ? "Custom engraved ball markers made for logos, initials, events, and personal artwork with a clean circular finish. Final options and availability will be confirmed by inquiry."
     : "Custom engraved Club Links made to personalize the top of your golf grip with a clean, durable finish. Final options and availability will be confirmed by inquiry.";
   const customizationFields = isBallMarker
     ? [
-        { label: "Name / Text", placeholder: "e.g., John Smith" },
-        { label: "Event / Organization", placeholder: "e.g., Member Guest" },
+        { label: "Name", placeholder: "e.g., John Smith" },
+        { label: "Phone Number", placeholder: "e.g., (800) 123-4561" },
         { label: "Initials / Short Text", placeholder: "e.g., JS" },
       ]
     : [
@@ -234,17 +195,6 @@ function ClubLinkProductDetail({
             {[0, 1, 2].map((item) => (
               <div key={item} className="club-link-thumbnail">
                 <ProductImage product={product} className={styles.detailImage} />
-              </div>
-            ))}
-          </div>
-          <div className="club-link-highlights" aria-label={`${productTypeLabel} highlights`}>
-            {highlights.map((highlight) => (
-              <div key={highlight.title} className="club-link-highlight">
-                <span aria-hidden="true" />
-                <div>
-                  <h2>{highlight.title}</h2>
-                  <p>{highlight.copy}</p>
-                </div>
               </div>
             ))}
           </div>
@@ -308,23 +258,25 @@ function ClubLinkProductDetail({
                 <span>Additional Notes</span>
                 <p>Any special requests or instructions...</p>
               </div>
+              <p className="club-link-action-helper">
+                Enter your customization details before checkout. A preview tool will be added soon
+                so you can review your design before ordering.
+              </p>
               <div className="club-link-actions">
-                <Link href="/contact" className="club-link-primary-action">
-                  Start An Inquiry
-                </Link>
+                <button type="button" className="club-link-primary-action">
+                  ADD TO CART
+                </button>
                 <Link href="/contact" className="club-link-secondary-action">
-                  Request Bulk Order
+                  REQUEST BULK ORDER
                 </Link>
+                <button type="button" className="club-link-preview-action" disabled>
+                  GENERATE DESIGN PREVIEW
+                </button>
+              </div>
+              <div className="club-link-preview-note">
+                Design preview generation coming soon.
               </div>
             </div>
-
-            <aside className="club-link-preview" aria-label={`${productTypeLabel} live preview placeholder`}>
-              <h2>Live Preview</h2>
-              <div className="club-link-preview-image">
-                <ProductImage product={product} className={styles.detailImage} />
-              </div>
-              <p>Preview is approximate. Final engraving may vary slightly.</p>
-            </aside>
           </section>
         </div>
       </article>
@@ -384,7 +336,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   return (
     <main className="product-detail-page">
       <Link href="/shop" className="product-detail-back-link">
-        &lt;- Back To Collection
+        Back To Shop
       </Link>
 
       {isClubLinkProduct(product, categoryTitle) || isBallMarkerProduct(product, categoryTitle) ? (
