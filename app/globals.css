@@ -1186,8 +1186,9 @@ p {
 }
 
 .faq-header {
-  max-width: 47rem;
-  margin-bottom: 2.5rem;
+  max-width: 54rem;
+  margin: 0 auto 2.75rem;
+  text-align: center;
 }
 
 .faq-header h1 {
@@ -1201,6 +1202,9 @@ p {
 
 .faq-intro {
   margin-top: 1.2rem;
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 48rem;
   color: var(--muted);
   font-size: 1.02rem;
   line-height: 1.65;
@@ -1208,15 +1212,39 @@ p {
 
 .faq-list {
   display: grid;
-  gap: 0.85rem;
-  max-width: 54rem;
-  margin: 0;
+  gap: 1rem;
+  max-width: 62rem;
+  margin: 0 auto;
+}
+
+.faq-list .faq-item {
+  border-color: rgba(120, 184, 70, 0.24);
+  background:
+    linear-gradient(180deg, rgba(4, 9, 7, 0.98), rgba(1, 4, 3, 0.98)),
+    #020403;
+  box-shadow: 0 1.2rem 3rem rgba(0, 0, 0, 0.22);
 }
 
 .faq-list h2 {
-  color: var(--text);
-  font-size: 1.08rem;
-  line-height: 1.4;
+  color: #ffffff;
+  font-size: 1.13rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+}
+
+.faq-list h2::after {
+  display: block;
+  width: 2.5rem;
+  height: 0.12rem;
+  margin-top: 0.7rem;
+  border-radius: 999px;
+  background: var(--accent);
+  content: "";
+}
+
+.faq-list .faq-item p {
+  color: #c2cdc5;
 }
 
 .about-page {

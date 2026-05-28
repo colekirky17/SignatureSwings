@@ -197,6 +197,219 @@
   background: rgba(9, 19, 15, 0.78);
 }
 
+.club-link-customizer-main {
+  display: block;
+}
+
+.club-link-required-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.9rem;
+}
+
+.club-link-input-field,
+.club-link-textarea-field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.club-link-input-field span,
+.club-link-textarea-field span,
+.club-link-font-style-block legend,
+.club-link-method-block legend,
+.club-link-personalization-panel h3 {
+  color: var(--text);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.club-link-input-field strong,
+.club-link-textarea-field strong {
+  color: var(--accent);
+}
+
+.club-link-input-field input,
+.club-link-textarea-field textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: #07110d;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.club-link-input-field input {
+  min-height: 3.05rem;
+  padding: 0 0.75rem;
+}
+
+.club-link-textarea-field textarea {
+  min-height: 8rem;
+  resize: vertical;
+  padding: 0.8rem 0.75rem;
+  line-height: 1.45;
+}
+
+.club-link-input-field input::placeholder,
+.club-link-textarea-field textarea::placeholder {
+  color: #78867d;
+}
+
+.club-link-input-field input:focus,
+.club-link-textarea-field textarea:focus {
+  border-color: rgba(120, 184, 70, 0.85);
+  box-shadow: 0 0 0 2px rgba(120, 184, 70, 0.14);
+}
+
+.club-link-method-block,
+.club-link-font-style-block {
+  min-width: 0;
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.club-link-method-block legend {
+  color: var(--accent);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.club-link-method-block > p,
+.club-link-method-helper {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.club-link-method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.club-link-method-card {
+  display: grid;
+  min-height: 6.1rem;
+  align-content: start;
+  gap: 0.35rem;
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: #07110d;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.club-link-method-card.is-selected {
+  border-color: var(--accent);
+  background: rgba(120, 184, 70, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(120, 184, 70, 0.2);
+}
+
+.club-link-method-radio {
+  width: 0.9rem;
+  height: 0.9rem;
+  border: 1px solid #78867d;
+  border-radius: 999px;
+}
+
+.club-link-method-card.is-selected .club-link-method-radio {
+  border: 0.25rem solid var(--accent);
+}
+
+.club-link-method-label {
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.club-link-method-summary {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.club-link-personalization-panel {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: rgba(7, 17, 13, 0.72);
+}
+
+.club-link-personalization-panel h3 {
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.club-link-font-style-block legend {
+  margin-bottom: 0.6rem;
+  text-transform: none;
+}
+
+.club-link-font-style-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.club-link-font-style,
+.club-link-upload-coming-soon {
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: #09130f;
+}
+
+.club-link-font-style {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.club-link-font-style.is-selected {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.club-link-upload-coming-soon {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.9rem;
+}
+
+.club-link-upload-coming-soon span {
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.club-link-upload-coming-soon p {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 .club-link-customizer-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
@@ -299,6 +512,11 @@
   color: #08120e;
 }
 
+.club-link-primary-action:disabled {
+  opacity: 0.52;
+  cursor: not-allowed;
+}
+
 .club-link-secondary-action {
   border: 1px solid var(--border);
   color: var(--text);
@@ -307,8 +525,18 @@
 .club-link-preview-action {
   border-color: #31463b;
   background: #09130f;
+  color: var(--text);
+}
+
+.club-link-preview-action:disabled {
   color: var(--muted);
+  opacity: 0.62;
   cursor: not-allowed;
+}
+
+.club-link-preview-action:not(:disabled) {
+  border-color: rgba(120, 184, 70, 0.72);
+  cursor: pointer;
 }
 
 .club-link-action-helper,
@@ -507,7 +735,9 @@
   .club-link-detail,
   .club-link-gallery,
   .club-link-customizer,
+  .club-link-required-grid,
   .club-link-customizer-grid,
+  .club-link-method-grid,
   .club-link-actions {
     grid-template-columns: 1fr;
   }
@@ -525,7 +755,8 @@
   }
 
   .club-link-finish-grid,
-  .club-link-style-grid {
+  .club-link-style-grid,
+  .club-link-font-style-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

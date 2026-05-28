@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import styles from "../../../components/catalog-product-media.module.css";
+import { ProductCustomizationForm } from "../../../components/product-customization-form";
 import {
   getAllProducts,
   getProductByHandle,
@@ -17,21 +18,12 @@ type ProductDetailPageProps = {
   params: Promise<{ handle: string }>;
 };
 
-const clubLinkFinishes = [
-  { name: "Satin Silver", swatchClassName: "is-silver" },
-  { name: "Brushed Black", swatchClassName: "is-black" },
-  { name: "Champagne Gold", swatchClassName: "is-gold" },
-  { name: "Gunmetal", swatchClassName: "is-gunmetal" },
-];
-
 const ballMarkerFinishes = [
   { name: "Polished Silver", swatchClassName: "is-silver" },
   { name: "Brushed Black", swatchClassName: "is-black" },
   { name: "Copper", swatchClassName: "is-copper" },
   { name: "Champagne Gold", swatchClassName: "is-gold" },
 ];
-
-const clubLinkDesignStyles = ["Classic", "Modern", "Initials", "Minimal"];
 
 const ballMarkerDesignStyles = ["Classic", "Logo", "Initials", "Event"];
 
@@ -211,8 +203,8 @@ function ClubLinkProductDetail({
   const priceLabel = getDisplayPriceLabel(product.priceLabel);
   const isBallMarker = variant === "ball-marker";
   const productTypeLabel = isBallMarker ? "Ball Markers" : "Club Links";
-  const finishes = isBallMarker ? ballMarkerFinishes : clubLinkFinishes;
-  const designStyles = isBallMarker ? ballMarkerDesignStyles : clubLinkDesignStyles;
+  const finishes = ballMarkerFinishes;
+  const designStyles = ballMarkerDesignStyles;
   const infoPanels = isBallMarker ? ballMarkerInfoPanels : clubLinkInfoPanels;
   const introCopy = isBallMarker
     ? "Custom engraved ball markers made for logos, initials, events, and personal artwork with a clean circular finish. Final options and availability will be confirmed by inquiry."
@@ -256,73 +248,79 @@ function ClubLinkProductDetail({
             <span>(24 reviews)</span>
           </div>
 
-          <section className="club-link-option-block" aria-labelledby="club-link-finish-heading">
-            <h2 id="club-link-finish-heading">Select Finish</h2>
-            <div className="club-link-finish-grid">
-              {finishes.map((finish) => (
-                <div key={finish.name} className="club-link-finish">
-                  <span className={`club-link-swatch ${finish.swatchClassName}`} />
-                  <span>{finish.name}</span>
+          {isBallMarker ? (
+            <>
+              <section className="club-link-option-block" aria-labelledby="club-link-finish-heading">
+                <h2 id="club-link-finish-heading">Select Finish</h2>
+                <div className="club-link-finish-grid">
+                  {finishes.map((finish) => (
+                    <div key={finish.name} className="club-link-finish">
+                      <span className={`club-link-swatch ${finish.swatchClassName}`} />
+                      <span>{finish.name}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
+              </section>
 
-          <section
-            className="club-link-customizer"
-            aria-labelledby="club-link-customizer-heading"
-          >
-            <div className="club-link-customizer-main">
-              <h2 id="club-link-customizer-heading">Customize Your Design</h2>
-              <div className="club-link-customizer-grid">
-                {customizationFields.map((field) => (
-                  <div key={field.label} className="club-link-field">
-                    <span>{field.label}</span>
-                    <p>{field.placeholder}</p>
-                  </div>
-                ))}
-                <div className="club-link-style-group">
-                  <span>Design Style</span>
-                  <div className="club-link-style-grid">
-                    {designStyles.map((style) => (
-                      <div key={style} className="club-link-style">
-                        {style}
+              <section
+                className="club-link-customizer"
+                aria-labelledby="club-link-customizer-heading"
+              >
+                <div className="club-link-customizer-main">
+                  <h2 id="club-link-customizer-heading">Customize Your Design</h2>
+                  <div className="club-link-customizer-grid">
+                    {customizationFields.map((field) => (
+                      <div key={field.label} className="club-link-field">
+                        <span>{field.label}</span>
+                        <p>{field.placeholder}</p>
                       </div>
                     ))}
+                    <div className="club-link-style-group">
+                      <span>Design Style</span>
+                      <div className="club-link-style-grid">
+                        {designStyles.map((style) => (
+                          <div key={style} className="club-link-style">
+                            {style}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="club-link-logo-row">
+                    <div>
+                      <span>Upload Your Logo</span>
+                      <p>PNG, JPG, or SVG placeholder</p>
+                    </div>
+                    <div className="club-link-upload-placeholder">Upload Image</div>
+                  </div>
+                  <div className="club-link-notes">
+                    <span>Additional Notes</span>
+                    <p>Any special requests or instructions...</p>
+                  </div>
+                  <p className="club-link-action-helper">
+                    Enter your customization details before checkout. A preview tool will be added
+                    soon so you can review your design before ordering.
+                  </p>
+                  <div className="club-link-actions">
+                    <button type="button" className="club-link-primary-action">
+                      ADD TO CART
+                    </button>
+                    <Link href="/contact" className="club-link-secondary-action">
+                      REQUEST BULK ORDER
+                    </Link>
+                    <button type="button" className="club-link-preview-action" disabled>
+                      GENERATE DESIGN PREVIEW
+                    </button>
+                  </div>
+                  <div className="club-link-preview-note">
+                    Design preview generation coming soon.
                   </div>
                 </div>
-              </div>
-              <div className="club-link-logo-row">
-                <div>
-                  <span>Upload Your Logo</span>
-                  <p>PNG, JPG, or SVG placeholder</p>
-                </div>
-                <div className="club-link-upload-placeholder">Upload Image</div>
-              </div>
-              <div className="club-link-notes">
-                <span>Additional Notes</span>
-                <p>Any special requests or instructions...</p>
-              </div>
-              <p className="club-link-action-helper">
-                Enter your customization details before checkout. A preview tool will be added soon
-                so you can review your design before ordering.
-              </p>
-              <div className="club-link-actions">
-                <button type="button" className="club-link-primary-action">
-                  ADD TO CART
-                </button>
-                <Link href="/contact" className="club-link-secondary-action">
-                  REQUEST BULK ORDER
-                </Link>
-                <button type="button" className="club-link-preview-action" disabled>
-                  GENERATE DESIGN PREVIEW
-                </button>
-              </div>
-              <div className="club-link-preview-note">
-                Design preview generation coming soon.
-              </div>
-            </div>
-          </section>
+              </section>
+            </>
+          ) : (
+            <ProductCustomizationForm productLabel="Club Links" />
+          )}
         </div>
       </article>
 
