@@ -30,3 +30,17 @@ npm start
 
 Railway can detect this as a Node/Next.js app from `package.json`. The production build command is
 `npm run build` and the start command is `npm start`.
+
+## Contact Email
+
+The contact form sends internal inquiry emails through Resend. Configure these server-only
+environment variables in Railway:
+
+```bash
+RESEND_API_KEY=
+CONTACT_FROM_EMAIL=
+CONTACT_TO_EMAIL=
+```
+
+`CONTACT_FROM_EMAIL` must use a domain verified in Resend. None of these variables should use a
+`NEXT_PUBLIC_` prefix.

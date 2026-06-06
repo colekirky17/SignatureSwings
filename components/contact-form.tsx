@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useState } from "react";
 
 const inquiryTypes = [
   "Product question",
@@ -18,6 +18,7 @@ type ContactFormState = {
   phone: string;
   inquiryType: string;
   message: string;
+  website: string;
 };
 
 const initialFormState: ContactFormState = {
@@ -26,47 +27,54 @@ const initialFormState: ContactFormState = {
   phone: "",
   inquiryType: "",
   message: "",
+  website: "",
 };
-
-function buildMailtoHref(formState: ContactFormState, fileName: string) {
-  const subjectDetail = formState.inquiryType || "Website inquiry";
-  const subject = `Signature Swings ${subjectDetail}`;
-  const body = [
-    `Name: ${formState.name}`,
-    `Email: ${formState.email}`,
-    `Phone: ${formState.phone || "Not provided"}`,
-    `Inquiry type: ${formState.inquiryType || "Not selected"}`,
-    fileName ? `Artwork/file selected: ${fileName}` : "Artwork/file selected: None",
-    "",
-    "Message:",
-    formState.message,
-  ].join("\n");
-
-  return `mailto:${supportEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
 
 export function ContactForm() {
   const [formState, setFormState] = useState<ContactFormState>(initialFormState);
-  const [fileName, setFileName] = useState("");
-  const [hasOpenedDraft, setHasOpenedDraft] = useState(false);
-
-  const mailtoHref = useMemo(
-    () => buildMailtoHref(formState, fileName),
-    [fileName, formState],
-  );
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
 
   function updateField(field: keyof ContactFormState, value: string) {
     setFormState((currentState) => ({
       ...currentState,
       [field]: value,
     }));
-    setHasOpenedDraft(false);
+    setSubmitStatus("idle");
+    setSubmitMessage("");
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setHasOpenedDraft(true);
-    window.location.href = mailtoHref;
+    setSubmitStatus("submitting");
+    setSubmitMessage("");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formState),
+      });
+      const result = (await response.json()) as {
+        sent?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok || !result.sent) {
+        throw new Error(result.message || "We could not send your message.");
+      }
+
+      setFormState(initialFormState);
+      setSubmitStatus("success");
+      setSubmitMessage("Thanks. Your message was sent to the Signature Swings team.");
+    } catch (error) {
+      setSubmitStatus("error");
+      setSubmitMessage(
+        error instanceof Error ? error.message : "We could not send your message.",
+      );
+    }
   }
 
   return (
@@ -132,38 +140,47 @@ export function ContactForm() {
         </label>
       </div>
 
-      <label className="contact-file-drop">
+      <label className="contact-honeypot" aria-hidden="true">
+        <span>Website</span>
         <input
-          type="file"
-          accept=".jpg,.jpeg,.png,.pdf,.svg"
-          onChange={(event) => {
-            setFileName(event.target.files?.[0]?.name ?? "");
-            setHasOpenedDraft(false);
-          }}
+          type="text"
+          name="website"
+          value={formState.website}
+          tabIndex={-1}
+          autoComplete="off"
+          onChange={(event) => updateField("website", event.target.value)}
         />
-        <span className="contact-file-icon" aria-hidden="true">
-          ^
-        </span>
-        <span>{fileName || "Drag and drop a file here"}</span>
-        <strong>or click to browse</strong>
-        <small>Accepted formats: JPG, PNG, PDF, SVG. Attach selected files after the email draft opens.</small>
       </label>
 
       <div className="contact-form-note">
         <span aria-hidden="true">i</span>
         <p>
-          This opens a prefilled email draft for now. Online form submission will come later.
+          Artwork uploads are not available yet. We will reply by email if we need a logo or
+          reference file.
         </p>
       </div>
 
-      <button type="submit" className="contact-submit-button">
-        Open Email Draft
+      <button
+        type="submit"
+        className="contact-submit-button"
+        disabled={submitStatus === "submitting"}
+      >
+        {submitStatus === "submitting" ? "Sending..." : "Send Message"}
       </button>
 
-      {hasOpenedDraft ? (
-        <p className="contact-submit-status" role="status">
-          Your email draft should be opening. If it does not, email us directly at{" "}
-          <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
+      {submitMessage ? (
+        <p
+          className={`contact-submit-status is-${submitStatus}`}
+          role={submitStatus === "error" ? "alert" : "status"}
+        >
+          {submitMessage}
+          {submitStatus === "error" ? (
+            <>
+              {" "}
+              You can also email{" "}
+              <a href={`mailto:${supportEmail}`}>{supportEmail}</a>.
+            </>
+          ) : null}
         </p>
       ) : null}
     </form>

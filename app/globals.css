@@ -542,10 +542,31 @@ p {
   cursor: pointer;
 }
 
+.contact-submit-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.contact-honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
 .contact-submit-status {
   color: var(--muted);
   font-size: 0.84rem;
   line-height: 1.5;
+}
+
+.contact-submit-status.is-success {
+  color: var(--accent);
+}
+
+.contact-submit-status.is-error {
+  color: #e7a19a;
 }
 
 .contact-submit-status a {
