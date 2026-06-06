@@ -44,8 +44,8 @@ type ShopifyVariantNode = {
   sku: string | null;
   image: ProductImage | null;
   availableForSale: boolean;
-  quantityAvailable: number | null;
-  currentlyNotInStock: boolean;
+  quantityAvailable?: number | null;
+  currentlyNotInStock?: boolean;
 };
 
 type ShopifyProductNode = {
@@ -124,7 +124,6 @@ const PRODUCT_FIELDS = `
         height
       }
       availableForSale
-      quantityAvailable
       currentlyNotInStock
     }
   }
@@ -137,23 +136,36 @@ const PRODUCT_FIELDS = `
   }
 `;
 
-const PRODUCTS_QUERY = `
+const PRODUCT_FIELDS_WITH_QUANTITY = PRODUCT_FIELDS.replace(
+  "      currentlyNotInStock",
+  "      quantityAvailable\n      currentlyNotInStock",
+);
+const CORE_PRODUCT_FIELDS = PRODUCT_FIELDS.replace(
+  "      currentlyNotInStock\n",
+  "",
+);
+
+function buildProductsQuery(productFields: string): string {
+  return `
   query Products {
     products(first: 100, sortKey: TITLE) {
       nodes {
-        ${PRODUCT_FIELDS}
+        ${productFields}
       }
     }
   }
 `;
+}
 
-const PRODUCT_BY_HANDLE_QUERY = `
+function buildProductByHandleQuery(productFields: string): string {
+  return `
   query ProductByHandle($handle: String!) {
     product(handle: $handle) {
-      ${PRODUCT_FIELDS}
+      ${productFields}
     }
   }
 `;
+}
 
 const COLLECTIONS_QUERY = `
   query Collections {
@@ -167,7 +179,8 @@ const COLLECTIONS_QUERY = `
   }
 `;
 
-const COLLECTION_WITH_PRODUCTS_QUERY = `
+function buildCollectionWithProductsQuery(productFields: string): string {
+  return `
   query CollectionWithProducts($handle: String!) {
     collection(handle: $handle) {
       id
@@ -175,14 +188,16 @@ const COLLECTION_WITH_PRODUCTS_QUERY = `
       handle
       products(first: 100, sortKey: TITLE) {
         nodes {
-          ${PRODUCT_FIELDS}
+          ${productFields}
         }
       }
     }
   }
 `;
+}
 
-const COLLECTIONS_WITH_PRODUCTS_QUERY = `
+function buildCollectionsWithProductsQuery(productFields: string): string {
+  return `
   query CollectionsWithProducts {
     collections(first: 100, sortKey: TITLE) {
       nodes {
@@ -191,13 +206,14 @@ const COLLECTIONS_WITH_PRODUCTS_QUERY = `
         handle
         products(first: 100, sortKey: TITLE) {
           nodes {
-            ${PRODUCT_FIELDS}
+            ${productFields}
           }
         }
       }
     }
   }
 `;
+}
 
 function getStorefrontConfiguration(): StorefrontConfiguration | null {
   const domain = process.env.SHOPIFY_STORE_DOMAIN?.trim();
@@ -277,7 +293,10 @@ async function queryStorefront<T>(
     const result = (await response.json()) as GraphqlResponse<T>;
 
     if (!response.ok || result.errors?.length || !result.data) {
-      console.error("Shopify Storefront catalog request failed.");
+      console.error(
+        "Shopify Storefront catalog request failed.",
+        result.errors?.map((error) => error.message),
+      );
       return null;
     }
 
@@ -286,6 +305,41 @@ async function queryStorefront<T>(
     console.error("Shopify Storefront catalog request failed.");
     return null;
   }
+}
+
+async function queryCatalogWithInventoryFallback<T>(
+  buildQuery: (productFields: string) => string,
+  variables?: Record<string, unknown>,
+): Promise<T | null> {
+  if (!getStorefrontConfiguration()) {
+    return null;
+  }
+
+  const fullResult = await queryStorefront<T>(
+    buildQuery(PRODUCT_FIELDS_WITH_QUANTITY),
+    variables,
+  );
+
+  if (fullResult) {
+    return fullResult;
+  }
+
+  console.warn(
+    "Retrying Shopify catalog request without protected quantityAvailable fields.",
+  );
+  const compatibleResult = await queryStorefront<T>(
+    buildQuery(PRODUCT_FIELDS),
+    variables,
+  );
+
+  if (compatibleResult) {
+    return compatibleResult;
+  }
+
+  console.warn(
+    "Retrying Shopify catalog request with core variant availability fields.",
+  );
+  return queryStorefront<T>(buildQuery(CORE_PRODUCT_FIELDS), variables);
 }
 
 function getCategorySlug(collectionHandle: string | undefined): ProductCategorySlug {
@@ -329,8 +383,8 @@ function mapVariant(variant: ShopifyVariantNode): ProductVariant {
     sku: variant.sku,
     image: variant.image ?? undefined,
     availableForSale: variant.availableForSale,
-    quantityAvailable: variant.quantityAvailable,
-    currentlyNotInStock: variant.currentlyNotInStock,
+    quantityAvailable: variant.quantityAvailable ?? null,
+    currentlyNotInStock: variant.currentlyNotInStock ?? false,
   };
 }
 
@@ -393,8 +447,10 @@ function mapCollectionGroup(
 }
 
 export async function fetchShopifyProducts(): Promise<ProductSummary[] | null> {
-  const data = await queryStorefront<{ products: { nodes: ShopifyProductNode[] } }>(
-    PRODUCTS_QUERY,
+  const data = await queryCatalogWithInventoryFallback<{
+    products: { nodes: ShopifyProductNode[] };
+  }>(
+    buildProductsQuery,
   );
 
   return data ? data.products.nodes.map((product) => mapProduct(product)) : null;
@@ -403,8 +459,10 @@ export async function fetchShopifyProducts(): Promise<ProductSummary[] | null> {
 export async function fetchShopifyProductByHandle(
   handle: string,
 ): Promise<ProductSummary | null> {
-  const data = await queryStorefront<{ product: ShopifyProductNode | null }>(
-    PRODUCT_BY_HANDLE_QUERY,
+  const data = await queryCatalogWithInventoryFallback<{
+    product: ShopifyProductNode | null;
+  }>(
+    buildProductByHandleQuery,
     { handle },
   );
 
@@ -422,8 +480,10 @@ export async function fetchShopifyCollections(): Promise<ShopifyCollectionSummar
 export async function fetchShopifyProductsByCollectionHandle(
   handle: string,
 ): Promise<ProductSummary[] | null> {
-  const data = await queryStorefront<{ collection: ShopifyCollectionNode | null }>(
-    COLLECTION_WITH_PRODUCTS_QUERY,
+  const data = await queryCatalogWithInventoryFallback<{
+    collection: ShopifyCollectionNode | null;
+  }>(
+    buildCollectionWithProductsQuery,
     { handle },
   );
 
@@ -451,9 +511,9 @@ export async function fetchShopifyProductsByCollectionTitle(
 export async function fetchShopifyCollectionProductGroups(
   placements: ShopifyCollectionPlacement[],
 ): Promise<ShopifyCollectionProductGroup[] | null> {
-  const data = await queryStorefront<{
+  const data = await queryCatalogWithInventoryFallback<{
     collections: { nodes: ShopifyCollectionNode[] };
-  }>(COLLECTIONS_WITH_PRODUCTS_QUERY);
+  }>(buildCollectionsWithProductsQuery);
 
   if (!data) {
     return null;
