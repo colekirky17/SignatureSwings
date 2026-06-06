@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { type FormEvent, useMemo, useState } from "react";
+import { CartSuccessActions } from "./cart-success-actions";
 import { useProductVariant } from "./product-variant-context";
 
 type PersonalizationMethodId = "initials" | "logo" | "design";
@@ -76,6 +77,7 @@ export function ProductCustomizationForm({
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
+  const [checkoutUrl, setCheckoutUrl] = useState("");
 
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === selectedMethodId) ?? null,
@@ -138,6 +140,7 @@ export function ProductCustomizationForm({
       const result = (await response.json()) as {
         added?: boolean;
         totalQuantity?: number;
+        checkoutUrl?: string;
         message?: string;
       };
 
@@ -146,10 +149,16 @@ export function ProductCustomizationForm({
       }
 
       setSubmitStatus("success");
+      setCheckoutUrl(result.checkoutUrl ?? "");
       setSubmitMessage(
         `Added to cart. ${result.totalQuantity ?? 1} ${
           result.totalQuantity === 1 ? "item" : "items"
         } in cart.`,
+      );
+      window.dispatchEvent(
+        new CustomEvent("cart:updated", {
+          detail: { totalQuantity: result.totalQuantity ?? 1 },
+        }),
       );
     } catch (error) {
       setSubmitStatus("error");
@@ -353,12 +362,17 @@ export function ProductCustomizationForm({
           </button>
         </div>
         {submitMessage ? (
-          <p
-            className={`cart-submit-status is-${submitStatus}`}
-            role={submitStatus === "error" ? "alert" : "status"}
-          >
-            {submitMessage}
-          </p>
+          <>
+            <p
+              className={`cart-submit-status is-${submitStatus}`}
+              role={submitStatus === "error" ? "alert" : "status"}
+            >
+              {submitMessage}
+            </p>
+            {submitStatus === "success" ? (
+              <CartSuccessActions checkoutUrl={checkoutUrl} />
+            ) : null}
+          </>
         ) : null}
       </form>
     </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useState } from "react";
+import { CartSuccessActions } from "./cart-success-actions";
 import { useProductVariant } from "./product-variant-context";
 
 export function ProductAddToCartForm() {
@@ -14,6 +15,7 @@ export function ProductAddToCartForm() {
     "idle",
   );
   const [message, setMessage] = useState("");
+  const [checkoutUrl, setCheckoutUrl] = useState("");
   const canAddToCart =
     Boolean(selectedVariant?.availableForSale) && status !== "submitting";
 
@@ -39,6 +41,7 @@ export function ProductAddToCartForm() {
       const result = (await response.json()) as {
         added?: boolean;
         totalQuantity?: number;
+        checkoutUrl?: string;
         message?: string;
       };
 
@@ -47,10 +50,16 @@ export function ProductAddToCartForm() {
       }
 
       setStatus("success");
+      setCheckoutUrl(result.checkoutUrl ?? "");
       setMessage(
         `Added to cart. ${result.totalQuantity ?? 1} ${
           result.totalQuantity === 1 ? "item" : "items"
         } in cart.`,
+      );
+      window.dispatchEvent(
+        new CustomEvent("cart:updated", {
+          detail: { totalQuantity: result.totalQuantity ?? 1 },
+        }),
       );
     } catch (error) {
       setStatus("error");
@@ -92,12 +101,17 @@ export function ProductAddToCartForm() {
       </button>
 
       {message ? (
-        <p
-          className={`cart-submit-status is-${status}`}
-          role={status === "error" ? "alert" : "status"}
-        >
-          {message}
-        </p>
+        <>
+          <p
+            className={`cart-submit-status is-${status}`}
+            role={status === "error" ? "alert" : "status"}
+          >
+            {message}
+          </p>
+          {status === "success" ? (
+            <CartSuccessActions checkoutUrl={checkoutUrl} />
+          ) : null}
+        </>
       ) : null}
     </form>
   );

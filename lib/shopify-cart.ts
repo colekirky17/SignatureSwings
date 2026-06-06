@@ -16,16 +16,51 @@ type CartUserError = {
 };
 
 type CartMutationPayload = {
-  cart: {
-    id: string;
-    totalQuantity: number;
-  } | null;
+  cart: ShopifyCart | null;
   userErrors: CartUserError[];
 };
+
+export const CART_COOKIE_NAME = "signature_swings_cart";
 
 export type CartLineAttribute = {
   key: string;
   value: string;
+};
+
+export type ShopifyCart = {
+  id: string;
+  checkoutUrl: string;
+  totalQuantity: number;
+  cost: {
+    subtotalAmount: { amount: string; currencyCode: string };
+    totalAmount: { amount: string; currencyCode: string };
+  };
+  lines: {
+    nodes: Array<{
+      id: string;
+      quantity: number;
+      attributes: CartLineAttribute[];
+      cost: {
+        totalAmount: { amount: string; currencyCode: string };
+      };
+      merchandise: {
+        id: string;
+        title: string;
+        availableForSale: boolean;
+        price: { amount: string; currencyCode: string };
+        image: {
+          url: string;
+          altText: string | null;
+          width: number | null;
+          height: number | null;
+        } | null;
+        product: {
+          title: string;
+          handle: string;
+        };
+      };
+    }>;
+  };
 };
 
 export type AddCartLineResult =
@@ -33,12 +68,78 @@ export type AddCartLineResult =
       ok: true;
       cartId: string;
       totalQuantity: number;
+      checkoutUrl: string;
     }
   | {
       ok: false;
       message: string;
       cartNotFound?: boolean;
     };
+
+export type CartOperationResult =
+  | { ok: true; cart: ShopifyCart }
+  | { ok: false; message: string; cartNotFound?: boolean };
+
+const CART_FIELDS = `
+  id
+  checkoutUrl
+  totalQuantity
+  cost {
+    subtotalAmount {
+      amount
+      currencyCode
+    }
+    totalAmount {
+      amount
+      currencyCode
+    }
+  }
+  lines(first: 100) {
+    nodes {
+      id
+      quantity
+      attributes {
+        key
+        value
+      }
+      cost {
+        totalAmount {
+          amount
+          currencyCode
+        }
+      }
+      merchandise {
+        ... on ProductVariant {
+          id
+          title
+          availableForSale
+          price {
+            amount
+            currencyCode
+          }
+          image {
+            url
+            altText
+            width
+            height
+          }
+          product {
+            title
+            handle
+          }
+        }
+      }
+    }
+  }
+`;
+
+const CART_QUERY = `
+  query Cart($id: ID!) {
+    cart(id: $id) {
+      ${CART_FIELDS}
+    }
+  }
+`;
 
 const VARIANT_AVAILABILITY_QUERY = `
   query VariantAvailability($id: ID!) {
@@ -55,8 +156,7 @@ const CART_CREATE_MUTATION = `
   mutation CartCreate($lines: [CartLineInput!]) {
     cartCreate(input: { lines: $lines }) {
       cart {
-        id
-        totalQuantity
+        ${CART_FIELDS}
       }
       userErrors {
         field
@@ -70,8 +170,35 @@ const CART_LINES_ADD_MUTATION = `
   mutation CartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
     cartLinesAdd(cartId: $cartId, lines: $lines) {
       cart {
-        id
-        totalQuantity
+        ${CART_FIELDS}
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+const CART_LINES_UPDATE_MUTATION = `
+  mutation CartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        ${CART_FIELDS}
+      }
+      userErrors {
+        field
+        message
+      }
+    }
+  }
+`;
+
+const CART_LINES_REMOVE_MUTATION = `
+  mutation CartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        ${CART_FIELDS}
       }
       userErrors {
         field
@@ -161,6 +288,64 @@ export async function isVariantAvailable(
   return data?.node?.availableForSale ?? null;
 }
 
+function mapCartPayload(payload: CartMutationPayload | undefined): CartOperationResult {
+  if (payload?.cart && payload.userErrors.length === 0) {
+    return { ok: true, cart: payload.cart };
+  }
+
+  const message = payload?.userErrors.length
+    ? getUserErrorMessage(payload.userErrors)
+    : "Shopify could not update the cart.";
+
+  return {
+    ok: false,
+    message,
+    cartNotFound: /cart.*(?:not found|does not exist)/i.test(message),
+  };
+}
+
+export async function getCart(
+  cartId: string,
+  buyerIp?: string,
+): Promise<ShopifyCart | null | undefined> {
+  const data = await queryStorefront<{ cart: ShopifyCart | null }>(
+    CART_QUERY,
+    { id: cartId },
+    buyerIp,
+  );
+
+  return data?.cart;
+}
+
+export async function updateCartLine(
+  cartId: string,
+  lineId: string,
+  quantity: number,
+  buyerIp?: string,
+): Promise<CartOperationResult> {
+  const data = await queryStorefront<{ cartLinesUpdate: CartMutationPayload }>(
+    CART_LINES_UPDATE_MUTATION,
+    { cartId, lines: [{ id: lineId, quantity }] },
+    buyerIp,
+  );
+
+  return mapCartPayload(data?.cartLinesUpdate);
+}
+
+export async function removeCartLine(
+  cartId: string,
+  lineId: string,
+  buyerIp?: string,
+): Promise<CartOperationResult> {
+  const data = await queryStorefront<{ cartLinesRemove: CartMutationPayload }>(
+    CART_LINES_REMOVE_MUTATION,
+    { cartId, lineIds: [lineId] },
+    buyerIp,
+  );
+
+  return mapCartPayload(data?.cartLinesRemove);
+}
+
 export async function addCartLine(
   cartId: string | undefined,
   variantId: string,
@@ -188,6 +373,7 @@ export async function addCartLine(
         ok: true,
         cartId: payload.cart.id,
         totalQuantity: payload.cart.totalQuantity,
+        checkoutUrl: payload.cart.checkoutUrl,
       };
     }
 
@@ -226,5 +412,6 @@ export async function addCartLine(
     ok: true,
     cartId: payload.cart.id,
     totalQuantity: payload.cart.totalQuantity,
+    checkoutUrl: payload.cart.checkoutUrl,
   };
 }

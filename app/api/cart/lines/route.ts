@@ -2,11 +2,11 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import {
   addCartLine,
+  CART_COOKIE_NAME,
   isVariantAvailable,
   type CartLineAttribute,
 } from "../../../../lib/shopify-cart";
 
-const CART_COOKIE_NAME = "signature_swings_cart";
 const ATTRIBUTE_KEYS = new Set([
   "Personalization Method",
   "Name",
@@ -113,6 +113,7 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json({
     added: true,
     totalQuantity: result.totalQuantity,
+    checkoutUrl: result.checkoutUrl,
   });
 
   response.cookies.set(CART_COOKIE_NAME, result.cartId, {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { CartIndicator } from "./cart-indicator";
 
 const navigation = [
   { href: "/", label: "Home" },
@@ -74,6 +75,7 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <CartIndicator onNavigate={() => setIsMenuOpen(false)} />
         </nav>
       </div>
     </header>
