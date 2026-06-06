@@ -21,6 +21,12 @@ function getPreviewPriceLabel(priceLabel: string): string | undefined {
 
 export function CatalogProductCard({ product }: CatalogProductCardProps) {
   const priceLabel = getPreviewPriceLabel(product.priceLabel);
+  const inventoryStatus =
+    product.availableForSale === undefined
+      ? null
+      : product.availableForSale
+        ? "In stock"
+        : "Out of stock";
 
   return (
     <article className="product-card">
@@ -42,6 +48,15 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
         <div className="product-body">
           <h3>{product.title}</h3>
           {priceLabel ? <p className="product-price">{priceLabel}</p> : null}
+          {inventoryStatus ? (
+            <p
+              className={`inventory-status ${
+                product.availableForSale ? "is-in-stock" : "is-out-of-stock"
+              }`}
+            >
+              {inventoryStatus}
+            </p>
+          ) : null}
         </div>
       </Link>
     </article>

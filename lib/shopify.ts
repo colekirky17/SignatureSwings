@@ -4,6 +4,9 @@ import {
   shopCategoryCollections,
   productCategories,
   type ProductCategorySlug,
+  type ProductImage,
+  type ProductMoney,
+  type ProductVariant,
   type ShopifyCollectionPlacement,
   type ProductSummary,
 } from "./catalog";
@@ -29,9 +32,20 @@ type GraphqlResponse<T> = {
   errors?: Array<{ message: string }>;
 };
 
-type ShopifyMoney = {
-  amount: string;
-  currencyCode: string;
+type ShopifyVariantNode = {
+  id: string;
+  title: string;
+  selectedOptions: Array<{
+    name: string;
+    value: string;
+  }>;
+  price: ProductMoney;
+  compareAtPrice: ProductMoney | null;
+  sku: string | null;
+  image: ProductImage | null;
+  availableForSale: boolean;
+  quantityAvailable: number | null;
+  currentlyNotInStock: boolean;
 };
 
 type ShopifyProductNode = {
@@ -40,15 +54,14 @@ type ShopifyProductNode = {
   handle: string;
   description: string;
   productType: string;
-  featuredImage: {
-    url: string;
-    altText: string | null;
-    width: number | null;
-    height: number | null;
-  } | null;
+  availableForSale: boolean;
+  featuredImage: ProductImage | null;
   priceRange: {
-    minVariantPrice: ShopifyMoney;
-    maxVariantPrice: ShopifyMoney;
+    minVariantPrice: ProductMoney;
+    maxVariantPrice: ProductMoney;
+  };
+  variants: {
+    nodes: ShopifyVariantNode[];
   };
   collections: {
     nodes: ShopifyCollectionSummary[];
@@ -70,6 +83,7 @@ const PRODUCT_FIELDS = `
   handle
   description
   productType
+  availableForSale
   featuredImage {
     url
     altText
@@ -84,6 +98,34 @@ const PRODUCT_FIELDS = `
     maxVariantPrice {
       amount
       currencyCode
+    }
+  }
+  variants(first: 100) {
+    nodes {
+      id
+      title
+      selectedOptions {
+        name
+        value
+      }
+      price {
+        amount
+        currencyCode
+      }
+      compareAtPrice {
+        amount
+        currencyCode
+      }
+      sku
+      image {
+        url
+        altText
+        width
+        height
+      }
+      availableForSale
+      quantityAvailable
+      currentlyNotInStock
     }
   }
   collections(first: 10) {
@@ -256,7 +298,7 @@ function getCategorySlug(collectionHandle: string | undefined): ProductCategoryS
   );
 }
 
-function formatMoney(money: ShopifyMoney): string {
+function formatMoney(money: ProductMoney): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: money.currencyCode,
@@ -275,6 +317,21 @@ function getPriceLabel(product: ShopifyProductNode): string {
   }
 
   return `${minimumPrice} - inquiry only`;
+}
+
+function mapVariant(variant: ShopifyVariantNode): ProductVariant {
+  return {
+    id: variant.id,
+    title: variant.title,
+    selectedOptions: variant.selectedOptions,
+    price: variant.price,
+    compareAtPrice: variant.compareAtPrice,
+    sku: variant.sku,
+    image: variant.image ?? undefined,
+    availableForSale: variant.availableForSale,
+    quantityAvailable: variant.quantityAvailable,
+    currentlyNotInStock: variant.currentlyNotInStock,
+  };
 }
 
 function getDisplayCollection(
@@ -312,6 +369,8 @@ function mapProduct(
     imagePlaceholderLabel: `${product.title} image`,
     image: product.featuredImage ?? undefined,
     ctaLabel: "Product Inquiry",
+    availableForSale: product.availableForSale,
+    variants: product.variants.nodes.map(mapVariant),
     shopifyProductHandle: product.handle,
     shopifyProductId: product.id,
     collectionHandles: product.collections.nodes.map((item) => item.handle),

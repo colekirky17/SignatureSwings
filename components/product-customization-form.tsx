@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { type FormEvent, useMemo, useState } from "react";
+import { useProductVariant } from "./product-variant-context";
 
 type PersonalizationMethodId = "initials" | "logo" | "design";
 
@@ -58,6 +59,12 @@ export function ProductCustomizationForm({
   methods = defaultPersonalizationMethods,
   fontStyles = defaultFontStyles,
 }: ProductCustomizationFormProps) {
+  const {
+    options,
+    selectedOptions,
+    selectedVariant,
+    setSelectedOption,
+  } = useProductVariant();
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [selectedMethodId, setSelectedMethodId] =
@@ -65,6 +72,10 @@ export function ProductCustomizationForm({
   const [initials, setInitials] = useState("");
   const [selectedFontStyleId, setSelectedFontStyleId] = useState(fontStyles[0]?.id ?? "");
   const [designRequest, setDesignRequest] = useState("");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
 
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === selectedMethodId) ?? null,
@@ -78,16 +89,105 @@ export function ProductCustomizationForm({
       : selectedMethodId === "design"
         ? designRequest.trim().length > 0
         : selectedMethodId === "logo";
-  const canAddToCart = hasRequiredCustomerDetails && hasRequiredPersonalization;
+  const canAddToCart =
+    Boolean(selectedVariant?.availableForSale) &&
+    hasRequiredCustomerDetails &&
+    hasRequiredPersonalization &&
+    submitStatus !== "submitting";
   const canReviewDesign = Boolean(selectedMethod?.reviewDesignEnabled);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!canAddToCart || !selectedVariant || !selectedMethod) {
+      return;
+    }
+
+    const attributes = [
+      { key: "Personalization Method", value: selectedMethod.label },
+      { key: "Name", value: name },
+      { key: "Phone Number", value: phoneNumber },
+      selectedMethodId === "initials"
+        ? { key: "Initials / Short Text", value: initials }
+        : null,
+      selectedMethodId === "initials"
+        ? {
+            key: "Font Style",
+            value:
+              fontStyles.find((style) => style.id === selectedFontStyleId)?.label ??
+              selectedFontStyleId,
+          }
+        : null,
+      selectedMethodId === "design"
+        ? { key: "Design Request", value: designRequest }
+        : null,
+    ].filter((attribute): attribute is { key: string; value: string } => Boolean(attribute));
+
+    setSubmitStatus("submitting");
+    setSubmitMessage("");
+
+    try {
+      const response = await fetch("/api/cart/lines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variantId: selectedVariant.id,
+          attributes,
+        }),
+      });
+      const result = (await response.json()) as {
+        added?: boolean;
+        totalQuantity?: number;
+        message?: string;
+      };
+
+      if (!response.ok || !result.added) {
+        throw new Error(result.message || "Could not add this item to the cart.");
+      }
+
+      setSubmitStatus("success");
+      setSubmitMessage(
+        `Added to cart. ${result.totalQuantity ?? 1} ${
+          result.totalQuantity === 1 ? "item" : "items"
+        } in cart.`,
+      );
+    } catch (error) {
+      setSubmitStatus("error");
+      setSubmitMessage(
+        error instanceof Error ? error.message : "Could not add this item to the cart.",
+      );
+    }
+  }
 
   return (
     <section className="club-link-customizer" aria-labelledby="club-link-customizer-heading">
-      <form
-        className="club-link-customizer-main"
-        onSubmit={(event) => event.preventDefault()}
-      >
+      <form className="club-link-customizer-main" onSubmit={handleSubmit}>
         <h2 id="club-link-customizer-heading">Customize Your {productLabel}</h2>
+
+        {options.length ? (
+          <fieldset className="product-variant-options">
+            <legend>Choose Product Options</legend>
+            <div className="product-variant-option-grid">
+              {options.map((option) => (
+                <label key={option.name} className="club-link-input-field">
+                  <span>{option.name}</span>
+                  <select
+                    value={selectedOptions[option.name] ?? ""}
+                    onChange={(event) =>
+                      setSelectedOption(option.name, event.target.value)
+                    }
+                  >
+                    {option.values.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
 
         <div className="club-link-required-grid">
           <label className="club-link-input-field">
@@ -237,8 +337,8 @@ export function ProductCustomizationForm({
         </p>
 
         <div className="club-link-actions">
-          <button type="button" className="club-link-primary-action" disabled={!canAddToCart}>
-            ADD TO CART
+          <button type="submit" className="club-link-primary-action" disabled={!canAddToCart}>
+            {submitStatus === "submitting" ? "ADDING..." : "ADD TO CART"}
           </button>
           <Link href={bulkOrderHref} className="club-link-secondary-action">
             REQUEST BULK ORDER
@@ -252,6 +352,14 @@ export function ProductCustomizationForm({
             REVIEW DESIGN
           </button>
         </div>
+        {submitMessage ? (
+          <p
+            className={`cart-submit-status is-${submitStatus}`}
+            role={submitStatus === "error" ? "alert" : "status"}
+          >
+            {submitMessage}
+          </p>
+        ) : null}
       </form>
     </section>
   );

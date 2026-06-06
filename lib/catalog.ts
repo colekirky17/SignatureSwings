@@ -20,6 +20,36 @@ export type ShopifyCollectionPlacement = {
   categorySlug?: ProductCategorySlug;
 };
 
+export type ProductMoney = {
+  amount: string;
+  currencyCode: string;
+};
+
+export type ProductImage = {
+  url: string;
+  altText?: string | null;
+  width?: number | null;
+  height?: number | null;
+};
+
+export type ProductSelectedOption = {
+  name: string;
+  value: string;
+};
+
+export type ProductVariant = {
+  id: string;
+  title: string;
+  selectedOptions: ProductSelectedOption[];
+  price: ProductMoney;
+  compareAtPrice?: ProductMoney | null;
+  sku?: string | null;
+  image?: ProductImage;
+  availableForSale: boolean;
+  quantityAvailable?: number | null;
+  currentlyNotInStock: boolean;
+};
+
 export type ProductSummary = {
   title: string;
   handle: string;
@@ -28,13 +58,10 @@ export type ProductSummary = {
   shortDescription: string;
   priceLabel: string;
   imagePlaceholderLabel: string;
-  image?: {
-    url: string;
-    altText?: string | null;
-    width?: number | null;
-    height?: number | null;
-  };
+  image?: ProductImage;
   ctaLabel: string;
+  availableForSale?: boolean;
+  variants?: ProductVariant[];
   shopifyProductHandle?: string;
   shopifyProductId?: string;
   collectionHandles?: string[];

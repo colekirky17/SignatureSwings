@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProductAddToCartForm } from "../../../components/product-add-to-cart-form";
 import styles from "../../../components/catalog-product-media.module.css";
 import { ProductCustomizationForm } from "../../../components/product-customization-form";
+import { ProductVariantProvider } from "../../../components/product-variant-context";
+import {
+  ProductVariantImage,
+  ProductVariantPriceStatus,
+} from "../../../components/product-variant-display";
 import {
   getAllProducts,
   getProductByHandle,
@@ -17,15 +23,6 @@ import {
 type ProductDetailPageProps = {
   params: Promise<{ handle: string }>;
 };
-
-const ballMarkerFinishes = [
-  { name: "Polished Silver", swatchClassName: "is-silver" },
-  { name: "Brushed Black", swatchClassName: "is-black" },
-  { name: "Copper", swatchClassName: "is-copper" },
-  { name: "Champagne Gold", swatchClassName: "is-gold" },
-];
-
-const ballMarkerDesignStyles = ["Classic", "Logo", "Initials", "Event"];
 
 const clubLinkInfoPanels = [
   {
@@ -171,26 +168,6 @@ function isBallMarkerProduct(product: ProductSummary, categoryTitle?: string): b
   );
 }
 
-function ProductImage({
-  product,
-  className,
-}: {
-  product: ProductSummary;
-  className?: string;
-}) {
-  return product.image ? (
-    <img
-      className={className}
-      src={product.image.url}
-      alt={product.image.altText || product.title}
-      width={product.image.width ?? undefined}
-      height={product.image.height ?? undefined}
-    />
-  ) : (
-    <span className="media-label">{product.imagePlaceholderLabel}</span>
-  );
-}
-
 function ClubLinkProductDetail({
   product,
   categoryTitle,
@@ -203,126 +180,52 @@ function ClubLinkProductDetail({
   const priceLabel = getDisplayPriceLabel(product.priceLabel);
   const isBallMarker = variant === "ball-marker";
   const productTypeLabel = isBallMarker ? "Ball Markers" : "Club Links";
-  const finishes = ballMarkerFinishes;
-  const designStyles = ballMarkerDesignStyles;
   const infoPanels = isBallMarker ? ballMarkerInfoPanels : clubLinkInfoPanels;
   const introCopy = isBallMarker
     ? "Custom engraved ball markers made for logos, initials, events, and personal artwork with a clean circular finish. Final options and availability will be confirmed by inquiry."
     : "Custom engraved Club Links made to personalize the top of your golf grip with a clean, durable finish. Final options and availability will be confirmed by inquiry.";
-  const customizationFields = isBallMarker
-    ? [
-        { label: "Name", placeholder: "e.g., John Smith" },
-        { label: "Phone Number", placeholder: "e.g., (800) 123-4561" },
-        { label: "Initials / Short Text", placeholder: "e.g., JS" },
-      ]
-    : [
-        { label: "Name", placeholder: "e.g., John Smith" },
-        { label: "Phone Number", placeholder: "e.g., (800) 123-4561" },
-        { label: "Initials / Short Text", placeholder: "e.g., JS" },
-      ];
 
   return (
     <>
-      <article className="club-link-detail">
-        <div className="club-link-gallery" aria-label={`${product.title} images`}>
-          <div className="club-link-main-image">
-            <ProductImage product={product} className={styles.detailImage} />
-          </div>
-          <div className="club-link-thumbnails" aria-hidden="true">
-            {[0, 1, 2].map((item) => (
-              <div key={item} className="club-link-thumbnail">
-                <ProductImage product={product} className={styles.detailImage} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="club-link-summary">
-          {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
-          <h1>{product.title}</h1>
-          <p className="club-link-price">{priceLabel}</p>
-          <p className="club-link-intro">{introCopy}</p>
-          <div className="club-link-reviews" aria-label="Placeholder product reviews">
-            <span aria-hidden="true">* * * * *</span>
-            <strong>5.0</strong>
-            <span>(24 reviews)</span>
-          </div>
-
-          {isBallMarker ? (
-            <>
-              <section className="club-link-option-block" aria-labelledby="club-link-finish-heading">
-                <h2 id="club-link-finish-heading">Select Finish</h2>
-                <div className="club-link-finish-grid">
-                  {finishes.map((finish) => (
-                    <div key={finish.name} className="club-link-finish">
-                      <span className={`club-link-swatch ${finish.swatchClassName}`} />
-                      <span>{finish.name}</span>
-                    </div>
-                  ))}
+      <ProductVariantProvider
+        variants={product.variants ?? []}
+        fallbackImage={product.image}
+      >
+        <article className="club-link-detail">
+          <div className="club-link-gallery" aria-label={`${product.title} images`}>
+            <div className="club-link-main-image">
+              <ProductVariantImage
+                productTitle={product.title}
+                placeholderLabel={product.imagePlaceholderLabel}
+              />
+            </div>
+            <div className="club-link-thumbnails" aria-hidden="true">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="club-link-thumbnail">
+                  <ProductVariantImage
+                    productTitle={product.title}
+                    placeholderLabel={product.imagePlaceholderLabel}
+                  />
                 </div>
-              </section>
+              ))}
+            </div>
+          </div>
 
-              <section
-                className="club-link-customizer"
-                aria-labelledby="club-link-customizer-heading"
-              >
-                <div className="club-link-customizer-main">
-                  <h2 id="club-link-customizer-heading">Customize Your Design</h2>
-                  <div className="club-link-customizer-grid">
-                    {customizationFields.map((field) => (
-                      <div key={field.label} className="club-link-field">
-                        <span>{field.label}</span>
-                        <p>{field.placeholder}</p>
-                      </div>
-                    ))}
-                    <div className="club-link-style-group">
-                      <span>Design Style</span>
-                      <div className="club-link-style-grid">
-                        {designStyles.map((style) => (
-                          <div key={style} className="club-link-style">
-                            {style}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="club-link-logo-row">
-                    <div>
-                      <span>Upload Your Logo</span>
-                      <p>PNG, JPG, or SVG placeholder</p>
-                    </div>
-                    <div className="club-link-upload-placeholder">Upload Image</div>
-                  </div>
-                  <div className="club-link-notes">
-                    <span>Additional Notes</span>
-                    <p>Any special requests or instructions...</p>
-                  </div>
-                  <p className="club-link-action-helper">
-                    Enter your customization details before checkout. A preview tool will be added
-                    soon so you can review your design before ordering.
-                  </p>
-                  <div className="club-link-actions">
-                    <button type="button" className="club-link-primary-action">
-                      ADD TO CART
-                    </button>
-                    <Link href="/contact" className="club-link-secondary-action">
-                      REQUEST BULK ORDER
-                    </Link>
-                    <button type="button" className="club-link-preview-action" disabled>
-                      GENERATE DESIGN PREVIEW
-                    </button>
-                  </div>
-                  <div className="club-link-preview-note">
-                    Design preview generation coming soon.
-                  </div>
-                </div>
-              </section>
-            </>
-          ) : (
-            <ProductCustomizationForm productLabel="Club Links" />
-          )}
-        </div>
-      </article>
+          <div className="club-link-summary">
+            {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
+            <h1>{product.title}</h1>
+            <ProductVariantPriceStatus fallbackPriceLabel={priceLabel} />
+            <p className="club-link-intro">{introCopy}</p>
+            <div className="club-link-reviews" aria-label="Placeholder product reviews">
+              <span aria-hidden="true">* * * * *</span>
+              <strong>5.0</strong>
+              <span>(24 reviews)</span>
+            </div>
+
+            <ProductCustomizationForm productLabel={productTypeLabel} />
+          </div>
+        </article>
+      </ProductVariantProvider>
 
       <section className="club-link-upsell" aria-labelledby="club-link-upsell-heading">
         <div className="club-link-upsell-heading">
@@ -425,31 +328,30 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         />
       ) : (
         <>
-          <article className="product-detail">
-            <div className="product-detail-media">
-              <ProductImage product={product} className={styles.detailImage} />
-            </div>
+          <ProductVariantProvider
+            variants={product.variants ?? []}
+            fallbackImage={product.image}
+          >
+            <article className="product-detail">
+              <div className="product-detail-media">
+                <ProductVariantImage
+                  productTitle={product.title}
+                  placeholderLabel={product.imagePlaceholderLabel}
+                />
+              </div>
 
-            <div className="product-detail-summary">
-              {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
-              <h1>{product.title}</h1>
-              <p className={styles.handle}>/{product.handle}</p>
-              <p className="product-detail-description">{product.shortDescription}</p>
-              <p className="product-detail-price">{product.priceLabel}</p>
-
-              <section className="product-detail-notice" aria-label="Product inquiry availability">
-                <h2>Product Inquiry</h2>
-                <p>
-                  Contact us to discuss customization, quantities, and availability for this
-                  product. We will help plan the right details for your order.
-                </p>
-                <Link href="/contact" className="product-detail-contact-link">
-                  Start An Inquiry
-                  <span aria-hidden="true">-&gt;</span>
-                </Link>
-              </section>
-            </div>
-          </article>
+              <div className="product-detail-summary">
+                {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
+                <h1>{product.title}</h1>
+                <p className={styles.handle}>/{product.handle}</p>
+                <p className="product-detail-description">{product.shortDescription}</p>
+                <ProductVariantPriceStatus
+                  fallbackPriceLabel={getDisplayPriceLabel(product.priceLabel)}
+                />
+                <ProductAddToCartForm />
+              </div>
+            </article>
+          </ProductVariantProvider>
 
           <section className="product-detail-panels" aria-label="Future product information">
             <article className="product-detail-panel">

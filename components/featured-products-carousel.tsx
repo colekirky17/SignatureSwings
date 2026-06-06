@@ -192,6 +192,15 @@ export function FeaturedProductsCarousel({
                 <div className="featured-product-body">
                   <h3>{product.title}</h3>
                   {priceLabel ? <p className="featured-product-price">{priceLabel}</p> : null}
+                  {product.availableForSale !== undefined ? (
+                    <p
+                      className={`inventory-status ${
+                        product.availableForSale ? "is-in-stock" : "is-out-of-stock"
+                      }`}
+                    >
+                      {product.availableForSale ? "In stock" : "Out of stock"}
+                    </p>
+                  ) : null}
                 </div>
               </Link>
             </article>
