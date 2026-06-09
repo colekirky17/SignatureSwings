@@ -452,6 +452,106 @@
   line-height: 1.5;
 }
 
+.club-link-upload-control {
+  display: grid;
+  justify-items: start;
+  gap: 0.7rem;
+  padding: 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 0.35rem;
+  background: #09130f;
+}
+
+.club-link-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.club-link-upload-button {
+  min-height: 2.75rem;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.club-link-upload-button:hover:not(:disabled),
+.club-link-upload-button:focus-visible {
+  background: rgba(126, 194, 63, 0.12);
+}
+
+.club-link-upload-button:disabled {
+  opacity: 0.55;
+  cursor: wait;
+}
+
+.club-link-upload-guidance,
+.club-link-upload-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.club-link-upload-status.is-success {
+  color: var(--accent);
+}
+
+.club-link-upload-status.is-error {
+  color: #ffaaa2;
+}
+
+.club-link-upload-file {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(126, 194, 63, 0.42);
+  border-radius: 0.3rem;
+  background: rgba(126, 194, 63, 0.08);
+}
+
+.club-link-upload-file span {
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.club-link-upload-file strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.club-link-upload-file button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #ffaaa2;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .club-link-customizer-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
@@ -1144,6 +1244,14 @@
 
   .club-link-upload-placeholder {
     min-width: 0;
+  }
+
+  .club-link-upload-file {
+    grid-template-columns: 1fr auto;
+  }
+
+  .club-link-upload-file span {
+    grid-column: 1 / -1;
   }
 
   .club-link-upsell-grid,

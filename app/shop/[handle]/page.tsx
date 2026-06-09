@@ -225,6 +225,7 @@ function ClubLinkProductDetail({
               productLabel={productTypeLabel}
               fontStyles={isBallMarker ? undefined : clubLinkFontStyles}
               clubLinksPreviewEnabled={!isBallMarker}
+              logoUploadEnabled={!isBallMarker}
             />
           </div>
         </article>

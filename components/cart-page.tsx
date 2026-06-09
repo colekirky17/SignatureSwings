@@ -242,7 +242,20 @@ export function CartPage() {
                         .map((attribute) => (
                           <div key={`${line.id}-${attribute.key}`}>
                             <dt>{attribute.key}</dt>
-                            <dd>{attribute.value}</dd>
+                            <dd>
+                              {attribute.key === "Logo Upload" &&
+                              /^https:\/\//i.test(attribute.value) ? (
+                                <a
+                                  href={attribute.value}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  View uploaded image
+                                </a>
+                              ) : (
+                                attribute.value
+                              )}
+                            </dd>
                           </div>
                         ))}
                     </dl>

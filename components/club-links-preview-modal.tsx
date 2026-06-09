@@ -13,6 +13,7 @@ type ClubLinksPreviewModalProps = {
   fontStyleId: string;
   fontStyleLabel: string;
   designRequest: string;
+  logoFileName: string;
   onClose: () => void;
   onEdit: () => void;
 };
@@ -34,6 +35,7 @@ export function ClubLinksPreviewModal({
   fontStyleId,
   fontStyleLabel,
   designRequest,
+  logoFileName,
   onClose,
   onEdit,
 }: ClubLinksPreviewModalProps) {
@@ -242,12 +244,18 @@ export function ClubLinksPreviewModal({
                   <dd>{designRequest}</dd>
                 </div>
               ) : null}
+              {methodId === "logo" && logoFileName ? (
+                <div className="is-full">
+                  <dt>Uploaded Image</dt>
+                  <dd>{logoFileName}</dd>
+                </div>
+              ) : null}
             </dl>
 
             {methodId === "logo" ? (
               <p className="club-links-preview-callout">
-                Logo upload preview coming soon. Final artwork will be reviewed before
-                engraving.
+                {logoFileName ? `${logoFileName} is attached. ` : ""}
+                Logo upload preview coming soon. Final artwork will be reviewed before engraving.
               </p>
             ) : null}
             {methodId === "design" ? (

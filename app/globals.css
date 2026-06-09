@@ -3009,6 +3009,13 @@ p {
   overflow-wrap: anywhere;
 }
 
+.cart-line-attributes a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 .cart-line-controls {
   display: flex;
   align-items: flex-end;

@@ -31,6 +31,19 @@ npm start
 Railway can detect this as a Node/Next.js app from `package.json`. The production build command is
 `npm run build` and the start command is `npm start`.
 
+## Customer Artwork Uploads
+
+Club Links logo artwork is uploaded to Shopify Files through the Admin GraphQL API. Configure a
+server-only Admin API token with the `write_files` scope:
+
+```bash
+SHOPIFY_ADMIN_ACCESS_TOKEN=
+```
+
+The upload also uses `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_API_VERSION`. Customers can upload PNG,
+JPG, or WebP images up to 8 MB. The Shopify file URL and original filename are saved as line-item
+properties, shown in the cart, and included in the paid-order fulfillment email.
+
 ## Contact Email
 
 The contact form sends internal inquiry emails through Resend. Configure these server-only

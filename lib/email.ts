@@ -181,12 +181,17 @@ function buildPaidOrderEmail(order: PaidOrderNotification) {
       const properties = getVisibleProperties(item);
       const propertyRows = properties.length
         ? properties
-            .map(
-              (property) =>
-                `<tr><th align="left" style="padding:4px 12px 4px 0">${escapeHtml(
-                  property.name,
-                )}</th><td style="padding:4px 0">${escapeHtml(property.value)}</td></tr>`,
-            )
+            .map((property) => {
+              const value =
+                property.name === "Logo Upload" &&
+                /^https:\/\//i.test(property.value)
+                  ? `<a href="${escapeHtml(property.value)}">View uploaded image</a>`
+                  : escapeHtml(property.value);
+
+              return `<tr><th align="left" style="padding:4px 12px 4px 0">${escapeHtml(
+                property.name,
+              )}</th><td style="padding:4px 0">${value}</td></tr>`;
+            })
             .join("")
         : '<tr><th align="left" style="padding:4px 12px 4px 0">Customization</th><td style="padding:4px 0;color:#a33">None provided</td></tr>';
 

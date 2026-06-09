@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useMemo, useRef, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { CartSuccessActions } from "./cart-success-actions";
 import { ClubLinksPreviewModal } from "./club-links-preview-modal";
 import { useProductVariant } from "./product-variant-context";
@@ -35,7 +41,21 @@ type ProductCustomizationFormProps = {
   showFontStyles?: boolean;
   designPlaceholder?: string;
   clubLinksPreviewEnabled?: boolean;
+  logoUploadEnabled?: boolean;
 };
+
+type UploadedLogo = {
+  fileId: string;
+  fileName: string;
+  url: string;
+};
+
+const MAX_LOGO_FILE_SIZE = 8 * 1024 * 1024;
+const ALLOWED_LOGO_FILE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 const defaultPersonalizationMethods: PersonalizationMethodOption[] = [
   {
@@ -79,6 +99,7 @@ export function ProductCustomizationForm({
   showFontStyles = true,
   designPlaceholder = "Describe the design idea, theme, logo concept, initials, event, or style you want us to create.",
   clubLinksPreviewEnabled = false,
+  logoUploadEnabled = false,
 }: ProductCustomizationFormProps) {
   const {
     options,
@@ -93,6 +114,11 @@ export function ProductCustomizationForm({
   const [initials, setInitials] = useState("");
   const [selectedFontStyleId, setSelectedFontStyleId] = useState(fontStyles[0]?.id ?? "");
   const [designRequest, setDesignRequest] = useState("");
+  const [uploadedLogo, setUploadedLogo] = useState<UploadedLogo | null>(null);
+  const [logoUploadStatus, setLogoUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [logoUploadMessage, setLogoUploadMessage] = useState("");
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
@@ -101,6 +127,7 @@ export function ProductCustomizationForm({
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const customizerRef = useRef<HTMLElement>(null);
   const previewButtonRef = useRef<HTMLButtonElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === selectedMethodId) ?? null,
@@ -115,12 +142,15 @@ export function ProductCustomizationForm({
       ? initials.trim().length > 0
       : selectedMethodId === "design"
         ? designRequest.trim().length > 0
-        : false;
+        : selectedMethodId === "logo"
+          ? Boolean(uploadedLogo?.url)
+          : false;
   const canAddToCart =
     Boolean(selectedVariant?.availableForSale) &&
     hasRequiredCustomerDetails &&
     hasRequiredPersonalization &&
-    submitStatus !== "submitting";
+    submitStatus !== "submitting" &&
+    logoUploadStatus !== "uploading";
   const previewMissingFields = useMemo(() => {
     if (!clubLinksPreviewEnabled) {
       return [];
@@ -188,6 +218,76 @@ export function ProductCustomizationForm({
     });
   }
 
+  async function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setUploadedLogo(null);
+    setLogoUploadStatus("idle");
+    setLogoUploadMessage("");
+    clearPreviewValidation();
+
+    if (!ALLOWED_LOGO_FILE_TYPES.has(file.type) || file.size > MAX_LOGO_FILE_SIZE) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage("Choose a PNG, JPG, or WebP image that is 8 MB or smaller.");
+      return;
+    }
+
+    const body = new FormData();
+    body.append("file", file);
+
+    setLogoUploadStatus("uploading");
+    setLogoUploadMessage(`Uploading ${file.name}...`);
+
+    try {
+      const response = await fetch("/api/uploads/logo", {
+        method: "POST",
+        body,
+      });
+      const result = (await response.json()) as {
+        uploaded?: boolean;
+        fileId?: string;
+        fileName?: string;
+        url?: string;
+        message?: string;
+      };
+
+      if (
+        !response.ok ||
+        !result.uploaded ||
+        !result.fileId ||
+        !result.fileName ||
+        !result.url
+      ) {
+        throw new Error(result.message || "Could not upload this image.");
+      }
+
+      setUploadedLogo({
+        fileId: result.fileId,
+        fileName: result.fileName,
+        url: result.url,
+      });
+      setLogoUploadStatus("success");
+      setLogoUploadMessage("Image uploaded and ready to attach to your order.");
+    } catch (error) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage(
+        error instanceof Error ? error.message : "Could not upload this image.",
+      );
+    }
+  }
+
+  function removeUploadedLogo() {
+    setUploadedLogo(null);
+    setLogoUploadStatus("idle");
+    setLogoUploadMessage("");
+    logoInputRef.current?.focus();
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
@@ -213,6 +313,12 @@ export function ProductCustomizationForm({
         : null,
       selectedMethodId === "design"
         ? { key: "Design Request", value: designRequest }
+        : null,
+      selectedMethodId === "logo" && uploadedLogo
+        ? { key: "Logo Upload", value: uploadedLogo.url }
+        : null,
+      selectedMethodId === "logo" && uploadedLogo
+        ? { key: "Logo File Name", value: uploadedLogo.fileName }
         : null,
     ].filter((attribute): attribute is { key: string; value: string } => Boolean(attribute));
 
@@ -417,13 +523,61 @@ export function ProductCustomizationForm({
             aria-labelledby="club-link-upload-heading"
           >
             <h3 id="club-link-upload-heading">Upload Logo/Image</h3>
-            <div className="club-link-upload-coming-soon">
-              <span>Upload Image</span>
-              <p>
-                Upload feature coming soon. This will support logo/image files for design preview
-                and ordering.
-              </p>
-            </div>
+            {logoUploadEnabled ? (
+              <div className="club-link-upload-control">
+                <input
+                  ref={logoInputRef}
+                  className="club-link-file-input"
+                  type="file"
+                  name="logo-image"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleLogoFileChange}
+                  disabled={logoUploadStatus === "uploading"}
+                  hidden
+                />
+                <button
+                  type="button"
+                  className="club-link-upload-button"
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={logoUploadStatus === "uploading"}
+                >
+                  {logoUploadStatus === "uploading"
+                    ? "Uploading..."
+                    : uploadedLogo
+                      ? "Replace Image"
+                      : "Choose Image"}
+                </button>
+                <p className="club-link-upload-guidance">
+                  PNG, JPG, or WebP. Maximum file size 8 MB. The image will be reviewed
+                  before engraving.
+                </p>
+                {uploadedLogo ? (
+                  <div className="club-link-upload-file">
+                    <span aria-hidden="true">Uploaded</span>
+                    <strong>{uploadedLogo.fileName}</strong>
+                    <button type="button" onClick={removeUploadedLogo}>
+                      Remove
+                    </button>
+                  </div>
+                ) : null}
+                {logoUploadMessage ? (
+                  <p
+                    className={`club-link-upload-status is-${logoUploadStatus}`}
+                    role={logoUploadStatus === "error" ? "alert" : "status"}
+                  >
+                    {logoUploadMessage}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="club-link-upload-coming-soon">
+                <span>Upload Image</span>
+                <p>
+                  Upload feature coming soon. This will support logo/image files for design
+                  preview and ordering.
+                </p>
+              </div>
+            )}
           </section>
         ) : null}
 
@@ -518,6 +672,7 @@ export function ProductCustomizationForm({
           fontStyleId={selectedFontStyle?.id ?? "classic"}
           fontStyleLabel={selectedFontStyle?.label ?? "Classic"}
           designRequest={designRequest.trim()}
+          logoFileName={uploadedLogo?.fileName ?? ""}
           onClose={closePreview}
           onEdit={editPreview}
         />

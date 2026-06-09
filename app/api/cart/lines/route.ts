@@ -21,6 +21,7 @@ const ATTRIBUTE_KEYS = new Set([
   "Font Style",
   "Design Request",
   "Logo Upload",
+  "Logo File Name",
   CUSTOMIZATION_REQUIRED_KEY,
 ]);
 

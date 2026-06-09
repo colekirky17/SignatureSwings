@@ -67,7 +67,8 @@ export function hasCompleteCustomization(
   }
 
   if (/logo|image/i.test(method)) {
-    return Boolean(getAttribute(attributes, "Logo Upload"));
+    const logoUpload = getAttribute(attributes, "Logo Upload");
+    return Boolean(logoUpload && /^https:\/\//i.test(logoUpload));
   }
 
   return Boolean(
