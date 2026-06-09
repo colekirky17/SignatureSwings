@@ -3,9 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   addCartLine,
   CART_COOKIE_NAME,
-  isVariantAvailable,
+  getVariantCartProduct,
   type CartLineAttribute,
 } from "../../../../lib/shopify-cart";
+import {
+  CUSTOMIZATION_REQUIRED_KEY,
+  hasCompleteCustomization,
+  productRequiresCustomization,
+} from "../../../../lib/product-customization";
 
 const ATTRIBUTE_KEYS = new Set([
   "Personalization Method",
@@ -15,6 +20,8 @@ const ATTRIBUTE_KEYS = new Set([
   "Name or Message",
   "Font Style",
   "Design Request",
+  "Logo Upload",
+  CUSTOMIZATION_REQUIRED_KEY,
 ]);
 
 type AddCartLineRequest = {
@@ -83,19 +90,33 @@ export async function POST(request: NextRequest) {
   }
 
   const buyerIp = getBuyerIp(request);
-  const availableForSale = await isVariantAvailable(variantId, buyerIp);
+  const variant = await getVariantCartProduct(variantId, buyerIp);
 
-  if (availableForSale === null) {
+  if (variant === null) {
     return NextResponse.json(
       { message: "Shopify is temporarily unavailable. Please try again." },
       { status: 503 },
     );
   }
 
-  if (!availableForSale) {
+  if (!variant.availableForSale) {
     return NextResponse.json(
       { message: "This option is currently out of stock." },
       { status: 409 },
+    );
+  }
+
+  if (
+    productRequiresCustomization(variant.product.handle, variant.product.title) &&
+    !hasCompleteCustomization(
+      variant.product.handle,
+      variant.product.title,
+      attributes,
+    )
+  ) {
+    return NextResponse.json(
+      { message: "Complete the required customization before adding this item." },
+      { status: 400 },
     );
   }
 
@@ -114,7 +135,6 @@ export async function POST(request: NextRequest) {
   const response = NextResponse.json({
     added: true,
     totalQuantity: result.totalQuantity,
-    checkoutUrl: result.checkoutUrl,
   });
 
   response.cookies.set(CART_COOKIE_NAME, result.cartId, {

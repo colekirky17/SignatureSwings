@@ -44,3 +44,25 @@ CONTACT_TO_EMAIL=
 
 `CONTACT_FROM_EMAIL` must use a domain verified in Resend. None of these variables should use a
 `NEXT_PUBLIC_` prefix.
+
+## Paid Order Fulfillment Email
+
+The site accepts Shopify `orders/paid` webhooks at:
+
+```text
+https://YOUR_SITE_DOMAIN/api/webhooks/shopify/orders-paid
+```
+
+Configure that HTTPS URL for the `orders/paid` topic in the Shopify app connected to the store,
+then set these server-only environment variables:
+
+```bash
+SHOPIFY_WEBHOOK_SECRET=
+FULFILLMENT_FROM_EMAIL=
+FULFILLMENT_TO_EMAIL=
+```
+
+`SHOPIFY_WEBHOOK_SECRET` is the Shopify app client secret used to sign webhook deliveries.
+`FULFILLMENT_FROM_EMAIL` must use a domain verified in Resend. The fulfillment email includes
+each paid line item and its Shopify line-item properties, which contain the customization choices.
+If the fulfillment email variables are omitted, the contact email addresses are used as fallback.

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useMemo, useRef, useState } from "react";
 import { CartSuccessActions } from "./cart-success-actions";
+import { ClubLinksPreviewModal } from "./club-links-preview-modal";
 import { useProductVariant } from "./product-variant-context";
+import { CUSTOMIZATION_REQUIRED_KEY } from "../lib/product-customization";
 
 export type PersonalizationMethodId = "initials" | "logo" | "design";
 
@@ -32,6 +34,7 @@ type ProductCustomizationFormProps = {
   textAttributeKey?: string;
   showFontStyles?: boolean;
   designPlaceholder?: string;
+  clubLinksPreviewEnabled?: boolean;
 };
 
 const defaultPersonalizationMethods: PersonalizationMethodOption[] = [
@@ -75,6 +78,7 @@ export function ProductCustomizationForm({
   textAttributeKey = "Initials / Short Text",
   showFontStyles = true,
   designPlaceholder = "Describe the design idea, theme, logo concept, initials, event, or style you want us to create.",
+  clubLinksPreviewEnabled = false,
 }: ProductCustomizationFormProps) {
   const {
     options,
@@ -93,7 +97,10 @@ export function ProductCustomizationForm({
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
-  const [checkoutUrl, setCheckoutUrl] = useState("");
+  const [previewValidationMessage, setPreviewValidationMessage] = useState("");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const customizerRef = useRef<HTMLElement>(null);
+  const previewButtonRef = useRef<HTMLButtonElement>(null);
 
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === selectedMethodId) ?? null,
@@ -108,13 +115,78 @@ export function ProductCustomizationForm({
       ? initials.trim().length > 0
       : selectedMethodId === "design"
         ? designRequest.trim().length > 0
-        : selectedMethodId === "logo";
+        : false;
   const canAddToCart =
     Boolean(selectedVariant?.availableForSale) &&
     hasRequiredCustomerDetails &&
     hasRequiredPersonalization &&
     submitStatus !== "submitting";
-  const canReviewDesign = Boolean(selectedMethod?.reviewDesignEnabled);
+  const previewMissingFields = useMemo(() => {
+    if (!clubLinksPreviewEnabled) {
+      return [];
+    }
+
+    const missingFields: string[] = [];
+
+    if (!name.trim()) missingFields.push("Name");
+    if (!phoneNumber.trim()) missingFields.push("Phone Number");
+    if (!selectedMethodId) missingFields.push("Personalization Method");
+    if (selectedMethodId === "initials" && !initials.trim()) {
+      missingFields.push("Initials / Short Text");
+    }
+    if (selectedMethodId === "design" && !designRequest.trim()) {
+      missingFields.push("Design Request");
+    }
+
+    return missingFields;
+  }, [
+    clubLinksPreviewEnabled,
+    designRequest,
+    initials,
+    name,
+    phoneNumber,
+    selectedMethodId,
+  ]);
+  const canReviewDesign = clubLinksPreviewEnabled
+    ? previewMissingFields.length === 0
+    : Boolean(selectedMethod?.reviewDesignEnabled);
+  const selectedFontStyle =
+    fontStyles.find((style) => style.id === selectedFontStyleId) ?? fontStyles[0];
+
+  function handleReviewDesign() {
+    if (!clubLinksPreviewEnabled) {
+      return;
+    }
+
+    if (previewMissingFields.length) {
+      setPreviewValidationMessage(
+        `Complete the following before reviewing your design: ${previewMissingFields.join(", ")}.`,
+      );
+      return;
+    }
+
+    setPreviewValidationMessage("");
+    setIsPreviewOpen(true);
+  }
+
+  function clearPreviewValidation() {
+    if (previewValidationMessage) {
+      setPreviewValidationMessage("");
+    }
+  }
+
+  function closePreview() {
+    setIsPreviewOpen(false);
+    window.requestAnimationFrame(() => previewButtonRef.current?.focus());
+  }
+
+  function editPreview() {
+    setIsPreviewOpen(false);
+    window.requestAnimationFrame(() => {
+      customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      previewButtonRef.current?.focus();
+    });
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -124,6 +196,7 @@ export function ProductCustomizationForm({
     }
 
     const attributes = [
+      { key: CUSTOMIZATION_REQUIRED_KEY, value: "Yes" },
       { key: "Personalization Method", value: selectedMethod.label },
       customerDetailsRequired ? { key: "Name", value: name } : null,
       customerDetailsRequired ? { key: "Phone Number", value: phoneNumber } : null,
@@ -158,7 +231,6 @@ export function ProductCustomizationForm({
       const result = (await response.json()) as {
         added?: boolean;
         totalQuantity?: number;
-        checkoutUrl?: string;
         message?: string;
       };
 
@@ -167,7 +239,6 @@ export function ProductCustomizationForm({
       }
 
       setSubmitStatus("success");
-      setCheckoutUrl(result.checkoutUrl ?? "");
       setSubmitMessage(
         `Added to cart. ${result.totalQuantity ?? 1} ${
           result.totalQuantity === 1 ? "item" : "items"
@@ -187,7 +258,11 @@ export function ProductCustomizationForm({
   }
 
   return (
-    <section className="club-link-customizer" aria-labelledby="club-link-customizer-heading">
+    <section
+      ref={customizerRef}
+      className="club-link-customizer"
+      aria-labelledby="club-link-customizer-heading"
+    >
       <form className="club-link-customizer-main" onSubmit={handleSubmit}>
         <h2 id="club-link-customizer-heading">Customize Your {productLabel}</h2>
 
@@ -226,7 +301,10 @@ export function ProductCustomizationForm({
                 type="text"
                 name="customer-name"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                onChange={(event) => {
+                  setName(event.target.value);
+                  clearPreviewValidation();
+                }}
                 placeholder="e.g., John Smith"
                 autoComplete="name"
                 required
@@ -241,7 +319,10 @@ export function ProductCustomizationForm({
                 type="tel"
                 name="phone-number"
                 value={phoneNumber}
-                onChange={(event) => setPhoneNumber(event.target.value)}
+                onChange={(event) => {
+                  setPhoneNumber(event.target.value);
+                  clearPreviewValidation();
+                }}
                 placeholder="e.g., (800) 123-4561"
                 autoComplete="tel"
                 required
@@ -267,7 +348,10 @@ export function ProductCustomizationForm({
                   role="radio"
                   aria-checked={isSelected}
                   className={`club-link-method-card${isSelected ? " is-selected" : ""}`}
-                  onClick={() => setSelectedMethodId(method.id)}
+                  onClick={() => {
+                    setSelectedMethodId(method.id);
+                    clearPreviewValidation();
+                  }}
                 >
                   <span className="club-link-method-radio" aria-hidden="true" />
                   <span className="club-link-method-label">{method.label}</span>
@@ -292,7 +376,10 @@ export function ProductCustomizationForm({
                 type="text"
                 name="initials-short-text"
                 value={initials}
-                onChange={(event) => setInitials(event.target.value)}
+                onChange={(event) => {
+                  setInitials(event.target.value);
+                  clearPreviewValidation();
+                }}
                 placeholder={textPlaceholder}
                 required
               />
@@ -352,7 +439,10 @@ export function ProductCustomizationForm({
               <textarea
                 name="design-request"
                 value={designRequest}
-                onChange={(event) => setDesignRequest(event.target.value)}
+                onChange={(event) => {
+                  setDesignRequest(event.target.value);
+                  clearPreviewValidation();
+                }}
                 placeholder={designPlaceholder}
                 required
               />
@@ -364,7 +454,9 @@ export function ProductCustomizationForm({
         ) : null}
 
         <p className="club-link-preview-note" id="club-link-preview-helper">
-          Design preview functionality will be added soon.
+          {clubLinksPreviewEnabled
+            ? "Review an approximate engraving preview before adding this item to your cart."
+            : "Design preview functionality will be added soon."}
         </p>
 
         <div className="club-link-actions">
@@ -375,14 +467,32 @@ export function ProductCustomizationForm({
             REQUEST BULK ORDER
           </Link>
           <button
+            ref={previewButtonRef}
             type="button"
             className="club-link-preview-action"
-            disabled={!canReviewDesign}
-            aria-describedby="club-link-preview-helper"
+            disabled={!clubLinksPreviewEnabled && !canReviewDesign}
+            data-preview-incomplete={
+              clubLinksPreviewEnabled && !canReviewDesign ? "true" : undefined
+            }
+            aria-describedby={
+              previewValidationMessage
+                ? "club-link-preview-validation"
+                : "club-link-preview-helper"
+            }
+            onClick={handleReviewDesign}
           >
             REVIEW DESIGN
           </button>
         </div>
+        {previewValidationMessage ? (
+          <p
+            id="club-link-preview-validation"
+            className="club-link-preview-validation"
+            role="alert"
+          >
+            {previewValidationMessage}
+          </p>
+        ) : null}
         {submitMessage ? (
           <>
             <p
@@ -392,11 +502,26 @@ export function ProductCustomizationForm({
               {submitMessage}
             </p>
             {submitStatus === "success" ? (
-              <CartSuccessActions checkoutUrl={checkoutUrl} />
+              <CartSuccessActions />
             ) : null}
           </>
         ) : null}
       </form>
+      {clubLinksPreviewEnabled && selectedMethodId && selectedMethod ? (
+        <ClubLinksPreviewModal
+          isOpen={isPreviewOpen}
+          name={name.trim()}
+          phoneNumber={phoneNumber.trim()}
+          methodId={selectedMethodId}
+          methodLabel={selectedMethod.label}
+          initials={initials.trim()}
+          fontStyleId={selectedFontStyle?.id ?? "classic"}
+          fontStyleLabel={selectedFontStyle?.label ?? "Classic"}
+          designRequest={designRequest.trim()}
+          onClose={closePreview}
+          onEdit={editPreview}
+        />
+      ) : null}
     </section>
   );
 }

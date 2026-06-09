@@ -98,6 +98,13 @@ const divotToolPersonalizationMethods: PersonalizationMethodOption[] = [
   },
 ];
 
+const clubLinkFontStyles = [
+  { id: "classic", label: "Classic" },
+  { id: "modern", label: "Modern" },
+  { id: "script", label: "Script" },
+  { id: "minimal", label: "Minimal" },
+];
+
 export const revalidate = 300;
 
 async function getAvailableProduct(handle: string) {
@@ -214,7 +221,11 @@ function ClubLinkProductDetail({
               <span>(24 reviews)</span>
             </div>
 
-            <ProductCustomizationForm productLabel={productTypeLabel} />
+            <ProductCustomizationForm
+              productLabel={productTypeLabel}
+              fontStyles={isBallMarker ? undefined : clubLinkFontStyles}
+              clubLinksPreviewEnabled={!isBallMarker}
+            />
           </div>
         </article>
       </ProductVariantProvider>

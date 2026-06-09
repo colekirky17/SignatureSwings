@@ -27,7 +27,7 @@ export function CompleteGolfSetup({ products }: CompleteGolfSetupProps) {
     <section className="club-link-upsell" aria-labelledby="complete-golf-setup-heading">
       <div className="club-link-upsell-heading">
         <h2 id="complete-golf-setup-heading">Complete Your Golf Setup</h2>
-        <p>Explore more customer favorites from our Best Sellers collection.</p>
+        <p>Add matching custom accessories to your order.</p>
       </div>
       <div className="club-link-upsell-grid">
         {products.map((item) => (
@@ -50,7 +50,7 @@ export function CompleteGolfSetup({ products }: CompleteGolfSetupProps) {
                 <h3>{item.title}</h3>
                 <p>{item.shortDescription}</p>
                 <strong>{getDisplayPriceLabel(item.priceLabel)}</strong>
-                <span className="club-link-upsell-action">View Product</span>
+                <span className="club-link-upsell-action">Customize This</span>
               </div>
             </Link>
           </article>

@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import {
+  CUSTOMIZATION_REQUIRED_KEY,
+  hasCompleteCustomization,
+} from "../lib/product-customization";
 
 type Cart = {
-  checkoutUrl: string;
   totalQuantity: number;
   cost: {
     subtotalAmount: Money;
@@ -55,6 +58,7 @@ function formatMoney(money: Money): string {
 export function CartPage() {
   const [cart, setCart] = useState<Cart | null | undefined>(undefined);
   const [pendingLineId, setPendingLineId] = useState<string | null>(null);
+  const [checkoutPending, setCheckoutPending] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -118,6 +122,32 @@ export function CartPage() {
     }
   }
 
+  async function proceedToCheckout() {
+    setCheckoutPending(true);
+    setError("");
+
+    try {
+      const response = await fetch("/api/cart/checkout", { method: "POST" });
+      const result = (await response.json()) as {
+        checkoutUrl?: string;
+        message?: string;
+      };
+
+      if (!response.ok || !result.checkoutUrl) {
+        throw new Error(result.message || "Could not start checkout.");
+      }
+
+      window.location.assign(result.checkoutUrl);
+    } catch (checkoutError) {
+      setError(
+        checkoutError instanceof Error
+          ? checkoutError.message
+          : "Could not start checkout.",
+      );
+      setCheckoutPending(false);
+    }
+  }
+
   if (cart === undefined) {
     return <p className="cart-loading">Loading your cart...</p>;
   }
@@ -133,6 +163,20 @@ export function CartPage() {
       </section>
     );
   }
+
+  const incompleteLineIds = new Set(
+    cart.lines.nodes
+      .filter(
+        (line) =>
+          !hasCompleteCustomization(
+            line.merchandise.product.handle,
+            line.merchandise.product.title,
+            line.attributes,
+          ),
+      )
+      .map((line) => line.id),
+  );
+  const canCheckout = incompleteLineIds.size === 0 && !checkoutPending;
 
   return (
     <section className="cart-page-panel">
@@ -150,9 +194,13 @@ export function CartPage() {
         <div className="cart-line-list">
           {cart.lines.nodes.map((line) => {
             const isPending = pendingLineId === line.id;
+            const needsCustomization = incompleteLineIds.has(line.id);
 
             return (
-              <article key={line.id} className="cart-line">
+              <article
+                key={line.id}
+                className={`cart-line${needsCustomization ? " is-incomplete" : ""}`}
+              >
                 <Link
                   href={`/shop/${line.merchandise.product.handle}`}
                   className="cart-line-media"
@@ -182,15 +230,34 @@ export function CartPage() {
                     <strong>{formatMoney(line.cost.totalAmount)}</strong>
                   </div>
 
-                  {line.attributes.length ? (
+                  {line.attributes.some(
+                    (attribute) => attribute.key !== CUSTOMIZATION_REQUIRED_KEY,
+                  ) ? (
                     <dl className="cart-line-attributes">
-                      {line.attributes.map((attribute) => (
-                        <div key={`${line.id}-${attribute.key}`}>
-                          <dt>{attribute.key}</dt>
-                          <dd>{attribute.value}</dd>
-                        </div>
-                      ))}
+                      {line.attributes
+                        .filter(
+                          (attribute) =>
+                            attribute.key !== CUSTOMIZATION_REQUIRED_KEY,
+                        )
+                        .map((attribute) => (
+                          <div key={`${line.id}-${attribute.key}`}>
+                            <dt>{attribute.key}</dt>
+                            <dd>{attribute.value}</dd>
+                          </div>
+                        ))}
                     </dl>
+                  ) : null}
+
+                  {needsCustomization ? (
+                    <div className="cart-customization-warning" role="alert">
+                      <strong>Customization required</strong>
+                      <p>
+                        Remove this older item and customize it again before checkout.
+                      </p>
+                      <Link href={`/shop/${line.merchandise.product.handle}`}>
+                        Customize This Item
+                      </Link>
+                    </div>
                   ) : null}
 
                   <div className="cart-line-controls">
@@ -233,9 +300,19 @@ export function CartPage() {
             <strong>{formatMoney(cart.cost.subtotalAmount)}</strong>
           </div>
           <p>Shipping and taxes are calculated securely in Shopify checkout.</p>
-          <a href={cart.checkoutUrl} className="cart-checkout-button">
-            Proceed To Checkout
-          </a>
+          {incompleteLineIds.size ? (
+            <p className="cart-checkout-warning">
+              Complete customization for every item to unlock checkout.
+            </p>
+          ) : null}
+          <button
+            type="button"
+            className="cart-checkout-button"
+            disabled={!canCheckout}
+            onClick={() => void proceedToCheckout()}
+          >
+            {checkoutPending ? "Opening Checkout..." : "Proceed To Checkout"}
+          </button>
           <Link href="/shop" className="cart-continue-link">
             Continue Shopping
           </Link>

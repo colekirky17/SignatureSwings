@@ -23,6 +23,11 @@ function validLineId(value: unknown): value is string {
   );
 }
 
+function getPublicCart(cart: NonNullable<Awaited<ReturnType<typeof getCart>>>) {
+  const { checkoutUrl: _checkoutUrl, ...publicCart } = cart;
+  return publicCart;
+}
+
 export async function GET(request: NextRequest) {
   const cartId = await getCartId();
 
@@ -45,7 +50,7 @@ export async function GET(request: NextRequest) {
     return response;
   }
 
-  return NextResponse.json({ cart });
+  return NextResponse.json({ cart: getPublicCart(cart) });
 }
 
 export async function PATCH(request: NextRequest) {
@@ -83,7 +88,7 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ message: result.message }, { status: 502 });
   }
 
-  return NextResponse.json({ cart: result.cart });
+  return NextResponse.json({ cart: getPublicCart(result.cart) });
 }
 
 export async function DELETE(request: NextRequest) {
@@ -111,5 +116,5 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message: result.message }, { status: 502 });
   }
 
-  return NextResponse.json({ cart: result.cart });
+  return NextResponse.json({ cart: getPublicCart(result.cart) });
 }

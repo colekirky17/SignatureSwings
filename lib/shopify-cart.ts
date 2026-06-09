@@ -147,6 +147,10 @@ const VARIANT_AVAILABILITY_QUERY = `
       ... on ProductVariant {
         id
         availableForSale
+        product {
+          title
+          handle
+        }
       }
     }
   }
@@ -277,15 +281,22 @@ function getUserErrorMessage(errors: CartUserError[]): string {
   return errors[0]?.message || "Shopify could not update the cart.";
 }
 
-export async function isVariantAvailable(
+export async function getVariantCartProduct(
   variantId: string,
   buyerIp?: string,
-): Promise<boolean | null> {
+): Promise<{
+  availableForSale: boolean;
+  product: { title: string; handle: string };
+} | null> {
   const data = await queryStorefront<{
-    node: { id: string; availableForSale: boolean } | null;
+    node: {
+      id: string;
+      availableForSale: boolean;
+      product: { title: string; handle: string };
+    } | null;
   }>(VARIANT_AVAILABILITY_QUERY, { id: variantId }, buyerIp);
 
-  return data?.node?.availableForSale ?? null;
+  return data?.node ?? null;
 }
 
 function mapCartPayload(payload: CartMutationPayload | undefined): CartOperationResult {

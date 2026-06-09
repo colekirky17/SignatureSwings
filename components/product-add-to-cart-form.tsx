@@ -15,7 +15,6 @@ export function ProductAddToCartForm() {
     "idle",
   );
   const [message, setMessage] = useState("");
-  const [checkoutUrl, setCheckoutUrl] = useState("");
   const canAddToCart =
     Boolean(selectedVariant?.availableForSale) && status !== "submitting";
 
@@ -41,7 +40,6 @@ export function ProductAddToCartForm() {
       const result = (await response.json()) as {
         added?: boolean;
         totalQuantity?: number;
-        checkoutUrl?: string;
         message?: string;
       };
 
@@ -50,7 +48,6 @@ export function ProductAddToCartForm() {
       }
 
       setStatus("success");
-      setCheckoutUrl(result.checkoutUrl ?? "");
       setMessage(
         `Added to cart. ${result.totalQuantity ?? 1} ${
           result.totalQuantity === 1 ? "item" : "items"
@@ -109,7 +106,7 @@ export function ProductAddToCartForm() {
             {message}
           </p>
           {status === "success" ? (
-            <CartSuccessActions checkoutUrl={checkoutUrl} />
+            <CartSuccessActions />
           ) : null}
         </>
       ) : null}
