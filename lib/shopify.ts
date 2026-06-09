@@ -186,7 +186,7 @@ function buildCollectionWithProductsQuery(productFields: string): string {
       id
       title
       handle
-      products(first: 100, sortKey: TITLE) {
+      products(first: 100, sortKey: COLLECTION_DEFAULT) {
         nodes {
           ${productFields}
         }

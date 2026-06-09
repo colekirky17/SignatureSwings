@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CompleteGolfSetup } from "../../../components/complete-golf-setup";
 import { ProductAddToCartForm } from "../../../components/product-add-to-cart-form";
 import styles from "../../../components/catalog-product-media.module.css";
-import { ProductCustomizationForm } from "../../../components/product-customization-form";
+import {
+  ProductCustomizationForm,
+  type PersonalizationMethodOption,
+} from "../../../components/product-customization-form";
 import { ProductVariantProvider } from "../../../components/product-variant-context";
 import {
   ProductVariantImage,
@@ -18,6 +22,7 @@ import {
 import {
   fetchShopifyProductByHandle,
   fetchShopifyProducts,
+  fetchShopifyProductsByCollectionHandle,
 } from "../../../lib/shopify";
 
 type ProductDetailPageProps = {
@@ -78,38 +83,18 @@ const ballMarkerInfoPanels = [
   },
 ];
 
-const setupUpsells = [
+const divotToolPersonalizationMethods: PersonalizationMethodOption[] = [
   {
-    title: "Custom Divot Tool",
-    copy: "Precision engraved tool to match your custom set.",
-    price: "$29.99",
-    cta: "Add To Cart",
-    href: "/shop/premium-divot-repair-tool",
-    imageLabel: "Divot tool",
+    id: "initials",
+    label: "Add Name or Message",
+    summary: "Engrave a name, message, or short line of text.",
+    reviewDesignEnabled: true,
   },
   {
-    title: "Custom Ball Markers",
-    copy: "Add matching markers to complete your set.",
-    price: "$24.99",
-    cta: "Add To Cart",
-    href: "/shop/custom-ball-marker",
-    imageLabel: "Ball markers",
-  },
-  {
-    title: "Gift Set Bundle",
-    copy: "Club Links, divot tool, and ball marker in a premium box.",
-    price: "$129.99",
-    cta: "View Bundle",
-    href: "/shop/signature-bundle",
-    imageLabel: "Gift bundle",
-  },
-  {
-    title: "Need 10 Or More?",
-    copy: "Get custom pricing for tournaments, events, or group gifts.",
-    price: "",
-    cta: "Request Bulk Order",
-    href: "/contact",
-    imageLabel: "Bulk order",
+    id: "design",
+    label: "Let Us Design It",
+    summary: "Describe what you want and our team will create the design.",
+    reviewDesignEnabled: false,
   },
 ];
 
@@ -166,6 +151,13 @@ function isBallMarkerProduct(product: ProductSummary, categoryTitle?: string): b
       value === "ball markers" ||
       value.includes("ball marker"),
   );
+}
+
+function isBottleOpenerDivotTool(product: ProductSummary): boolean {
+  return [
+    "premium-custom-divot-tool-with-bottle-opener",
+    "premium-divot-repair-tool",
+  ].includes(product.handle);
 }
 
 function ClubLinkProductDetail({
@@ -227,30 +219,6 @@ function ClubLinkProductDetail({
         </article>
       </ProductVariantProvider>
 
-      <section className="club-link-upsell" aria-labelledby="club-link-upsell-heading">
-        <div className="club-link-upsell-heading">
-          <h2 id="club-link-upsell-heading">Complete Your Golf Setup</h2>
-          <p>Add matching accessories and make it a complete set.</p>
-        </div>
-        <div className="club-link-upsell-grid">
-          {setupUpsells.map((item) => (
-            <article key={item.title} className="club-link-upsell-card">
-              <div className="club-link-upsell-media" aria-hidden="true">
-                <span>{item.imageLabel}</span>
-              </div>
-              <div className="club-link-upsell-body">
-                <h3>{item.title}</h3>
-                <p>{item.copy}</p>
-                {item.price ? <strong>{item.price}</strong> : null}
-                <Link href={item.href} className="club-link-upsell-action">
-                  {item.cta}
-                </Link>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="club-link-info-panels" aria-label={`${productTypeLabel} product information`}>
         {infoPanels.map((panel) => (
           <article key={panel.title} className="club-link-info-panel">
@@ -306,13 +274,17 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { handle } = await params;
-  const product = await getAvailableProduct(handle);
+  const [product, bestSellerProducts] = await Promise.all([
+    getAvailableProduct(handle),
+    fetchShopifyProductsByCollectionHandle("best-sellers"),
+  ]);
 
   if (!product) {
     notFound();
   }
 
   const categoryTitle = getProductCategoryTitle(product);
+  const usesDivotToolCustomizer = isBottleOpenerDivotTool(product);
 
   return (
     <main className="product-detail-page">
@@ -348,7 +320,22 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 <ProductVariantPriceStatus
                   fallbackPriceLabel={getDisplayPriceLabel(product.priceLabel)}
                 />
-                <ProductAddToCartForm />
+                {usesDivotToolCustomizer ? (
+                  <ProductCustomizationForm
+                    productLabel="Divot Tool"
+                    methods={divotToolPersonalizationMethods}
+                    customerDetailsRequired={false}
+                    methodDescription="Choose either simple engraved text or describe what you want and let our team create the design."
+                    textHeading="Add Name or Message"
+                    textLabel="Name or Message"
+                    textPlaceholder="e.g., Four Amigos or Happy Birthday, Dad"
+                    textAttributeKey="Name or Message"
+                    showFontStyles={false}
+                    designPlaceholder="Describe the name, message, theme, occasion, or style you want us to create for this divot tool."
+                  />
+                ) : (
+                  <ProductAddToCartForm />
+                )}
               </div>
             </article>
           </ProductVariantProvider>
@@ -357,8 +344,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             <article className="product-detail-panel">
               <h2>Customization Options</h2>
               <p>
-                Customization details are being prepared. Future inquiries can cover artwork,
-                personalization, gifting, and bulk order ideas for this product.
+                {usesDivotToolCustomizer
+                  ? "Personalize this divot tool with a name or short message, or describe your idea and let our team prepare a design for you."
+                  : "Customization details are being prepared. Future inquiries can cover artwork, personalization, gifting, and bulk order ideas for this product."}
               </p>
             </article>
             <article className="product-detail-panel">
@@ -371,6 +359,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
           </section>
         </>
       )}
+
+      <CompleteGolfSetup products={(bestSellerProducts ?? []).slice(0, 4)} />
     </main>
   );
 }

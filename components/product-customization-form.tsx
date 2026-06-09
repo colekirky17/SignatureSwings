@@ -5,16 +5,16 @@ import { type FormEvent, useMemo, useState } from "react";
 import { CartSuccessActions } from "./cart-success-actions";
 import { useProductVariant } from "./product-variant-context";
 
-type PersonalizationMethodId = "initials" | "logo" | "design";
+export type PersonalizationMethodId = "initials" | "logo" | "design";
 
-type PersonalizationMethodOption = {
+export type PersonalizationMethodOption = {
   id: PersonalizationMethodId;
   label: string;
   summary: string;
   reviewDesignEnabled: boolean;
 };
 
-type FontStyleOption = {
+export type FontStyleOption = {
   id: string;
   label: string;
 };
@@ -24,6 +24,14 @@ type ProductCustomizationFormProps = {
   bulkOrderHref?: string;
   methods?: PersonalizationMethodOption[];
   fontStyles?: FontStyleOption[];
+  customerDetailsRequired?: boolean;
+  methodDescription?: string;
+  textHeading?: string;
+  textLabel?: string;
+  textPlaceholder?: string;
+  textAttributeKey?: string;
+  showFontStyles?: boolean;
+  designPlaceholder?: string;
 };
 
 const defaultPersonalizationMethods: PersonalizationMethodOption[] = [
@@ -59,6 +67,14 @@ export function ProductCustomizationForm({
   bulkOrderHref = "/contact",
   methods = defaultPersonalizationMethods,
   fontStyles = defaultFontStyles,
+  customerDetailsRequired = true,
+  methodDescription = "Select one option below. You can use initials, upload a logo, or have us create a design for you.",
+  textHeading = "Initials / Short Text",
+  textLabel = "Initials / Short Text",
+  textPlaceholder = "e.g., JS",
+  textAttributeKey = "Initials / Short Text",
+  showFontStyles = true,
+  designPlaceholder = "Describe the design idea, theme, logo concept, initials, event, or style you want us to create.",
 }: ProductCustomizationFormProps) {
   const {
     options,
@@ -84,7 +100,9 @@ export function ProductCustomizationForm({
     [methods, selectedMethodId],
   );
 
-  const hasRequiredCustomerDetails = name.trim().length > 0 && phoneNumber.trim().length > 0;
+  const hasRequiredCustomerDetails =
+    !customerDetailsRequired ||
+    (name.trim().length > 0 && phoneNumber.trim().length > 0);
   const hasRequiredPersonalization =
     selectedMethodId === "initials"
       ? initials.trim().length > 0
@@ -107,12 +125,12 @@ export function ProductCustomizationForm({
 
     const attributes = [
       { key: "Personalization Method", value: selectedMethod.label },
-      { key: "Name", value: name },
-      { key: "Phone Number", value: phoneNumber },
+      customerDetailsRequired ? { key: "Name", value: name } : null,
+      customerDetailsRequired ? { key: "Phone Number", value: phoneNumber } : null,
       selectedMethodId === "initials"
-        ? { key: "Initials / Short Text", value: initials }
+        ? { key: textAttributeKey, value: initials }
         : null,
-      selectedMethodId === "initials"
+      selectedMethodId === "initials" && showFontStyles
         ? {
             key: "Font Style",
             value:
@@ -198,45 +216,47 @@ export function ProductCustomizationForm({
           </fieldset>
         ) : null}
 
-        <div className="club-link-required-grid">
-          <label className="club-link-input-field">
-            <span>
-              Name <strong aria-hidden="true">*</strong>
-            </span>
-            <input
-              type="text"
-              name="customer-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              placeholder="e.g., John Smith"
-              autoComplete="name"
-              required
-            />
-          </label>
+        {customerDetailsRequired ? (
+          <div className="club-link-required-grid">
+            <label className="club-link-input-field">
+              <span>
+                Name <strong aria-hidden="true">*</strong>
+              </span>
+              <input
+                type="text"
+                name="customer-name"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                placeholder="e.g., John Smith"
+                autoComplete="name"
+                required
+              />
+            </label>
 
-          <label className="club-link-input-field">
-            <span>
-              Phone Number <strong aria-hidden="true">*</strong>
-            </span>
-            <input
-              type="tel"
-              name="phone-number"
-              value={phoneNumber}
-              onChange={(event) => setPhoneNumber(event.target.value)}
-              placeholder="e.g., (800) 123-4561"
-              autoComplete="tel"
-              required
-            />
-          </label>
-        </div>
+            <label className="club-link-input-field">
+              <span>
+                Phone Number <strong aria-hidden="true">*</strong>
+              </span>
+              <input
+                type="tel"
+                name="phone-number"
+                value={phoneNumber}
+                onChange={(event) => setPhoneNumber(event.target.value)}
+                placeholder="e.g., (800) 123-4561"
+                autoComplete="tel"
+                required
+              />
+            </label>
+          </div>
+        ) : null}
 
         <fieldset className="club-link-method-block">
           <legend>Choose Your Personalization Method</legend>
-          <p>
-            Select one option below. You can use initials, upload a logo, or have us create a
-            design for you.
-          </p>
-          <div className="club-link-method-grid" role="radiogroup">
+          <p>{methodDescription}</p>
+          <div
+            className={`club-link-method-grid${methods.length === 2 ? " is-two-options" : ""}`}
+            role="radiogroup"
+          >
             {methods.map((method) => {
               const isSelected = method.id === selectedMethodId;
 
@@ -263,42 +283,44 @@ export function ProductCustomizationForm({
             className="club-link-personalization-panel"
             aria-labelledby="club-link-initials-heading"
           >
-            <h3 id="club-link-initials-heading">Initials / Short Text</h3>
+            <h3 id="club-link-initials-heading">{textHeading}</h3>
             <label className="club-link-input-field">
               <span>
-                Initials / Short Text <strong aria-hidden="true">*</strong>
+                {textLabel} <strong aria-hidden="true">*</strong>
               </span>
               <input
                 type="text"
                 name="initials-short-text"
                 value={initials}
                 onChange={(event) => setInitials(event.target.value)}
-                placeholder="e.g., JS"
+                placeholder={textPlaceholder}
                 required
               />
             </label>
 
-            <fieldset className="club-link-font-style-block">
-              <legend>Font Style</legend>
-              <div className="club-link-font-style-grid" role="radiogroup">
-                {fontStyles.map((style) => {
-                  const isSelected = style.id === selectedFontStyleId;
+            {showFontStyles ? (
+              <fieldset className="club-link-font-style-block">
+                <legend>Font Style</legend>
+                <div className="club-link-font-style-grid" role="radiogroup">
+                  {fontStyles.map((style) => {
+                    const isSelected = style.id === selectedFontStyleId;
 
-                  return (
-                    <button
-                      key={style.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={isSelected}
-                      className={`club-link-font-style${isSelected ? " is-selected" : ""}`}
-                      onClick={() => setSelectedFontStyleId(style.id)}
-                    >
-                      {style.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
+                    return (
+                      <button
+                        key={style.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={isSelected}
+                        className={`club-link-font-style${isSelected ? " is-selected" : ""}`}
+                        onClick={() => setSelectedFontStyleId(style.id)}
+                      >
+                        {style.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            ) : null}
           </section>
         ) : null}
 
@@ -331,7 +353,7 @@ export function ProductCustomizationForm({
                 name="design-request"
                 value={designRequest}
                 onChange={(event) => setDesignRequest(event.target.value)}
-                placeholder="Describe the design idea, theme, logo concept, initials, event, or style you want us to create."
+                placeholder={designPlaceholder}
                 required
               />
             </label>

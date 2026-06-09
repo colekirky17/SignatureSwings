@@ -12,6 +12,7 @@ const ATTRIBUTE_KEYS = new Set([
   "Name",
   "Phone Number",
   "Initials / Short Text",
+  "Name or Message",
   "Font Style",
   "Design Request",
 ]);
