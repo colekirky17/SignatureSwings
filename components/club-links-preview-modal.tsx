@@ -74,6 +74,8 @@ export function ClubLinksPreviewModal({
 
   const centerFontFamily = fontFamilies[fontStyleId] ?? fontFamilies.classic;
   const centerText = initials.trim() || "INITIALS";
+  const centerFontSize =
+    centerText.length <= 2 ? 66 : centerText.length <= 4 ? 58 : centerText.length <= 6 ? 48 : 40;
 
   return (
     <div
@@ -134,43 +136,26 @@ export function ClubLinksPreviewModal({
                 <filter id={`${topPathId}-shadow`} x="-30%" y="-30%" width="160%" height="160%">
                   <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.38" />
                 </filter>
-                <path id={topPathId} d="M 57 135 Q 160 42 263 135" />
-                <path id={bottomPathId} d="M 57 190 Q 160 278 263 190" />
+                <path id={topPathId} d="M 66.7 116.5 A 103 103 0 0 1 253.3 116.5" />
+                <path id={bottomPathId} d="M 66.7 203.5 A 103 103 0 0 0 253.3 203.5" />
               </defs>
 
               <circle
                 cx="160"
                 cy="160"
-                r="132"
-                fill={`url(#${topPathId}-rim)`}
+                r="126"
+                fill={`url(#${topPathId}-metal)`}
+                stroke={`url(#${topPathId}-rim)`}
+                strokeWidth="10"
                 filter={`url(#${topPathId}-shadow)`}
               />
-              <circle cx="160" cy="160" r="125" fill={`url(#${topPathId}-metal)`} />
-              <circle
-                cx="160"
-                cy="160"
-                r="111"
-                fill="none"
-                stroke="#6d7470"
-                strokeWidth="2"
-                opacity="0.72"
-              />
-              <circle
-                cx="160"
-                cy="160"
-                r="106"
-                fill="none"
-                stroke="#f5f7f6"
-                strokeWidth="1"
-                opacity="0.55"
-              />
 
-              <text className="club-links-preview-arc-text">
+              <text className="club-links-preview-arc-text is-top" dy="5">
                 <textPath href={`#${topPathId}`} startOffset="50%" textAnchor="middle">
                   {name.trim()}
                 </textPath>
               </text>
-              <text className="club-links-preview-arc-text">
+              <text className="club-links-preview-arc-text is-bottom" dy="5">
                 <textPath href={`#${bottomPathId}`} startOffset="50%" textAnchor="middle">
                   {phoneNumber.trim()}
                 </textPath>
@@ -182,7 +167,7 @@ export function ClubLinksPreviewModal({
                   y="176"
                   textAnchor="middle"
                   className={`club-links-preview-center-text is-${fontStyleId}`}
-                  style={{ fontFamily: centerFontFamily }}
+                  style={{ fontFamily: centerFontFamily, fontSize: centerFontSize }}
                 >
                   {centerText}
                 </text>
@@ -199,15 +184,6 @@ export function ClubLinksPreviewModal({
                 </g>
               ) : null}
 
-              {methodId === "design" ? (
-                <g className="club-links-preview-placeholder is-design">
-                  <circle cx="160" cy="151" r="42" />
-                  <path d="m160 126 7 14 16 2-12 11 3 16-14-8-14 8 3-16-12-11 16-2 7-14Z" />
-                  <text x="160" y="211" textAnchor="middle">
-                    CUSTOM DESIGN
-                  </text>
-                </g>
-              ) : null}
             </svg>
           </div>
 

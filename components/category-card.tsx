@@ -18,7 +18,6 @@ export function CategoryCard({ category }: CategoryCardProps) {
         <p>{category.shortDescription}</p>
         <Link href={shopHref} className="category-link">
           Shop
-          <span aria-hidden="true">-&gt;</span>
         </Link>
       </div>
     </article>

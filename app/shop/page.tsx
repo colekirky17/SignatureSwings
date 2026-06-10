@@ -58,23 +58,6 @@ export default async function ShopPage() {
         </p>
       </section>
 
-      {collectionGroups.length ? (
-        <section className="shop-category-panel" aria-labelledby="shop-category-heading">
-          <h2 id="shop-category-heading">Browse Categories</h2>
-          <div className="shop-tabs" aria-label="Product categories">
-            {collectionGroups.map((collection) => (
-              <a
-                key={collection.handle}
-                href={`#collection-${collection.handle}`}
-                className={`shop-tab ${styles.shopTabLink}`}
-              >
-                {collection.title}
-              </a>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
       <section className="product-section" aria-labelledby="product-grid-heading">
         <div className="product-section-heading">
           <div>
@@ -107,7 +90,6 @@ export default async function ShopPage() {
             >
               <div className="product-section-heading">
                 <div>
-                  <p className="shop-kicker">Shopify Collection</p>
                   <h2 id={`collection-heading-${collection.handle}`}>{collection.title}</h2>
                 </div>
                 <p className="product-count">

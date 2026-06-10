@@ -20,7 +20,6 @@ export function BlogCard({ post }: BlogCardProps) {
         <p>{post.readTime}</p>
         <Link href={`/blog/${post.slug}`} className="blog-card-link">
           Read Preview
-          <span aria-hidden="true">-&gt;</span>
         </Link>
       </div>
     </article>

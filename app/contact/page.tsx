@@ -72,9 +72,6 @@ export default function ContactPage() {
                   <h2>{topic.title}</h2>
                   <p>{topic.copy}</p>
                 </div>
-                <span className="contact-card-arrow" aria-hidden="true">
-                  -&gt;
-                </span>
               </article>
             ))}
 
@@ -101,7 +98,6 @@ export default function ContactPage() {
               </div>
               <Link href="/faq" className="contact-faq-link">
                 Visit the FAQ
-                <span aria-hidden="true">-&gt;</span>
               </Link>
             </div>
           </div>

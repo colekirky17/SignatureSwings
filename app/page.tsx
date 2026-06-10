@@ -195,7 +195,6 @@ export default async function Home() {
             </p>
             <Link href="/shop" className="home-button">
               Explore Collection
-              <span aria-hidden="true">-&gt;</span>
             </Link>
           </div>
           <div className="hero-dots" aria-hidden="true">
@@ -290,7 +289,6 @@ export default async function Home() {
           </div>
           <Link href="/faq" className="faq-link">
             View all FAQs
-            <span aria-hidden="true">-&gt;</span>
           </Link>
         </div>
         <FaqList items={homepageFaqItems} variant="preview" />

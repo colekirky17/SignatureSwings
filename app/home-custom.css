@@ -64,14 +64,14 @@
   justify-content: center;
   border-left: 1px solid #30443a;
   background:
-    radial-gradient(circle at 62% 42%, rgba(120, 184, 70, 0.14), transparent 38%),
+    radial-gradient(circle at 62% 42%, rgba(79, 200, 90, 0.14), transparent 38%),
     linear-gradient(135deg, #192d24 0%, #102019 55%, #0b1712 100%);
 }
 
 .home-custom-media::before {
   position: absolute;
   inset: 1.1rem;
-  border: 1px solid rgba(120, 184, 70, 0.12);
+  border: 1px solid rgba(79, 200, 90, 0.12);
   border-radius: 0.4rem;
   content: "";
 }
