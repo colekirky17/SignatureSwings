@@ -85,8 +85,16 @@ export function ClubLinksPreviewModal({
 
   const centerFontFamily = fontFamilies[fontStyleId] ?? fontFamilies.classic;
   const centerText = initials.trim() || "INITIALS";
+  const nameText = name.trim();
   const centerFontSize =
-    centerText.length <= 2 ? 66 : centerText.length <= 4 ? 58 : centerText.length <= 6 ? 48 : 40;
+    (centerText.length <= 2
+      ? 66
+      : centerText.length <= 4
+        ? 58
+        : centerText.length <= 6
+          ? 48
+          : 40) * 1.5;
+  const shouldFitNameToArc = nameText.length > 12;
 
   return (
     <div
@@ -163,8 +171,14 @@ export function ClubLinksPreviewModal({
               />
 
               <text className="club-links-preview-arc-text is-top" dy="5">
-                <textPath href={`#${topPathId}`} startOffset="50%" textAnchor="middle">
-                  {name.trim()}
+                <textPath
+                  href={`#${topPathId}`}
+                  startOffset="50%"
+                  textAnchor="middle"
+                  textLength={shouldFitNameToArc ? 178 : undefined}
+                  lengthAdjust={shouldFitNameToArc ? "spacingAndGlyphs" : undefined}
+                >
+                  {nameText}
                 </textPath>
               </text>
               <text className="club-links-preview-arc-text is-bottom" dy="5">

@@ -91,13 +91,19 @@ const ballMarkerPersonalizationMethods: PersonalizationMethodOption[] = [
     id: "initials",
     label: "Text",
     summary: "Add short text, initials, a name, or an event mark.",
-    reviewDesignEnabled: false,
+    reviewDesignEnabled: true,
+  },
+  {
+    id: "logo",
+    label: "Upload Logo",
+    summary: "Use a logo or image file.",
+    reviewDesignEnabled: true,
   },
   {
     id: "design",
     label: "Let Us Design It",
     summary: "Describe what you want and our team will create the design.",
-    reviewDesignEnabled: false,
+    reviewDesignEnabled: true,
   },
 ];
 
@@ -235,7 +241,7 @@ function ClubLinkProductDetail({
               methods={isBallMarker ? ballMarkerPersonalizationMethods : undefined}
               fontStyles={isBallMarker ? undefined : clubLinkFontStyles}
               clubLinksPreviewEnabled={!isBallMarker}
-              logoUploadEnabled={!isBallMarker}
+              logoUploadEnabled
               ballMarkerSides={ballMarkerSides}
             />
           </div>

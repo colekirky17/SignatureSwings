@@ -4,11 +4,16 @@ import Link from "next/link";
 import {
   type ChangeEvent,
   type FormEvent,
+  type RefObject,
   useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import {
+  BallMarkerPreviewModal,
+  type BallMarkerPreviewSide,
+} from "./ball-marker-preview-modal";
 import { CartSuccessActions } from "./cart-success-actions";
 import { ClubLinksPreviewModal } from "./club-links-preview-modal";
 import { useProductVariant } from "./product-variant-context";
@@ -260,6 +265,7 @@ function BallMarkerCustomizationForm({
   productLabel = "Ball Markers",
   bulkOrderHref = "/contact",
   methods = defaultPersonalizationMethods,
+  logoUploadEnabled = false,
   ballMarkerSides = 1,
 }: ProductCustomizationFormProps) {
   const {
@@ -269,7 +275,7 @@ function BallMarkerCustomizationForm({
     setSelectedOption,
   } = useProductVariant();
   const availableMethods = methods.filter(
-    (method) => method.id === "initials" || method.id === "design",
+    (method) => method.id !== "logo" || logoUploadEnabled,
   );
   const [frontMethodId, setFrontMethodId] =
     useState<PersonalizationMethodId | null>(null);
@@ -279,10 +285,46 @@ function BallMarkerCustomizationForm({
   const [backText, setBackText] = useState("");
   const [frontDesignRequest, setFrontDesignRequest] = useState("");
   const [backDesignRequest, setBackDesignRequest] = useState("");
+  const [frontUploadedLogo, setFrontUploadedLogo] = useState<UploadedLogo | null>(null);
+  const [backUploadedLogo, setBackUploadedLogo] = useState<UploadedLogo | null>(null);
+  const [frontLogoUploadStatus, setFrontLogoUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [backLogoUploadStatus, setBackLogoUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [frontLogoUploadMessage, setFrontLogoUploadMessage] = useState("");
+  const [backLogoUploadMessage, setBackLogoUploadMessage] = useState("");
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
+  const [previewValidationMessage, setPreviewValidationMessage] = useState("");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const customizerRef = useRef<HTMLElement>(null);
+  const previewButtonRef = useRef<HTMLButtonElement>(null);
+  const frontLogoInputRef = useRef<HTMLInputElement>(null);
+  const backLogoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const previewUrl = frontUploadedLogo?.previewUrl;
+
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [frontUploadedLogo?.previewUrl]);
+
+  useEffect(() => {
+    const previewUrl = backUploadedLogo?.previewUrl;
+
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [backUploadedLogo?.previewUrl]);
 
   const frontMethod =
     availableMethods.find((method) => method.id === frontMethodId) ?? null;
@@ -291,12 +333,16 @@ function BallMarkerCustomizationForm({
   const isFrontComplete =
     frontMethodId === "initials"
       ? Boolean(frontText.trim())
+      : frontMethodId === "logo"
+        ? Boolean(frontUploadedLogo)
       : frontMethodId === "design"
         ? Boolean(frontDesignRequest.trim())
         : false;
   const isBackComplete =
     backMethodId === "initials"
       ? Boolean(backText.trim())
+      : backMethodId === "logo"
+        ? Boolean(backUploadedLogo)
       : backMethodId === "design"
         ? Boolean(backDesignRequest.trim())
         : false;
@@ -304,7 +350,31 @@ function BallMarkerCustomizationForm({
     Boolean(selectedVariant?.availableForSale) &&
     isFrontComplete &&
     (ballMarkerSides === 1 || isBackComplete) &&
+    frontLogoUploadStatus !== "uploading" &&
+    (ballMarkerSides === 1 || backLogoUploadStatus !== "uploading") &&
     submitStatus !== "submitting";
+
+  function getSideAttributes(
+    sideLabel: "Front" | "Back",
+    methodId: PersonalizationMethodId,
+    method: PersonalizationMethodOption,
+    text: string,
+    designRequest: string,
+    uploadedLogo: UploadedLogo | null,
+  ) {
+    return [
+      { key: `${sideLabel} Personalization Method`, value: method.label },
+      methodId === "initials"
+        ? { key: `${sideLabel} Short Text / Initials`, value: text }
+        : null,
+      methodId === "design"
+        ? { key: `${sideLabel} Design Request`, value: designRequest }
+        : null,
+      methodId === "logo" && uploadedLogo
+        ? { key: `${sideLabel} Logo File Name`, value: uploadedLogo.fileName }
+        : null,
+    ].filter((attribute): attribute is { key: string; value: string } => Boolean(attribute));
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -320,17 +390,23 @@ function BallMarkerCustomizationForm({
 
     const attributes = [
       { key: CUSTOMIZATION_REQUIRED_KEY, value: "Yes" },
-      { key: "Front Personalization Method", value: frontMethod.label },
-      frontMethodId === "initials"
-        ? { key: "Front Short Text / Initials", value: frontText }
-        : { key: "Front Design Request", value: frontDesignRequest },
+      ...getSideAttributes(
+        "Front",
+        frontMethodId,
+        frontMethod,
+        frontText,
+        frontDesignRequest,
+        frontUploadedLogo,
+      ),
       ...(ballMarkerSides === 2 && backMethod
-        ? [
-            { key: "Back Personalization Method", value: backMethod.label },
-            backMethodId === "initials"
-              ? { key: "Back Short Text / Initials", value: backText }
-              : { key: "Back Design Request", value: backDesignRequest },
-          ]
+        ? getSideAttributes(
+            "Back",
+            backMethodId as PersonalizationMethodId,
+            backMethod,
+            backText,
+            backDesignRequest,
+            backUploadedLogo,
+          )
         : []),
     ];
 
@@ -375,6 +451,106 @@ function BallMarkerCustomizationForm({
     }
   }
 
+  async function handleSideLogoFileChange(
+    side: "front" | "back",
+    event: ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    const setUploadedLogo = side === "front" ? setFrontUploadedLogo : setBackUploadedLogo;
+    const setUploadStatus =
+      side === "front" ? setFrontLogoUploadStatus : setBackLogoUploadStatus;
+    const setUploadMessage =
+      side === "front" ? setFrontLogoUploadMessage : setBackLogoUploadMessage;
+
+    setUploadedLogo(null);
+    setUploadStatus("idle");
+    setUploadMessage("");
+    setPreviewValidationMessage("");
+
+    if (file.size > MAX_LOGO_FILE_SIZE) {
+      setUploadStatus("error");
+      setUploadMessage(
+        "This file is too large for upload. Please choose ‘Let Us Design It’ and describe what you want created.",
+      );
+      return;
+    }
+
+    const isAcceptedType =
+      ACCEPTED_LOGO_FILE_TYPES.has(file.type) &&
+      ACCEPTED_LOGO_FILE_EXTENSIONS.test(file.name);
+
+    if (!isAcceptedType) {
+      setUploadStatus("error");
+      setUploadMessage(UNSUPPORTED_LOGO_FILE_MESSAGE);
+      return;
+    }
+
+    setUploadStatus("uploading");
+    setUploadMessage(`Preparing ${file.name} for preview...`);
+    const previewUrl = await createEngravingPreviewUrl(file);
+
+    setUploadedLogo({
+      fileId: `preview-${file.lastModified}-${file.size}`,
+      fileName: file.name,
+      previewUrl,
+      url: null,
+    });
+    setUploadStatus("success");
+    setUploadMessage(
+      previewUrl ? "Logo uploaded for preview." : LOGO_PREVIEW_UNAVAILABLE_MESSAGE,
+    );
+  }
+
+  function removeSideLogo(side: "front" | "back") {
+    if (side === "front") {
+      setFrontUploadedLogo(null);
+      setFrontLogoUploadStatus("idle");
+      setFrontLogoUploadMessage("");
+      frontLogoInputRef.current?.focus();
+    } else {
+      setBackUploadedLogo(null);
+      setBackLogoUploadStatus("idle");
+      setBackLogoUploadMessage("");
+      backLogoInputRef.current?.focus();
+    }
+  }
+
+  function handleReviewDesign() {
+    const missingSides = [
+      !isFrontComplete ? "Front Design" : null,
+      ballMarkerSides === 2 && !isBackComplete ? "Back Design" : null,
+    ].filter((value): value is string => Boolean(value));
+
+    if (missingSides.length) {
+      setPreviewValidationMessage(
+        `Complete the following before reviewing your design: ${missingSides.join(", ")}.`,
+      );
+      return;
+    }
+
+    setPreviewValidationMessage("");
+    setIsPreviewOpen(true);
+  }
+
+  function closePreview() {
+    setIsPreviewOpen(false);
+    window.requestAnimationFrame(() => previewButtonRef.current?.focus());
+  }
+
+  function editPreview() {
+    setIsPreviewOpen(false);
+    window.requestAnimationFrame(() => {
+      customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      previewButtonRef.current?.focus();
+    });
+  }
+
   function renderSide(
     side: "front" | "back",
     selectedMethodId: PersonalizationMethodId | null,
@@ -383,6 +559,10 @@ function BallMarkerCustomizationForm({
     setText: (value: string) => void,
     designRequest: string,
     setDesignRequest: (value: string) => void,
+    uploadedLogo: UploadedLogo | null,
+    logoUploadStatus: "idle" | "uploading" | "success" | "error",
+    logoUploadMessage: string,
+    logoInputRef: RefObject<HTMLInputElement | null>,
   ) {
     const title = side === "front" ? "Front Design" : "Back Design";
 
@@ -393,7 +573,7 @@ function BallMarkerCustomizationForm({
           <h3 id={`ball-marker-${side}-heading`}>{title}</h3>
         </div>
         <p>Choose how you want to personalize the {side} of your ball marker.</p>
-        <div className="club-link-method-grid is-two-options" role="radiogroup">
+        <div className="club-link-method-grid" role="radiogroup">
           {availableMethods.map((method) => {
             const isSelected = method.id === selectedMethodId;
 
@@ -404,7 +584,10 @@ function BallMarkerCustomizationForm({
                 role="radio"
                 aria-checked={isSelected}
                 className={`club-link-method-card${isSelected ? " is-selected" : ""}`}
-                onClick={() => setSelectedMethodId(method.id)}
+                onClick={() => {
+                  setSelectedMethodId(method.id);
+                  setPreviewValidationMessage("");
+                }}
               >
                 <span className="club-link-method-radio" aria-hidden="true" />
                 <span className="club-link-method-label">{method.label}</span>
@@ -430,6 +613,54 @@ function BallMarkerCustomizationForm({
           </label>
         ) : null}
 
+        {selectedMethodId === "logo" ? (
+          <div className="club-link-upload-control ball-marker-side-field">
+            <input
+              ref={logoInputRef}
+              className="club-link-file-input"
+              type="file"
+              name={`${side}-logo-image`}
+              accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+              onChange={(event) => handleSideLogoFileChange(side, event)}
+              disabled={logoUploadStatus === "uploading"}
+              hidden
+            />
+            <button
+              type="button"
+              className="club-link-upload-button"
+              onClick={() => logoInputRef.current?.click()}
+              disabled={logoUploadStatus === "uploading"}
+            >
+              {logoUploadStatus === "uploading"
+                ? "Uploading..."
+                : uploadedLogo
+                  ? "Replace Image"
+                  : "Choose Image"}
+            </button>
+            <p className="club-link-upload-guidance">
+              PNG, JPG, or JPEG files up to 25 MB. Artwork is fitted to the center and shown as
+              a black engraving preview.
+            </p>
+            {uploadedLogo ? (
+              <div className="club-link-upload-file">
+                <span aria-hidden="true">Uploaded</span>
+                <strong>{uploadedLogo.fileName}</strong>
+                <button type="button" onClick={() => removeSideLogo(side)}>
+                  Remove
+                </button>
+              </div>
+            ) : null}
+            {logoUploadMessage ? (
+              <p
+                className={`club-link-upload-status is-${logoUploadStatus}`}
+                role={logoUploadStatus === "error" ? "alert" : "status"}
+              >
+                {logoUploadMessage}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
         {selectedMethodId === "design" ? (
           <label className="club-link-textarea-field ball-marker-side-field">
             <span>
@@ -449,7 +680,11 @@ function BallMarkerCustomizationForm({
   }
 
   return (
-    <section className="club-link-customizer" aria-labelledby="ball-marker-customizer-heading">
+    <section
+      ref={customizerRef}
+      className="club-link-customizer"
+      aria-labelledby="ball-marker-customizer-heading"
+    >
       <form className="club-link-customizer-main" onSubmit={handleSubmit}>
         <h2 id="ball-marker-customizer-heading">Customize Your {productLabel}</h2>
         <p className="ball-marker-customizer-intro">
@@ -492,6 +727,10 @@ function BallMarkerCustomizationForm({
             setFrontText,
             frontDesignRequest,
             setFrontDesignRequest,
+            frontUploadedLogo,
+            frontLogoUploadStatus,
+            frontLogoUploadMessage,
+            frontLogoInputRef,
           )}
           {ballMarkerSides === 2
             ? renderSide(
@@ -502,9 +741,17 @@ function BallMarkerCustomizationForm({
                 setBackText,
                 backDesignRequest,
                 setBackDesignRequest,
+                backUploadedLogo,
+                backLogoUploadStatus,
+                backLogoUploadMessage,
+                backLogoInputRef,
               )
             : null}
         </div>
+
+        <p className="club-link-preview-note" id="ball-marker-preview-helper">
+          Review an approximate engraving preview before adding this item to your cart.
+        </p>
 
         <div className="club-link-actions">
           <button type="submit" className="club-link-primary-action" disabled={!canAddToCart}>
@@ -513,7 +760,34 @@ function BallMarkerCustomizationForm({
           <Link href={bulkOrderHref} className="club-link-secondary-action">
             REQUEST BULK ORDER
           </Link>
+          <button
+            ref={previewButtonRef}
+            type="button"
+            className="club-link-preview-action"
+            data-preview-incomplete={
+              !isFrontComplete || (ballMarkerSides === 2 && !isBackComplete)
+                ? "true"
+                : undefined
+            }
+            aria-describedby={
+              previewValidationMessage
+                ? "ball-marker-preview-validation"
+                : "ball-marker-preview-helper"
+            }
+            onClick={handleReviewDesign}
+          >
+            REVIEW DESIGN
+          </button>
         </div>
+        {previewValidationMessage ? (
+          <p
+            id="ball-marker-preview-validation"
+            className="club-link-preview-validation"
+            role="alert"
+          >
+            {previewValidationMessage}
+          </p>
+        ) : null}
         {submitMessage ? (
           <>
             <p
@@ -526,6 +800,37 @@ function BallMarkerCustomizationForm({
           </>
         ) : null}
       </form>
+      <BallMarkerPreviewModal
+        isOpen={isPreviewOpen}
+        sides={
+          [
+            frontMethod
+              ? {
+                  side: "front",
+                  methodId: frontMethod.id,
+                  methodLabel: frontMethod.label,
+                  text: frontText.trim(),
+                  designRequest: frontDesignRequest.trim(),
+                  logoFileName: frontUploadedLogo?.fileName ?? "",
+                  logoPreviewUrl: frontUploadedLogo?.previewUrl ?? "",
+                }
+              : null,
+            ballMarkerSides === 2 && backMethod
+              ? {
+                  side: "back",
+                  methodId: backMethod.id,
+                  methodLabel: backMethod.label,
+                  text: backText.trim(),
+                  designRequest: backDesignRequest.trim(),
+                  logoFileName: backUploadedLogo?.fileName ?? "",
+                  logoPreviewUrl: backUploadedLogo?.previewUrl ?? "",
+                }
+              : null,
+          ].filter((side): side is BallMarkerPreviewSide => Boolean(side))
+        }
+        onClose={closePreview}
+        onEdit={editPreview}
+      />
     </section>
   );
 }

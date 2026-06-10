@@ -904,6 +904,53 @@
   overflow: visible;
 }
 
+.ball-marker-preview-modal {
+  width: min(100%, 70rem);
+}
+
+.ball-marker-preview-stage {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.ball-marker-preview-stage.is-two-sided {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ball-marker-preview-coin {
+  min-width: 0;
+  text-align: center;
+}
+
+.ball-marker-preview-coin > p {
+  margin-bottom: 0.45rem;
+  color: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ball-marker-preview-coin .club-links-preview-svg {
+  width: min(100%, 22rem);
+}
+
+.ball-marker-preview-center-text {
+  fill: #101412;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.ball-marker-preview-file,
+.ball-marker-preview-request {
+  display: block;
+  margin-top: 0.2rem;
+  color: #839189;
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
 .club-links-preview-arc-text {
   fill: #101412;
   font-family: Arial, Helvetica, sans-serif;
@@ -1359,6 +1406,10 @@
   .club-links-preview-modal {
     max-height: calc(100vh - 1.3rem);
     padding: 1rem;
+  }
+
+  .ball-marker-preview-stage.is-two-sided {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .club-links-preview-layout {
