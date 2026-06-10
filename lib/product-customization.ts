@@ -22,8 +22,6 @@ export function productRequiresCustomization(handle: string, title: string): boo
 
 export function productRequiresCustomerDetails(handle: string, title: string): boolean {
   return (
-    includesProductTerm(handle, title, "ball-marker") ||
-    includesProductTerm(handle, title, "ball marker") ||
     includesProductTerm(handle, title, "club-link") ||
     includesProductTerm(handle, title, "club link")
   );
@@ -47,6 +45,29 @@ export function hasCompleteCustomization(
 
   if (!requiresCustomization) {
     return true;
+  }
+
+  const isBallMarker =
+    includesProductTerm(handle, title, "ball-marker") ||
+    includesProductTerm(handle, title, "ball marker");
+
+  if (isBallMarker) {
+    const frontMethod = getAttribute(attributes, "Front Personalization Method");
+    const backMethod = getAttribute(attributes, "Back Personalization Method");
+    const isSideComplete = (side: "Front" | "Back", method?: string) => {
+      if (!method) {
+        return false;
+      }
+
+      return /design/i.test(method)
+        ? Boolean(getAttribute(attributes, `${side} Design Request`))
+        : Boolean(getAttribute(attributes, `${side} Short Text / Initials`));
+    };
+
+    return (
+      isSideComplete("Front", frontMethod) &&
+      isSideComplete("Back", backMethod)
+    );
   }
 
   const method = getAttribute(attributes, PERSONALIZATION_METHOD_KEY);

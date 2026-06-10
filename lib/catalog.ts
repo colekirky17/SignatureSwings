@@ -66,6 +66,7 @@ export type ProductSummary = {
   shopifyProductId?: string;
   collectionHandles?: string[];
   collectionTitles?: string[];
+  tags?: string[];
   source?: "shopify";
 };
 

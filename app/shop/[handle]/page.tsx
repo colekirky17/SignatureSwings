@@ -48,12 +48,6 @@ const clubLinkInfoPanels = [
     copy:
       "Free shipping on orders over $75. Custom products are non-returnable unless there is a defect.",
   },
-  {
-    title: "Reviews",
-    icon: "r",
-    copy: "See what golfers are saying about Signature Swings.",
-    rating: "5.0 (24 reviews)",
-  },
 ];
 
 const ballMarkerInfoPanels = [
@@ -75,12 +69,6 @@ const ballMarkerInfoPanels = [
     copy:
       "Free shipping on orders over $75. Custom products are non-returnable unless there is a defect.",
   },
-  {
-    title: "Reviews",
-    icon: "r",
-    copy: "See what golfers are saying about Signature Swings.",
-    rating: "5.0 (24 reviews)",
-  },
 ];
 
 const divotToolPersonalizationMethods: PersonalizationMethodOption[] = [
@@ -89,6 +77,21 @@ const divotToolPersonalizationMethods: PersonalizationMethodOption[] = [
     label: "Add Name or Message",
     summary: "Engrave a name, message, or short line of text.",
     reviewDesignEnabled: true,
+  },
+  {
+    id: "design",
+    label: "Let Us Design It",
+    summary: "Describe what you want and our team will create the design.",
+    reviewDesignEnabled: false,
+  },
+];
+
+const ballMarkerPersonalizationMethods: PersonalizationMethodOption[] = [
+  {
+    id: "initials",
+    label: "Text",
+    summary: "Add short text, initials, a name, or an event mark.",
+    reviewDesignEnabled: false,
   },
   {
     id: "design",
@@ -160,6 +163,14 @@ function isBallMarkerProduct(product: ProductSummary, categoryTitle?: string): b
   );
 }
 
+function getBallMarkerCustomizationSides(product: ProductSummary): 1 | 2 {
+  const tags = new Set(product.tags?.map((tag) => tag.trim().toLowerCase()));
+  const isExplicitlyOneSided = tags.has("customization-one-sided");
+  const isExplicitlyTwoSided = tags.has("customization-two-sided");
+
+  return isExplicitlyTwoSided && !isExplicitlyOneSided ? 2 : 1;
+}
+
 function isBottleOpenerDivotTool(product: ProductSummary): boolean {
   return [
     "premium-custom-divot-tool-with-bottle-opener",
@@ -179,6 +190,9 @@ function ClubLinkProductDetail({
   const priceLabel = getDisplayPriceLabel(product.priceLabel);
   const isBallMarker = variant === "ball-marker";
   const productTypeLabel = isBallMarker ? "Ball Markers" : "Club Links";
+  const ballMarkerSides = isBallMarker
+    ? getBallMarkerCustomizationSides(product)
+    : undefined;
   const infoPanels = isBallMarker ? ballMarkerInfoPanels : clubLinkInfoPanels;
   const introCopy = isBallMarker
     ? "Custom engraved ball markers made for logos, initials, events, and personal artwork with a clean circular finish. Final options and availability will be confirmed by inquiry."
@@ -215,17 +229,14 @@ function ClubLinkProductDetail({
             <h1>{product.title}</h1>
             <ProductVariantPriceStatus fallbackPriceLabel={priceLabel} />
             <p className="club-link-intro">{introCopy}</p>
-            <div className="club-link-reviews" aria-label="Placeholder product reviews">
-              <span aria-hidden="true">* * * * *</span>
-              <strong>5.0</strong>
-              <span>(24 reviews)</span>
-            </div>
 
             <ProductCustomizationForm
               productLabel={productTypeLabel}
+              methods={isBallMarker ? ballMarkerPersonalizationMethods : undefined}
               fontStyles={isBallMarker ? undefined : clubLinkFontStyles}
               clubLinksPreviewEnabled={!isBallMarker}
               logoUploadEnabled={!isBallMarker}
+              ballMarkerSides={ballMarkerSides}
             />
           </div>
         </article>
@@ -240,12 +251,6 @@ function ClubLinkProductDetail({
               </span>
               <h2>{panel.title}</h2>
             </div>
-            {panel.rating ? (
-              <div className="club-link-panel-rating" aria-label={`Rated ${panel.rating}`}>
-                <span aria-hidden="true">* * * * *</span>
-                <strong>{panel.rating}</strong>
-              </div>
-            ) : null}
             <p>{panel.copy}</p>
           </article>
         ))}

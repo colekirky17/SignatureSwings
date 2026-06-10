@@ -22,6 +22,12 @@ const ATTRIBUTE_KEYS = new Set([
   "Design Request",
   "Logo Upload",
   "Logo File Name",
+  "Front Personalization Method",
+  "Front Short Text / Initials",
+  "Front Design Request",
+  "Back Personalization Method",
+  "Back Short Text / Initials",
+  "Back Design Request",
   CUSTOMIZATION_REQUIRED_KEY,
 ]);
 

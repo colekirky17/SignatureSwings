@@ -43,6 +43,7 @@ type ProductCustomizationFormProps = {
   designPlaceholder?: string;
   clubLinksPreviewEnabled?: boolean;
   logoUploadEnabled?: boolean;
+  ballMarkerSides?: 1 | 2;
 };
 
 type UploadedLogo = {
@@ -255,7 +256,281 @@ const defaultFontStyles: FontStyleOption[] = [
   { id: "modern", label: "Modern" },
 ];
 
-export function ProductCustomizationForm({
+function BallMarkerCustomizationForm({
+  productLabel = "Ball Markers",
+  bulkOrderHref = "/contact",
+  methods = defaultPersonalizationMethods,
+  ballMarkerSides = 1,
+}: ProductCustomizationFormProps) {
+  const {
+    options,
+    selectedOptions,
+    selectedVariant,
+    setSelectedOption,
+  } = useProductVariant();
+  const availableMethods = methods.filter(
+    (method) => method.id === "initials" || method.id === "design",
+  );
+  const [frontMethodId, setFrontMethodId] =
+    useState<PersonalizationMethodId | null>(null);
+  const [backMethodId, setBackMethodId] =
+    useState<PersonalizationMethodId | null>(null);
+  const [frontText, setFrontText] = useState("");
+  const [backText, setBackText] = useState("");
+  const [frontDesignRequest, setFrontDesignRequest] = useState("");
+  const [backDesignRequest, setBackDesignRequest] = useState("");
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
+
+  const frontMethod =
+    availableMethods.find((method) => method.id === frontMethodId) ?? null;
+  const backMethod =
+    availableMethods.find((method) => method.id === backMethodId) ?? null;
+  const isFrontComplete =
+    frontMethodId === "initials"
+      ? Boolean(frontText.trim())
+      : frontMethodId === "design"
+        ? Boolean(frontDesignRequest.trim())
+        : false;
+  const isBackComplete =
+    backMethodId === "initials"
+      ? Boolean(backText.trim())
+      : backMethodId === "design"
+        ? Boolean(backDesignRequest.trim())
+        : false;
+  const canAddToCart =
+    Boolean(selectedVariant?.availableForSale) &&
+    isFrontComplete &&
+    (ballMarkerSides === 1 || isBackComplete) &&
+    submitStatus !== "submitting";
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (
+      !canAddToCart ||
+      !selectedVariant ||
+      !frontMethod ||
+      (ballMarkerSides === 2 && !backMethod)
+    ) {
+      return;
+    }
+
+    const attributes = [
+      { key: CUSTOMIZATION_REQUIRED_KEY, value: "Yes" },
+      { key: "Front Personalization Method", value: frontMethod.label },
+      frontMethodId === "initials"
+        ? { key: "Front Short Text / Initials", value: frontText }
+        : { key: "Front Design Request", value: frontDesignRequest },
+      ...(ballMarkerSides === 2 && backMethod
+        ? [
+            { key: "Back Personalization Method", value: backMethod.label },
+            backMethodId === "initials"
+              ? { key: "Back Short Text / Initials", value: backText }
+              : { key: "Back Design Request", value: backDesignRequest },
+          ]
+        : []),
+    ];
+
+    setSubmitStatus("submitting");
+    setSubmitMessage("");
+
+    try {
+      const response = await fetch("/api/cart/lines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variantId: selectedVariant.id,
+          attributes,
+        }),
+      });
+      const result = (await response.json()) as {
+        added?: boolean;
+        totalQuantity?: number;
+        message?: string;
+      };
+
+      if (!response.ok || !result.added) {
+        throw new Error(result.message || "Could not add this item to the cart.");
+      }
+
+      setSubmitStatus("success");
+      setSubmitMessage(
+        `Added to cart. ${result.totalQuantity ?? 1} ${
+          result.totalQuantity === 1 ? "item" : "items"
+        } in cart.`,
+      );
+      window.dispatchEvent(
+        new CustomEvent("cart:updated", {
+          detail: { totalQuantity: result.totalQuantity ?? 1 },
+        }),
+      );
+    } catch (error) {
+      setSubmitStatus("error");
+      setSubmitMessage(
+        error instanceof Error ? error.message : "Could not add this item to the cart.",
+      );
+    }
+  }
+
+  function renderSide(
+    side: "front" | "back",
+    selectedMethodId: PersonalizationMethodId | null,
+    setSelectedMethodId: (methodId: PersonalizationMethodId) => void,
+    text: string,
+    setText: (value: string) => void,
+    designRequest: string,
+    setDesignRequest: (value: string) => void,
+  ) {
+    const title = side === "front" ? "Front Design" : "Back Design";
+
+    return (
+      <section className="ball-marker-side-panel" aria-labelledby={`ball-marker-${side}-heading`}>
+        <div className="ball-marker-side-heading">
+          <span>{side === "front" ? "1" : "2"}</span>
+          <h3 id={`ball-marker-${side}-heading`}>{title}</h3>
+        </div>
+        <p>Choose how you want to personalize the {side} of your ball marker.</p>
+        <div className="club-link-method-grid is-two-options" role="radiogroup">
+          {availableMethods.map((method) => {
+            const isSelected = method.id === selectedMethodId;
+
+            return (
+              <button
+                key={`${side}-${method.id}`}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                className={`club-link-method-card${isSelected ? " is-selected" : ""}`}
+                onClick={() => setSelectedMethodId(method.id)}
+              >
+                <span className="club-link-method-radio" aria-hidden="true" />
+                <span className="club-link-method-label">{method.label}</span>
+                <span className="club-link-method-summary">{method.summary}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {selectedMethodId === "initials" ? (
+          <label className="club-link-input-field ball-marker-side-field">
+            <span>
+              Short Text / Initials <strong aria-hidden="true">*</strong>
+            </span>
+            <input
+              type="text"
+              name={`${side}-short-text-initials`}
+              value={text}
+              onChange={(event) => setText(event.target.value)}
+              placeholder="e.g., CK or Birdie Club"
+              required
+            />
+          </label>
+        ) : null}
+
+        {selectedMethodId === "design" ? (
+          <label className="club-link-textarea-field ball-marker-side-field">
+            <span>
+              Describe Your {title} <strong aria-hidden="true">*</strong>
+            </span>
+            <textarea
+              name={`${side}-design-request`}
+              value={designRequest}
+              onChange={(event) => setDesignRequest(event.target.value)}
+              placeholder={`Describe what you want on the ${side} of the ball marker.`}
+              required
+            />
+          </label>
+        ) : null}
+      </section>
+    );
+  }
+
+  return (
+    <section className="club-link-customizer" aria-labelledby="ball-marker-customizer-heading">
+      <form className="club-link-customizer-main" onSubmit={handleSubmit}>
+        <h2 id="ball-marker-customizer-heading">Customize Your {productLabel}</h2>
+        <p className="ball-marker-customizer-intro">
+          {ballMarkerSides === 2
+            ? "Create separate designs for the front and back of your ball marker."
+            : "Create a design for the customizable side of your ball marker."}
+        </p>
+
+        {options.length ? (
+          <fieldset className="product-variant-options">
+            <legend>Choose Product Options</legend>
+            <div className="product-variant-option-grid">
+              {options.map((option) => (
+                <label key={option.name} className="club-link-input-field">
+                  <span>{option.name}</span>
+                  <select
+                    value={selectedOptions[option.name] ?? ""}
+                    onChange={(event) =>
+                      setSelectedOption(option.name, event.target.value)
+                    }
+                  >
+                    {option.values.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
+
+        <div className="ball-marker-side-grid">
+          {renderSide(
+            "front",
+            frontMethodId,
+            setFrontMethodId,
+            frontText,
+            setFrontText,
+            frontDesignRequest,
+            setFrontDesignRequest,
+          )}
+          {ballMarkerSides === 2
+            ? renderSide(
+                "back",
+                backMethodId,
+                setBackMethodId,
+                backText,
+                setBackText,
+                backDesignRequest,
+                setBackDesignRequest,
+              )
+            : null}
+        </div>
+
+        <div className="club-link-actions">
+          <button type="submit" className="club-link-primary-action" disabled={!canAddToCart}>
+            {submitStatus === "submitting" ? "ADDING..." : "ADD TO CART"}
+          </button>
+          <Link href={bulkOrderHref} className="club-link-secondary-action">
+            REQUEST BULK ORDER
+          </Link>
+        </div>
+        {submitMessage ? (
+          <>
+            <p
+              className={`cart-submit-status is-${submitStatus}`}
+              role={submitStatus === "error" ? "alert" : "status"}
+            >
+              {submitMessage}
+            </p>
+            {submitStatus === "success" ? <CartSuccessActions /> : null}
+          </>
+        ) : null}
+      </form>
+    </section>
+  );
+}
+
+function StandardProductCustomizationForm({
   productLabel = "Club Links",
   bulkOrderHref = "/contact",
   methods = defaultPersonalizationMethods,
@@ -298,6 +573,8 @@ export function ProductCustomizationForm({
   const customizerRef = useRef<HTMLElement>(null);
   const previewButtonRef = useRef<HTMLButtonElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const designRequestRef = useRef<HTMLTextAreaElement>(null);
+  const focusDesignRequestRef = useRef(false);
 
   useEffect(() => {
     const previewUrl = uploadedLogo?.previewUrl;
@@ -308,6 +585,13 @@ export function ProductCustomizationForm({
       }
     };
   }, [uploadedLogo?.previewUrl]);
+
+  useEffect(() => {
+    if (selectedMethodId === "design" && focusDesignRequestRef.current) {
+      focusDesignRequestRef.current = false;
+      designRequestRef.current?.focus();
+    }
+  }, [selectedMethodId]);
 
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === selectedMethodId) ?? null,
@@ -404,6 +688,16 @@ export function ProductCustomizationForm({
     window.requestAnimationFrame(() => {
       customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       previewButtonRef.current?.focus();
+    });
+  }
+
+  function useDesignService() {
+    focusDesignRequestRef.current = true;
+    setIsPreviewOpen(false);
+    setSelectedMethodId("design");
+    setPreviewValidationMessage("");
+    window.requestAnimationFrame(() => {
+      customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     });
   }
 
@@ -764,6 +1058,7 @@ export function ProductCustomizationForm({
                 Tell Us What You Want <strong aria-hidden="true">*</strong>
               </span>
               <textarea
+                ref={designRequestRef}
                 name="design-request"
                 value={designRequest}
                 onChange={(event) => {
@@ -849,8 +1144,17 @@ export function ProductCustomizationForm({
           logoPreviewUrl={uploadedLogo?.previewUrl ?? ""}
           onClose={closePreview}
           onEdit={editPreview}
+          onUseDesignService={useDesignService}
         />
       ) : null}
     </section>
+  );
+}
+
+export function ProductCustomizationForm(props: ProductCustomizationFormProps) {
+  return props.ballMarkerSides ? (
+    <BallMarkerCustomizationForm {...props} />
+  ) : (
+    <StandardProductCustomizationForm {...props} />
   );
 }

@@ -54,6 +54,7 @@ type ShopifyProductNode = {
   handle: string;
   description: string;
   productType: string;
+  tags: string[];
   availableForSale: boolean;
   featuredImage: ProductImage | null;
   priceRange: {
@@ -83,6 +84,7 @@ const PRODUCT_FIELDS = `
   handle
   description
   productType
+  tags
   availableForSale
   featuredImage {
     url
@@ -429,6 +431,7 @@ function mapProduct(
     shopifyProductId: product.id,
     collectionHandles: product.collections.nodes.map((item) => item.handle),
     collectionTitles: product.collections.nodes.map((item) => item.title),
+    tags: product.tags,
     source: "shopify",
   };
 }

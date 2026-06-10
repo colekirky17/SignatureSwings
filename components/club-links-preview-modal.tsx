@@ -17,6 +17,7 @@ type ClubLinksPreviewModalProps = {
   logoPreviewUrl: string;
   onClose: () => void;
   onEdit: () => void;
+  onUseDesignService: () => void;
 };
 
 const fontFamilies: Record<string, string> = {
@@ -40,6 +41,7 @@ export function ClubLinksPreviewModal({
   logoPreviewUrl,
   onClose,
   onEdit,
+  onUseDesignService,
 }: ClubLinksPreviewModalProps) {
   const titleId = useId();
   const subtitleId = useId();
@@ -117,8 +119,9 @@ export function ClubLinksPreviewModal({
           <p className="shop-kicker">Engraving Preview</p>
           <h2 id={titleId}>Review Your Club Links Design</h2>
           <p id={subtitleId}>
-            Preview is approximate. Final engraving may vary slightly and will be reviewed
-            before production.
+            This preview is only an estimate of your engraving layout. Club Links are engraved
+            in one color, so uploaded logos are shown as a simplified black preview. If your
+            artwork looks off, our team will review and adjust it before production.
           </p>
         </header>
 
@@ -241,19 +244,28 @@ export function ClubLinksPreviewModal({
                 </div>
               ) : null}
               {methodId === "logo" && logoFileName ? (
-                <div className="is-full">
-                  <dt>Uploaded Image</dt>
-                  <dd>{logoFileName}</dd>
+                <div className="club-links-preview-artwork-summary">
+                  <dt>Artwork</dt>
+                  <dd>
+                    Uploaded
+                    <span>{logoFileName}</span>
+                  </dd>
                 </div>
               ) : null}
             </dl>
 
             {methodId === "logo" ? (
-              <p className="club-links-preview-callout">
-                {isLogoPreviewAvailable
-                  ? `${logoFileName} is shown for preview. Our team will review your artwork before production.`
-                  : "Preview unavailable for this artwork. Our design team will review your logo before production."}
-              </p>
+              <div className="club-links-preview-artwork-guidance">
+                <h4>Logo preview look wrong?</h4>
+                <p>
+                  {isLogoPreviewAvailable
+                    ? "Some multi-color, detailed, or shaded artwork may not convert cleanly to a one-color engraving preview. We’ll review your uploaded artwork before production and adjust it when possible."
+                    : "Preview unavailable for this artwork. Our design team will review your logo before production and adjust it when possible."}
+                </p>
+                <button type="button" onClick={onUseDesignService}>
+                  Having trouble? Let us design it for you
+                </button>
+              </div>
             ) : null}
             {methodId === "design" ? (
               <p className="club-links-preview-callout">

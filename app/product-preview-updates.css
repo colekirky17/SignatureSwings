@@ -114,28 +114,6 @@
   line-height: 1.65;
 }
 
-.club-link-reviews {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  align-items: center;
-  margin-top: 1rem;
-  padding-bottom: 1.15rem;
-  border-bottom: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 0.82rem;
-}
-
-.club-link-reviews span:first-child {
-  color: var(--accent);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.club-link-reviews strong {
-  color: var(--text);
-}
-
 .club-link-option-block {
   margin-top: 1.15rem;
 }
@@ -552,6 +530,66 @@
   cursor: pointer;
 }
 
+.ball-marker-customizer-intro {
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.ball-marker-side-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.15rem;
+}
+
+.ball-marker-side-panel {
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.45rem;
+  background: #09130f;
+}
+
+.ball-marker-side-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.ball-marker-side-heading > span {
+  display: inline-flex;
+  width: 1.65rem;
+  height: 1.65rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #08120e;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.ball-marker-side-heading h3 {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.ball-marker-side-panel > p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.ball-marker-side-panel .club-link-method-grid {
+  margin-top: 0.85rem;
+}
+
+.ball-marker-side-field {
+  display: block;
+  margin-top: 0.85rem;
+}
+
 .club-link-customizer-grid {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.35fr);
@@ -869,7 +907,7 @@
 .club-links-preview-arc-text {
   fill: #101412;
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 15px;
+  font-size: 26.25px;
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -977,6 +1015,56 @@
   overflow-wrap: anywhere;
 }
 
+.club-links-preview-artwork-summary dd span {
+  display: block;
+  margin-top: 0.2rem;
+  overflow: hidden;
+  color: #839189;
+  font-size: 0.68rem;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.club-links-preview-artwork-guidance {
+  margin-top: 0.85rem;
+  padding: 0.85rem;
+  border-left: 2px solid var(--accent);
+  background: rgba(120, 184, 70, 0.07);
+}
+
+.club-links-preview-artwork-guidance h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.club-links-preview-artwork-guidance p {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.club-links-preview-artwork-guidance button {
+  margin-top: 0.65rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-align: left;
+  cursor: pointer;
+}
+
+.club-links-preview-artwork-guidance button:hover,
+.club-links-preview-artwork-guidance button:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
 .club-links-preview-callout {
   margin-top: 0.85rem;
   padding: 0.75rem;
@@ -1078,27 +1166,6 @@
   color: var(--muted);
   font-size: 0.78rem;
   line-height: 1.55;
-}
-
-.club-link-panel-rating {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  align-items: center;
-  margin-top: 0.65rem;
-  color: var(--muted);
-  font-size: 0.75rem;
-}
-
-.club-link-panel-rating span {
-  color: var(--accent);
-  font-weight: 800;
-  letter-spacing: 0.06em;
-}
-
-.club-link-panel-rating strong {
-  color: var(--muted);
-  font-weight: 700;
 }
 
 .club-link-upsell {
