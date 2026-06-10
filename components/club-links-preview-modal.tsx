@@ -194,7 +194,14 @@ export function ClubLinksPreviewModal({
                     preserveAspectRatio="xMidYMid meet"
                     onError={() => setIsLogoPreviewAvailable(false)}
                   />
-                ) : null
+                ) : (
+                  <g className="club-links-preview-logo-fallback">
+                    <circle cx="160" cy="160" r="48" />
+                    <text x="160" y="165" textAnchor="middle">
+                      LOGO
+                    </text>
+                  </g>
+                )
               ) : null}
 
             </svg>
@@ -245,7 +252,7 @@ export function ClubLinksPreviewModal({
               <p className="club-links-preview-callout">
                 {isLogoPreviewAvailable
                   ? `${logoFileName} is shown for preview. Our team will review your artwork before production.`
-                  : "Preview not available for this file. Our team will review your artwork before production."}
+                  : "Preview unavailable for this artwork. Our design team will review your logo before production."}
               </p>
             ) : null}
             {methodId === "design" ? (

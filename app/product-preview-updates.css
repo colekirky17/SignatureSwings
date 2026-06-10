@@ -894,6 +894,22 @@
   letter-spacing: 7px;
 }
 
+.club-links-preview-logo-fallback {
+  fill: none;
+  stroke: #151a17;
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+}
+
+.club-links-preview-logo-fallback text {
+  fill: #151a17;
+  stroke: none;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+}
+
 .club-links-preview-placeholder {
   fill: none;
   stroke: #151a17;

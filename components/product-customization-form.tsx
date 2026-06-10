@@ -53,8 +53,179 @@ type UploadedLogo = {
 };
 
 const MAX_LOGO_FILE_SIZE = 25 * 1024 * 1024;
+const ACCEPTED_LOGO_FILE_TYPES = new Set(["image/png", "image/jpeg"]);
+const ACCEPTED_LOGO_FILE_EXTENSIONS = /\.(?:png|jpe?g)$/i;
+const UNSUPPORTED_LOGO_FILE_MESSAGE =
+  "Please choose a PNG, JPG, or JPEG image. Other file types are not supported.";
 const LOGO_PREVIEW_UNAVAILABLE_MESSAGE =
-  "Preview not available for this file. Our team will review your artwork before production.";
+  "Preview unavailable for this artwork. Our design team will review your logo before production.";
+
+type RgbColor = {
+  red: number;
+  green: number;
+  blue: number;
+};
+
+function getColorDistance(
+  red: number,
+  green: number,
+  blue: number,
+  background: RgbColor,
+): number {
+  return Math.sqrt(
+    (red - background.red) ** 2 +
+      (green - background.green) ** 2 +
+      (blue - background.blue) ** 2,
+  );
+}
+
+function getCornerBackgroundColor(
+  pixels: Uint8ClampedArray,
+  width: number,
+  height: number,
+): RgbColor {
+  const sampleSize = Math.max(1, Math.floor(Math.min(width, height) * 0.04));
+  const samples = [
+    { startX: 0, startY: 0 },
+    { startX: Math.max(0, width - sampleSize), startY: 0 },
+    { startX: 0, startY: Math.max(0, height - sampleSize) },
+    {
+      startX: Math.max(0, width - sampleSize),
+      startY: Math.max(0, height - sampleSize),
+    },
+  ];
+  let red = 0;
+  let green = 0;
+  let blue = 0;
+  let count = 0;
+
+  for (const sample of samples) {
+    for (let y = sample.startY; y < sample.startY + sampleSize; y += 1) {
+      for (let x = sample.startX; x < sample.startX + sampleSize; x += 1) {
+        const offset = (y * width + x) * 4;
+
+        if (pixels[offset + 3] < 16) {
+          continue;
+        }
+
+        red += pixels[offset];
+        green += pixels[offset + 1];
+        blue += pixels[offset + 2];
+        count += 1;
+      }
+    }
+  }
+
+  return count
+    ? { red: red / count, green: green / count, blue: blue / count }
+    : { red: 255, green: 255, blue: 255 };
+}
+
+async function createEngravingPreviewUrl(file: File): Promise<string | null> {
+  let bitmap: ImageBitmap | null = null;
+
+  try {
+    bitmap = await createImageBitmap(file);
+    const maxDimension = 1600;
+    const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
+    const width = Math.max(1, Math.round(bitmap.width * scale));
+    const height = Math.max(1, Math.round(bitmap.height * scale));
+    const sourceCanvas = document.createElement("canvas");
+    sourceCanvas.width = width;
+    sourceCanvas.height = height;
+    const sourceContext = sourceCanvas.getContext("2d", {
+      willReadFrequently: true,
+    });
+
+    if (!sourceContext) {
+      return null;
+    }
+
+    sourceContext.drawImage(bitmap, 0, 0, width, height);
+    const sourceImage = sourceContext.getImageData(0, 0, width, height);
+    const pixels = sourceImage.data;
+    const hasTransparency = pixels.some(
+      (_, index) => index % 4 === 3 && pixels[index] < 250,
+    );
+    const background = getCornerBackgroundColor(pixels, width, height);
+    const visibleMask = new Uint8ClampedArray(width * height);
+    let minX = width;
+    let minY = height;
+    let maxX = -1;
+    let maxY = -1;
+
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        const pixelIndex = y * width + x;
+        const offset = pixelIndex * 4;
+        const alpha = pixels[offset + 3];
+        const distance = getColorDistance(
+          pixels[offset],
+          pixels[offset + 1],
+          pixels[offset + 2],
+          background,
+        );
+        const engravingAlpha = hasTransparency
+          ? alpha
+          : Math.round(Math.min(255, Math.max(0, (distance - 18) * 7)));
+
+        if (engravingAlpha < 20) {
+          continue;
+        }
+
+        visibleMask[pixelIndex] = engravingAlpha;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+
+    if (maxX < minX || maxY < minY) {
+      return null;
+    }
+
+    const padding = Math.max(2, Math.round(Math.max(width, height) * 0.015));
+    minX = Math.max(0, minX - padding);
+    minY = Math.max(0, minY - padding);
+    maxX = Math.min(width - 1, maxX + padding);
+    maxY = Math.min(height - 1, maxY + padding);
+    const outputWidth = maxX - minX + 1;
+    const outputHeight = maxY - minY + 1;
+    const outputCanvas = document.createElement("canvas");
+    outputCanvas.width = outputWidth;
+    outputCanvas.height = outputHeight;
+    const outputContext = outputCanvas.getContext("2d");
+
+    if (!outputContext) {
+      return null;
+    }
+
+    const outputImage = outputContext.createImageData(outputWidth, outputHeight);
+
+    for (let y = 0; y < outputHeight; y += 1) {
+      for (let x = 0; x < outputWidth; x += 1) {
+        const sourceIndex = (y + minY) * width + x + minX;
+        const outputOffset = (y * outputWidth + x) * 4;
+        outputImage.data[outputOffset] = 0;
+        outputImage.data[outputOffset + 1] = 0;
+        outputImage.data[outputOffset + 2] = 0;
+        outputImage.data[outputOffset + 3] = visibleMask[sourceIndex];
+      }
+    }
+
+    outputContext.putImageData(outputImage, 0, 0);
+    const previewBlob = await new Promise<Blob | null>((resolve) => {
+      outputCanvas.toBlob(resolve, "image/png");
+    });
+
+    return previewBlob ? URL.createObjectURL(previewBlob) : null;
+  } catch {
+    return null;
+  } finally {
+    bitmap?.close();
+  }
+}
 
 const defaultPersonalizationMethods: PersonalizationMethodOption[] = [
   {
@@ -236,7 +407,7 @@ export function ProductCustomizationForm({
     });
   }
 
-  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+  async function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
 
@@ -257,29 +428,30 @@ export function ProductCustomizationForm({
       return;
     }
 
-    const isPng = file.type === "image/png" || /\.png$/i.test(file.name);
+    const isAcceptedType =
+      ACCEPTED_LOGO_FILE_TYPES.has(file.type) &&
+      ACCEPTED_LOGO_FILE_EXTENSIONS.test(file.name);
 
-    if (isPng) {
-      const previewUrl = URL.createObjectURL(file);
-      setUploadedLogo({
-        fileId: `preview-${file.lastModified}-${file.size}`,
-        fileName: file.name,
-        previewUrl,
-        url: null,
-      });
-      setLogoUploadStatus("success");
-      setLogoUploadMessage("Logo uploaded for preview.");
+    if (!isAcceptedType) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage(UNSUPPORTED_LOGO_FILE_MESSAGE);
       return;
     }
 
+    setLogoUploadStatus("uploading");
+    setLogoUploadMessage(`Preparing ${file.name} for preview...`);
+    const previewUrl = await createEngravingPreviewUrl(file);
+
     setUploadedLogo({
-      fileId: `preview-unavailable-${file.lastModified}-${file.size}`,
+      fileId: `preview-${file.lastModified}-${file.size}`,
       fileName: file.name,
-      previewUrl: null,
+      previewUrl,
       url: null,
     });
-    setLogoUploadStatus("error");
-    setLogoUploadMessage(LOGO_PREVIEW_UNAVAILABLE_MESSAGE);
+    setLogoUploadStatus("success");
+    setLogoUploadMessage(
+      previewUrl ? "Logo uploaded for preview." : LOGO_PREVIEW_UNAVAILABLE_MESSAGE,
+    );
   }
 
   function removeUploadedLogo() {
@@ -531,7 +703,7 @@ export function ProductCustomizationForm({
                   className="club-link-file-input"
                   type="file"
                   name="logo-image"
-                  accept="image/png,.png"
+                  accept="image/png,image/jpeg,.png,.jpg,.jpeg"
                   onChange={handleLogoFileChange}
                   disabled={logoUploadStatus === "uploading"}
                   hidden
@@ -549,7 +721,8 @@ export function ProductCustomizationForm({
                       : "Choose Image"}
                 </button>
                 <p className="club-link-upload-guidance">
-                  PNG files up to 25 MB. The image is used only for this local preview.
+                  PNG, JPG, or JPEG files up to 25 MB. Artwork is automatically fitted and
+                  shown as a black engraving preview.
                 </p>
                 {uploadedLogo ? (
                   <div className="club-link-upload-file">
