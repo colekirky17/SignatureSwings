@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   type ChangeEvent,
   type FormEvent,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -47,15 +48,13 @@ type ProductCustomizationFormProps = {
 type UploadedLogo = {
   fileId: string;
   fileName: string;
-  url: string;
+  previewUrl: string | null;
+  url: string | null;
 };
 
-const MAX_LOGO_FILE_SIZE = 8 * 1024 * 1024;
-const ALLOWED_LOGO_FILE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-]);
+const MAX_LOGO_FILE_SIZE = 25 * 1024 * 1024;
+const LOGO_PREVIEW_UNAVAILABLE_MESSAGE =
+  "Preview not available for this file. Our team will review your artwork before production.";
 
 const defaultPersonalizationMethods: PersonalizationMethodOption[] = [
   {
@@ -129,6 +128,16 @@ export function ProductCustomizationForm({
   const previewButtonRef = useRef<HTMLButtonElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    const previewUrl = uploadedLogo?.previewUrl;
+
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [uploadedLogo?.previewUrl]);
+
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === selectedMethodId) ?? null,
     [methods, selectedMethodId],
@@ -167,6 +176,9 @@ export function ProductCustomizationForm({
     if (selectedMethodId === "design" && !designRequest.trim()) {
       missingFields.push("Design Request");
     }
+    if (selectedMethodId === "logo" && !uploadedLogo) {
+      missingFields.push("Logo Upload");
+    }
 
     return missingFields;
   }, [
@@ -176,6 +188,7 @@ export function ProductCustomizationForm({
     name,
     phoneNumber,
     selectedMethodId,
+    uploadedLogo,
   ]);
   const canReviewDesign = clubLinksPreviewEnabled
     ? previewMissingFields.length === 0
@@ -185,6 +198,11 @@ export function ProductCustomizationForm({
 
   function handleReviewDesign() {
     if (!clubLinksPreviewEnabled) {
+      return;
+    }
+
+    if (selectedMethodId === "logo" && !uploadedLogo) {
+      setPreviewValidationMessage("Please upload your logo before reviewing the design.");
       return;
     }
 
@@ -218,7 +236,7 @@ export function ProductCustomizationForm({
     });
   }
 
-  async function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+  function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
 
@@ -231,54 +249,37 @@ export function ProductCustomizationForm({
     setLogoUploadMessage("");
     clearPreviewValidation();
 
-    if (!ALLOWED_LOGO_FILE_TYPES.has(file.type) || file.size > MAX_LOGO_FILE_SIZE) {
+    if (file.size > MAX_LOGO_FILE_SIZE) {
       setLogoUploadStatus("error");
-      setLogoUploadMessage("Choose a PNG, JPG, or WebP image that is 8 MB or smaller.");
+      setLogoUploadMessage(
+        "This file is too large for upload. Please choose ‘Let Us Design It’ and describe what you want created.",
+      );
       return;
     }
 
-    const body = new FormData();
-    body.append("file", file);
+    const isPng = file.type === "image/png" || /\.png$/i.test(file.name);
 
-    setLogoUploadStatus("uploading");
-    setLogoUploadMessage(`Uploading ${file.name}...`);
-
-    try {
-      const response = await fetch("/api/uploads/logo", {
-        method: "POST",
-        body,
-      });
-      const result = (await response.json()) as {
-        uploaded?: boolean;
-        fileId?: string;
-        fileName?: string;
-        url?: string;
-        message?: string;
-      };
-
-      if (
-        !response.ok ||
-        !result.uploaded ||
-        !result.fileId ||
-        !result.fileName ||
-        !result.url
-      ) {
-        throw new Error(result.message || "Could not upload this image.");
-      }
-
+    if (isPng) {
+      const previewUrl = URL.createObjectURL(file);
       setUploadedLogo({
-        fileId: result.fileId,
-        fileName: result.fileName,
-        url: result.url,
+        fileId: `preview-${file.lastModified}-${file.size}`,
+        fileName: file.name,
+        previewUrl,
+        url: null,
       });
       setLogoUploadStatus("success");
-      setLogoUploadMessage("Image uploaded and ready to attach to your order.");
-    } catch (error) {
-      setLogoUploadStatus("error");
-      setLogoUploadMessage(
-        error instanceof Error ? error.message : "Could not upload this image.",
-      );
+      setLogoUploadMessage("Logo uploaded for preview.");
+      return;
     }
+
+    setUploadedLogo({
+      fileId: `preview-unavailable-${file.lastModified}-${file.size}`,
+      fileName: file.name,
+      previewUrl: null,
+      url: null,
+    });
+    setLogoUploadStatus("error");
+    setLogoUploadMessage(LOGO_PREVIEW_UNAVAILABLE_MESSAGE);
   }
 
   function removeUploadedLogo() {
@@ -314,10 +315,10 @@ export function ProductCustomizationForm({
       selectedMethodId === "design"
         ? { key: "Design Request", value: designRequest }
         : null,
-      selectedMethodId === "logo" && uploadedLogo
+      selectedMethodId === "logo" && uploadedLogo?.url
         ? { key: "Logo Upload", value: uploadedLogo.url }
         : null,
-      selectedMethodId === "logo" && uploadedLogo
+      selectedMethodId === "logo" && uploadedLogo?.url
         ? { key: "Logo File Name", value: uploadedLogo.fileName }
         : null,
     ].filter((attribute): attribute is { key: string; value: string } => Boolean(attribute));
@@ -530,7 +531,7 @@ export function ProductCustomizationForm({
                   className="club-link-file-input"
                   type="file"
                   name="logo-image"
-                  accept="image/png,image/jpeg,image/webp"
+                  accept="image/png,.png"
                   onChange={handleLogoFileChange}
                   disabled={logoUploadStatus === "uploading"}
                   hidden
@@ -548,8 +549,7 @@ export function ProductCustomizationForm({
                       : "Choose Image"}
                 </button>
                 <p className="club-link-upload-guidance">
-                  PNG, JPG, or WebP. Maximum file size 8 MB. The image will be reviewed
-                  before engraving.
+                  PNG files up to 25 MB. The image is used only for this local preview.
                 </p>
                 {uploadedLogo ? (
                   <div className="club-link-upload-file">
@@ -673,6 +673,7 @@ export function ProductCustomizationForm({
           fontStyleLabel={selectedFontStyle?.label ?? "Classic"}
           designRequest={designRequest.trim()}
           logoFileName={uploadedLogo?.fileName ?? ""}
+          logoPreviewUrl={uploadedLogo?.previewUrl ?? ""}
           onClose={closePreview}
           onEdit={editPreview}
         />

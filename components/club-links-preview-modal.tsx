@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { PersonalizationMethodId } from "./product-customization-form";
 
 type ClubLinksPreviewModalProps = {
@@ -14,6 +14,7 @@ type ClubLinksPreviewModalProps = {
   fontStyleLabel: string;
   designRequest: string;
   logoFileName: string;
+  logoPreviewUrl: string;
   onClose: () => void;
   onEdit: () => void;
 };
@@ -36,6 +37,7 @@ export function ClubLinksPreviewModal({
   fontStyleLabel,
   designRequest,
   logoFileName,
+  logoPreviewUrl,
   onClose,
   onEdit,
 }: ClubLinksPreviewModalProps) {
@@ -44,6 +46,13 @@ export function ClubLinksPreviewModal({
   const topPathId = useId().replace(/:/g, "");
   const bottomPathId = useId().replace(/:/g, "");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const [isLogoPreviewAvailable, setIsLogoPreviewAvailable] = useState(
+    Boolean(logoPreviewUrl),
+  );
+
+  useEffect(() => {
+    setIsLogoPreviewAvailable(Boolean(logoPreviewUrl));
+  }, [logoPreviewUrl]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -174,14 +183,18 @@ export function ClubLinksPreviewModal({
               ) : null}
 
               {methodId === "logo" ? (
-                <g className="club-links-preview-placeholder">
-                  <rect x="112" y="112" width="96" height="82" rx="8" />
-                  <path d="m126 171 22-23 16 15 13-12 19 20" />
-                  <circle cx="181" cy="133" r="7" />
-                  <text x="160" y="213" textAnchor="middle">
-                    LOGO
-                  </text>
-                </g>
+                logoPreviewUrl && isLogoPreviewAvailable ? (
+                  <image
+                    className="club-links-preview-logo"
+                    href={logoPreviewUrl}
+                    x="102"
+                    y="102"
+                    width="116"
+                    height="116"
+                    preserveAspectRatio="xMidYMid meet"
+                    onError={() => setIsLogoPreviewAvailable(false)}
+                  />
+                ) : null
               ) : null}
 
             </svg>
@@ -230,8 +243,9 @@ export function ClubLinksPreviewModal({
 
             {methodId === "logo" ? (
               <p className="club-links-preview-callout">
-                {logoFileName ? `${logoFileName} is attached. ` : ""}
-                Logo upload preview coming soon. Final artwork will be reviewed before engraving.
+                {isLogoPreviewAvailable
+                  ? `${logoFileName} is shown for preview. Our team will review your artwork before production.`
+                  : "Preview not available for this file. Our team will review your artwork before production."}
               </p>
             ) : null}
             {methodId === "design" ? (
