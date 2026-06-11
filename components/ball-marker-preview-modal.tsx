@@ -21,7 +21,7 @@ type BallMarkerPreviewModalProps = {
 };
 
 function BallMarkerCoin({ design }: { design: BallMarkerPreviewSide }) {
-  const gradientId = useId().replace(/:/g, "");
+  const shadowId = useId().replace(/:/g, "");
   const [isLogoPreviewAvailable, setIsLogoPreviewAvailable] = useState(
     Boolean(design.logoPreviewUrl),
   );
@@ -43,18 +43,7 @@ function BallMarkerCoin({ design }: { design: BallMarkerPreviewSide }) {
         aria-label={`${design.side} ball marker engraving preview`}
       >
         <defs>
-          <radialGradient id={`${gradientId}-metal`} cx="38%" cy="30%" r="75%">
-            <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="35%" stopColor="#d9ddd9" />
-            <stop offset="72%" stopColor="#a6aca8" />
-            <stop offset="100%" stopColor="#777e7a" />
-          </radialGradient>
-          <linearGradient id={`${gradientId}-rim`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#f7faf8" />
-            <stop offset="48%" stopColor="#8f9692" />
-            <stop offset="100%" stopColor="#e4e8e5" />
-          </linearGradient>
-          <filter id={`${gradientId}-shadow`} x="-30%" y="-30%" width="160%" height="160%">
+          <filter id={`${shadowId}-shadow`} x="-30%" y="-30%" width="160%" height="160%">
             <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.38" />
           </filter>
         </defs>
@@ -63,10 +52,8 @@ function BallMarkerCoin({ design }: { design: BallMarkerPreviewSide }) {
           cx="160"
           cy="160"
           r="126"
-          fill={`url(#${gradientId}-metal)`}
-          stroke={`url(#${gradientId}-rim)`}
-          strokeWidth="10"
-          filter={`url(#${gradientId}-shadow)`}
+          fill="#cfd3d0"
+          filter={`url(#${shadowId}-shadow)`}
         />
 
         {design.methodId === "initials" ? (

@@ -159,6 +159,9 @@ async function createEngravingPreviewUrl(file: File): Promise<string | null> {
     let minY = height;
     let maxX = -1;
     let maxY = -1;
+    let alphaTotal = 0;
+    let weightedX = 0;
+    let weightedY = 0;
 
     for (let y = 0; y < height; y += 1) {
       for (let x = 0; x < width; x += 1) {
@@ -184,6 +187,9 @@ async function createEngravingPreviewUrl(file: File): Promise<string | null> {
         minY = Math.min(minY, y);
         maxX = Math.max(maxX, x);
         maxY = Math.max(maxY, y);
+        alphaTotal += engravingAlpha;
+        weightedX += x * engravingAlpha;
+        weightedY += y * engravingAlpha;
       }
     }
 
@@ -192,12 +198,14 @@ async function createEngravingPreviewUrl(file: File): Promise<string | null> {
     }
 
     const padding = Math.max(2, Math.round(Math.max(width, height) * 0.015));
-    minX = Math.max(0, minX - padding);
-    minY = Math.max(0, minY - padding);
-    maxX = Math.min(width - 1, maxX + padding);
-    maxY = Math.min(height - 1, maxY + padding);
-    const outputWidth = maxX - minX + 1;
-    const outputHeight = maxY - minY + 1;
+    const centerX = weightedX / alphaTotal;
+    const centerY = weightedY / alphaTotal;
+    const horizontalExtent = Math.max(centerX - minX, maxX - centerX);
+    const verticalExtent = Math.max(centerY - minY, maxY - centerY);
+    const outputWidth = Math.max(1, Math.ceil(horizontalExtent * 2) + padding * 2);
+    const outputHeight = Math.max(1, Math.ceil(verticalExtent * 2) + padding * 2);
+    const offsetX = Math.round(outputWidth / 2 - (centerX - minX));
+    const offsetY = Math.round(outputHeight / 2 - (centerY - minY));
     const outputCanvas = document.createElement("canvas");
     outputCanvas.width = outputWidth;
     outputCanvas.height = outputHeight;
@@ -209,10 +217,22 @@ async function createEngravingPreviewUrl(file: File): Promise<string | null> {
 
     const outputImage = outputContext.createImageData(outputWidth, outputHeight);
 
-    for (let y = 0; y < outputHeight; y += 1) {
-      for (let x = 0; x < outputWidth; x += 1) {
-        const sourceIndex = (y + minY) * width + x + minX;
-        const outputOffset = (y * outputWidth + x) * 4;
+    for (let sourceY = minY; sourceY <= maxY; sourceY += 1) {
+      for (let sourceX = minX; sourceX <= maxX; sourceX += 1) {
+        const outputX = sourceX - minX + offsetX;
+        const outputY = sourceY - minY + offsetY;
+
+        if (
+          outputX < 0 ||
+          outputY < 0 ||
+          outputX >= outputWidth ||
+          outputY >= outputHeight
+        ) {
+          continue;
+        }
+
+        const sourceIndex = sourceY * width + sourceX;
+        const outputOffset = (outputY * outputWidth + outputX) * 4;
         outputImage.data[outputOffset] = 0;
         outputImage.data[outputOffset + 1] = 0;
         outputImage.data[outputOffset + 2] = 0;

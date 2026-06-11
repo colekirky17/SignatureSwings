@@ -9,8 +9,27 @@ export const metadata: Metadata = {
 };
 
 export default function FaqPage() {
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <main className="faq-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqStructuredData).replace(/</g, "\\u003c"),
+        }}
+      />
       <section className="faq-header" aria-labelledby="faq-heading">
         <p className="faq-kicker">Customer Support</p>
         <h1 id="faq-heading">Frequently Asked Questions</h1>

@@ -45,8 +45,26 @@ export function CartIndicator({ onNavigate }: { onNavigate?: () => void }) {
   }, []);
 
   return (
-    <Link href="/cart" className="header-cart-link" onClick={onNavigate}>
-      <span>Cart</span>
+    <Link
+      href="/cart"
+      className="header-cart-link"
+      aria-label={`Shopping cart with ${totalQuantity} items`}
+      onClick={onNavigate}
+    >
+      <svg
+        className="header-cart-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 2-1.6L20.5 7H6" />
+        <circle cx="9.5" cy="19" r="1.2" />
+        <circle cx="17.5" cy="19" r="1.2" />
+      </svg>
       <span className="header-cart-count" aria-label={`${totalQuantity} items in cart`}>
         {totalQuantity}
       </span>

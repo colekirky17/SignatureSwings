@@ -7,20 +7,37 @@ type FaqListProps = {
 
 export function FaqList({ items, variant = "full" }: FaqListProps) {
   const isPreview = variant === "preview";
-  const Heading = isPreview ? "h3" : "h2";
+
+  if (isPreview) {
+    return (
+      <dl className="home-faq-grid">
+        {items.map((item) => (
+          <div key={item.id} className="faq-item home-faq-item">
+            <dt>
+              <h3>{item.question}</h3>
+            </dt>
+            <dd>
+              <p>{item.answer}</p>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    );
+  }
 
   return (
-    <dl className={isPreview ? "home-faq-grid" : "faq-list"}>
+    <div className="faq-list">
       {items.map((item) => (
-        <div key={item.id} className={isPreview ? "faq-item home-faq-item" : "faq-item"}>
-          <dt>
-            <Heading>{item.question}</Heading>
-          </dt>
-          <dd>
+        <details key={item.id} className="faq-accordion">
+          <summary>
+            <span className="faq-accordion-question">{item.question}</span>
+            <span className="faq-accordion-icon" aria-hidden="true" />
+          </summary>
+          <div className="faq-accordion-answer">
             <p>{item.answer}</p>
-          </dd>
-        </div>
+          </div>
+        </details>
       ))}
-    </dl>
+    </div>
   );
 }

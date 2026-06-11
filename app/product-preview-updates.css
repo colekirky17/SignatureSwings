@@ -54,8 +54,8 @@
 
 .club-link-gallery {
   display: grid;
-  grid-template-columns: minmax(0, 2.2fr) minmax(8rem, 0.82fr);
-  gap: 0.65rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
 }
 
 .club-link-main-image,
@@ -70,25 +70,50 @@
 }
 
 .club-link-main-image {
-  min-height: clamp(34rem, 42vw, 48rem);
+  aspect-ratio: 1.58;
 }
 
 .club-link-thumbnails {
   display: grid;
-  gap: 0.55rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
 }
 
 .club-link-thumbnail {
-  min-height: clamp(10.95rem, 13.3vw, 15.55rem);
+  aspect-ratio: 1;
 }
 
+.club-link-main-image img,
 .club-link-thumbnail img {
+  width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 .club-link-summary {
-  padding-top: 0.15rem;
+  padding: clamp(1.25rem, 2.4vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(79, 200, 90, 0.055), transparent 34%),
+    linear-gradient(160deg, #171b19, #101311 78%);
+  box-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.24);
+}
+
+.club-link-summary .club-link-customizer,
+.club-link-summary .club-link-personalization-panel,
+.club-link-summary .ball-marker-side-panel {
+  background: rgba(19, 23, 21, 0.88);
+}
+
+.club-link-summary .club-link-input-field input,
+.club-link-summary .club-link-input-field select,
+.club-link-summary .club-link-textarea-field textarea,
+.club-link-summary .club-link-method-card,
+.club-link-summary .club-link-font-style,
+.club-link-summary .club-link-upload-control,
+.club-link-summary .club-link-upload-coming-soon {
+  background: #111412;
 }
 
 .club-link-summary h1 {
@@ -1342,18 +1367,6 @@
   .product-variant-option-grid,
   .club-link-actions {
     grid-template-columns: 1fr;
-  }
-
-  .club-link-main-image {
-    min-height: 18rem;
-  }
-
-  .club-link-thumbnails {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .club-link-thumbnail {
-    min-height: 6rem;
   }
 
   .club-link-finish-grid,
