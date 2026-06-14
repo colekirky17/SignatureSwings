@@ -1549,7 +1549,7 @@ p {
   padding: clamp(2.75rem, 5vw, 4.5rem) 0 3.75rem;
   overflow: hidden;
   background:
-    radial-gradient(circle at 18% 12%, rgba(120, 184, 70, 0.1), transparent 24rem),
+    radial-gradient(circle at 18% 12%, rgba(79, 200, 90, 0.1), transparent 24rem),
     radial-gradient(circle at 82% 14%, rgba(52, 82, 68, 0.32), transparent 30rem),
     linear-gradient(180deg, #07110d 0%, #08140f 44%, #07110d 100%);
 }
@@ -1570,10 +1570,10 @@ p {
   align-items: center;
   gap: 0.65rem;
   margin-bottom: 1.25rem;
-  color: #d6ff3f;
+  color: var(--accent);
   font-size: 0.76rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
+  font-weight: 700;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
@@ -1587,9 +1587,12 @@ p {
 .about-intro h1 {
   max-width: 42rem;
   color: var(--text);
+  font-family: Impact, "Arial Narrow", Arial, sans-serif;
   font-size: clamp(3rem, 5.8vw, 5rem);
-  font-weight: 800;
-  line-height: 1.02;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .about-intro p:not(.about-kicker) {
@@ -1605,7 +1608,7 @@ p {
   width: 5.2rem;
   height: 0.13rem;
   margin-top: 2.1rem;
-  background: #d6ff3f;
+  background: var(--accent);
 }
 
 .about-founder-photo,
@@ -1662,15 +1665,19 @@ p {
 .about-story-panel {
   margin-top: 0.6rem;
   padding-left: 1.2rem;
-  border-left: 2px solid #d6ff3f;
+  border-left: 2px solid var(--accent);
 }
 
 .about-story-panel h2,
 .about-process h2,
 .about-values h2 {
   color: var(--text);
-  font-size: 1.15rem;
-  line-height: 1.25;
+  font-family: Impact, "Arial Narrow", Arial, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .about-story-copy {
@@ -1722,7 +1729,7 @@ p {
 .about-process-laser {
   background:
     radial-gradient(circle at 48% 56%, rgba(255, 255, 255, 0.92) 0 0.35rem, transparent 0.55rem),
-    radial-gradient(circle at 48% 56%, rgba(214, 255, 63, 0.5), transparent 3.4rem),
+    radial-gradient(circle at 48% 56%, rgba(79, 200, 90, 0.5), transparent 3.4rem),
     linear-gradient(90deg, transparent 0 20%, rgba(245, 247, 242, 0.14) 20% 22%, transparent 22% 39%, rgba(245, 247, 242, 0.12) 39% 41%, transparent 41%),
     linear-gradient(140deg, #303631, #141b18);
 }
@@ -1764,9 +1771,9 @@ p {
   height: 2.2rem;
   align-items: center;
   justify-content: center;
-  border: 1px solid #d6ff3f;
+  border: 1px solid var(--accent);
   border-radius: 0.35rem;
-  color: #d6ff3f;
+  color: var(--accent);
   font-size: 0.78rem;
   font-weight: 900;
 }
@@ -1794,7 +1801,7 @@ p {
   border: 1px solid var(--border);
   border-radius: 0.45rem;
   background:
-    linear-gradient(135deg, rgba(120, 184, 70, 0.08), transparent 52%),
+    linear-gradient(135deg, rgba(79, 200, 90, 0.08), transparent 52%),
     rgba(9, 19, 15, 0.86);
 }
 
@@ -1803,7 +1810,7 @@ p {
   display: block;
   width: 2.8rem;
   height: 2.8rem;
-  color: #d6ff3f;
+  color: var(--accent);
 }
 
 .about-value-icon-person {
@@ -1872,7 +1879,7 @@ p {
 .about-quote {
   margin-top: 2.25rem;
   padding-top: 1.2rem;
-  border-top: 1px solid rgba(214, 255, 63, 0.25);
+  border-top: 1px solid rgba(79, 200, 90, 0.25);
 }
 
 .about-quote blockquote {
@@ -1880,17 +1887,19 @@ p {
   justify-content: center;
   gap: 1rem;
   padding: 0 1rem 1rem;
-  border-bottom: 1px solid rgba(214, 255, 63, 0.25);
+  border-bottom: 1px solid rgba(79, 200, 90, 0.25);
   color: var(--text);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(1.35rem, 2.4vw, 2rem);
-  font-weight: 700;
-  line-height: 1.25;
+  font-family: Impact, "Arial Narrow", Arial, sans-serif;
+  font-size: clamp(1.75rem, 3vw, 2.75rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.05;
   text-align: center;
+  text-transform: uppercase;
 }
 
 .about-quote span {
-  color: #d6ff3f;
+  color: var(--accent);
   font-size: 3rem;
   line-height: 0.9;
 }

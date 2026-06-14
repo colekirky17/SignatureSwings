@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { PersonalizationMethodId } from "./product-customization-form";
+import { usePreviewModalBehavior } from "./use-preview-modal-behavior";
 
 type ClubLinksPreviewModalProps = {
   isOpen: boolean;
@@ -56,28 +57,7 @@ export function ClubLinksPreviewModal({
     setIsLogoPreviewAvailable(Boolean(logoPreviewUrl));
   }, [logoPreviewUrl]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    closeButtonRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+  usePreviewModalBehavior(isOpen, onClose, closeButtonRef);
 
   if (!isOpen) {
     return null;

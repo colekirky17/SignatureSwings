@@ -92,7 +92,21 @@ const NAMED_COLOR_SWATCHES: Record<string, string> = {
 };
 
 function getColorSwatch(option: ProductColorOption): string {
-  return option.swatch || NAMED_COLOR_SWATCHES[option.name.toLowerCase()] || "#607269";
+  const normalizedName = option.name.trim().toLowerCase();
+  const namedColor = Object.entries(NAMED_COLOR_SWATCHES).find(([name]) =>
+    normalizedName.includes(name),
+  )?.[1];
+
+  return option.swatch || namedColor || "#607269";
+}
+
+function getDefaultBallMarkerColor(colorOptions: ProductColorOption[]): string {
+  return (
+    colorOptions.find((option) =>
+      option.name.trim().toLowerCase().includes("silver"),
+    )?.name ??
+    (colorOptions.length === 1 ? colorOptions[0].name : "")
+  );
 }
 
 function ProductColorPicker({
@@ -381,7 +395,7 @@ function BallMarkerCustomizationForm({
   const [frontDesignRequest, setFrontDesignRequest] = useState("");
   const [backDesignRequest, setBackDesignRequest] = useState("");
   const [selectedColor, setSelectedColor] = useState(
-    colorOptions.length === 1 ? colorOptions[0].name : "",
+    getDefaultBallMarkerColor(colorOptions),
   );
   const [frontUploadedLogo, setFrontUploadedLogo] = useState<UploadedLogo | null>(null);
   const [backUploadedLogo, setBackUploadedLogo] = useState<UploadedLogo | null>(null);
@@ -428,6 +442,12 @@ function BallMarkerCustomizationForm({
     availableMethods.find((method) => method.id === frontMethodId) ?? null;
   const backMethod =
     availableMethods.find((method) => method.id === backMethodId) ?? null;
+  const selectedColorOption =
+    colorOptions.find((option) => option.name === selectedColor) ?? null;
+  const previewFinishName = selectedColorOption?.name ?? "Silver";
+  const previewFinishColor = selectedColorOption
+    ? getColorSwatch(selectedColorOption)
+    : NAMED_COLOR_SWATCHES.silver;
   const isFrontComplete =
     frontMethodId === "initials"
       ? Boolean(frontText.trim())
@@ -643,7 +663,9 @@ function BallMarkerCustomizationForm({
 
   function closePreview() {
     setIsPreviewOpen(false);
-    window.requestAnimationFrame(() => previewButtonRef.current?.focus());
+    window.requestAnimationFrame(() =>
+      previewButtonRef.current?.focus({ preventScroll: true }),
+    );
   }
 
   function editPreview() {
@@ -914,6 +936,8 @@ function BallMarkerCustomizationForm({
       </form>
       <BallMarkerPreviewModal
         isOpen={isPreviewOpen}
+        finishName={previewFinishName}
+        finishColor={previewFinishColor}
         sides={
           [
             frontMethod
@@ -1017,7 +1041,9 @@ function DivotToolCustomizationForm({
 
   function closePreview() {
     setIsPreviewOpen(false);
-    window.requestAnimationFrame(() => previewButtonRef.current?.focus());
+    window.requestAnimationFrame(() =>
+      previewButtonRef.current?.focus({ preventScroll: true }),
+    );
   }
 
   function editPreview() {
@@ -1412,7 +1438,9 @@ function StandardProductCustomizationForm({
 
   function closePreview() {
     setIsPreviewOpen(false);
-    window.requestAnimationFrame(() => previewButtonRef.current?.focus());
+    window.requestAnimationFrame(() =>
+      previewButtonRef.current?.focus({ preventScroll: true }),
+    );
   }
 
   function editPreview() {

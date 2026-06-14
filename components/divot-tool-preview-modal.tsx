@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
+import { usePreviewModalBehavior } from "./use-preview-modal-behavior";
 
 type DivotToolPreviewModalProps = {
   isOpen: boolean;
@@ -38,28 +39,7 @@ export function DivotToolPreviewModal({
   const clipPathId = useId().replace(/:/g, "");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    closeButtonRef.current?.focus();
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
+  usePreviewModalBehavior(isOpen, onClose, closeButtonRef);
 
   if (!isOpen) {
     return null;
