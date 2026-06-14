@@ -32,7 +32,7 @@
   max-width: 27rem;
   margin-top: 1.15rem;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 1.08rem;
   line-height: 1.7;
 }
 
@@ -46,7 +46,7 @@
   border-radius: 0.35rem;
   background: #079447;
   color: #f7fbf4;
-  font-size: 0.86rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
   transition: background 150ms ease;

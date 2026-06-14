@@ -19,6 +19,7 @@ const ATTRIBUTE_KEYS = new Set([
   "Initials / Short Text",
   "Name or Message",
   "Font Style",
+  "Color",
   "Design Request",
   "Logo Upload",
   "Logo File Name",

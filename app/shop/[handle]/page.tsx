@@ -71,21 +71,6 @@ const ballMarkerInfoPanels = [
   },
 ];
 
-const divotToolPersonalizationMethods: PersonalizationMethodOption[] = [
-  {
-    id: "initials",
-    label: "Add Name or Message",
-    summary: "Engrave a name, message, or short line of text.",
-    reviewDesignEnabled: true,
-  },
-  {
-    id: "design",
-    label: "Let Us Design It",
-    summary: "Describe what you want and our team will create the design.",
-    reviewDesignEnabled: false,
-  },
-];
-
 const ballMarkerPersonalizationMethods: PersonalizationMethodOption[] = [
   {
     id: "initials",
@@ -243,6 +228,7 @@ function ClubLinkProductDetail({
               clubLinksPreviewEnabled={!isBallMarker}
               logoUploadEnabled
               ballMarkerSides={ballMarkerSides}
+              colorOptions={product.colorOptions}
             />
           </div>
         </article>
@@ -346,15 +332,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                 {usesDivotToolCustomizer ? (
                   <ProductCustomizationForm
                     productLabel="Divot Tool"
-                    methods={divotToolPersonalizationMethods}
-                    customerDetailsRequired={false}
-                    methodDescription="Choose either simple engraved text or describe what you want and let our team create the design."
-                    textHeading="Add Name or Message"
-                    textLabel="Name or Message"
-                    textPlaceholder="e.g., Four Amigos or Happy Birthday, Dad"
-                    textAttributeKey="Name or Message"
-                    showFontStyles={false}
-                    designPlaceholder="Describe the name, message, theme, occasion, or style you want us to create for this divot tool."
+                    fontStyles={clubLinkFontStyles}
+                    divotToolPreviewEnabled
+                    colorOptions={product.colorOptions}
                   />
                 ) : (
                   <ProductAddToCartForm />
@@ -368,7 +348,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               <h2>Customization Options</h2>
               <p>
                 {usesDivotToolCustomizer
-                  ? "Personalize this divot tool with a name or short message, or describe your idea and let our team prepare a design for you."
+                  ? "Personalize this divot tool with a single line of engraved text and your preferred font style."
                   : "Customization details are being prepared. Future inquiries can cover artwork, personalization, gifting, and bulk order ideas for this product."}
               </p>
             </article>

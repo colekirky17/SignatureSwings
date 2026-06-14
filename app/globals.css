@@ -93,7 +93,7 @@ p {
 }
 
 .nav-link {
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
   transition: color 150ms ease;
@@ -651,7 +651,7 @@ p {
 .footer {
   border-top: 1px solid var(--border);
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .footer-grid {
@@ -676,7 +676,7 @@ p {
 .footer-group h2 {
   margin-bottom: 0.35rem;
   color: var(--text);
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -706,7 +706,7 @@ p {
   border: 1px solid var(--border);
   border-radius: 0.3rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
 }
 
 .footer-meta {
@@ -716,7 +716,7 @@ p {
   padding: 1.25rem 0;
   border-top: 1px solid var(--border);
   color: #849289;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .home-page {
@@ -754,7 +754,7 @@ p {
   max-width: none;
   min-height: inherit;
   align-items: stretch;
-  padding: 0 clamp(1.25rem, 4vw, 4.5rem);
+  padding: 0 clamp(2rem, 5.5vw, 7rem);
 }
 
 .home-hero-content {
@@ -769,7 +769,7 @@ p {
 .home-eyebrow {
   margin-bottom: 1.25rem;
   color: var(--accent);
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -785,16 +785,16 @@ p {
 }
 
 .home-hero h1 {
-  max-width: 18rem;
+  max-width: 20rem;
   color: var(--text);
-  font-size: clamp(3rem, 5.4vw, 4.25rem);
+  font-size: clamp(3.35rem, 5.8vw, 4.8rem);
   line-height: 0.98;
 }
 
 .home-hero-copy {
   margin-top: 1.6rem;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: clamp(1.08rem, 1.2vw, 1.2rem);
   line-height: 1.7;
 }
 
@@ -809,7 +809,7 @@ p {
   border-radius: 0.35rem;
   background: #079447;
   color: #f7fbf4;
-  font-size: 0.86rem;
+  font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -882,7 +882,7 @@ p {
 .home-section-title {
   margin-bottom: 1.35rem;
   color: var(--text);
-  font-size: 1.4rem;
+  font-size: clamp(1.75rem, 2.5vw, 2.2rem);
 }
 
 .home-categories {
@@ -920,7 +920,7 @@ p {
 .home-category-card p {
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.55;
 }
 
@@ -930,7 +930,7 @@ p {
   gap: 0.7rem;
   margin-top: 1rem;
   color: var(--accent);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -966,7 +966,7 @@ p {
   max-width: 41rem;
   margin-top: 0.8rem;
   color: var(--muted);
-  font-size: 0.96rem;
+  font-size: 1.06rem;
   line-height: 1.65;
 }
 
@@ -1011,7 +1011,7 @@ p {
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1035,7 +1035,7 @@ p {
 .home-featured-note {
   margin-top: 1rem;
   color: #849289;
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   line-height: 1.4;
 }
 
@@ -1084,7 +1084,7 @@ p {
 
 .featured-product-category {
   color: var(--accent);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1100,7 +1100,7 @@ p {
 .featured-product-description {
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.98rem;
   line-height: 1.55;
 }
 
@@ -1108,7 +1108,7 @@ p {
   margin-top: auto;
   padding-top: 1.05rem;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
 }
 
@@ -1118,7 +1118,7 @@ p {
   gap: 0.6rem;
   margin-top: 0.8rem;
   color: var(--accent);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -1345,7 +1345,7 @@ p {
 .home-trust-point p {
   margin-top: 0.45rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.9rem;
   line-height: 1.45;
 }
 
@@ -1366,7 +1366,7 @@ p {
 .faq-kicker {
   margin-bottom: 0.8rem;
   color: var(--accent);
-  font-size: 0.74rem;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.13em;
   text-transform: uppercase;
@@ -1374,6 +1374,7 @@ p {
 
 .home-faq-header .home-section-title {
   margin-bottom: 0;
+  font-size: clamp(2rem, 3vw, 2.7rem);
 }
 
 .home-faq-grid {
@@ -1384,7 +1385,7 @@ p {
 }
 
 .faq-item {
-  padding: 1.4rem 1.35rem;
+  padding: 1.65rem 1.55rem;
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   background: #09130f;
@@ -1397,7 +1398,7 @@ p {
 
 .home-faq-item h3 {
   color: var(--text);
-  font-size: 1.02rem;
+  font-size: 1.18rem;
   font-weight: 700;
   line-height: 1.4;
 }
@@ -1405,7 +1406,7 @@ p {
 .faq-item p {
   margin-top: 0.8rem;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   line-height: 1.65;
 }
 
@@ -1415,7 +1416,7 @@ p {
   gap: 0.65rem;
   flex: 0 0 auto;
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -1449,7 +1450,7 @@ p {
   margin-left: auto;
   max-width: 48rem;
   color: var(--muted);
-  font-size: 1.02rem;
+  font-size: 1.12rem;
   line-height: 1.65;
 }
 
@@ -1494,7 +1495,7 @@ p {
 
 .faq-accordion-question {
   color: #ffffff;
-  font-size: 1.13rem;
+  font-size: 1.25rem;
   font-weight: 800;
   line-height: 1.35;
   letter-spacing: 0.01em;
@@ -1538,7 +1539,7 @@ p {
 .faq-accordion-answer p {
   margin-top: 1rem;
   color: #c2cdc5;
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   line-height: 1.65;
 }
 
@@ -2507,7 +2508,7 @@ p {
   }
 
   .home-hero h1 {
-    font-size: 3rem;
+    font-size: 3.2rem;
   }
 
   .home-button {
@@ -2676,16 +2677,16 @@ p {
   }
 
   .faq-item {
-    padding: 1.15rem 1.05rem;
+    padding: 1.35rem 1.2rem;
   }
 
   .faq-accordion summary {
-    min-height: 4rem;
-    padding: 1rem 1.05rem;
+    min-height: 4.5rem;
+    padding: 1.15rem 1.2rem;
   }
 
   .faq-accordion-answer {
-    padding: 0 1.05rem 1.1rem;
+    padding: 0 1.2rem 1.25rem;
   }
 
   .faq-page {

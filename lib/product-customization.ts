@@ -5,6 +5,7 @@ export type PersonalizationAttribute = {
 
 const PERSONALIZATION_METHOD_KEY = "Personalization Method";
 export const CUSTOMIZATION_REQUIRED_KEY = "_Customization Required";
+export const DIVOT_TOOL_MAX_CHARACTERS = 20;
 
 function includesProductTerm(handle: string, title: string, term: string): boolean {
   return handle.toLowerCase().includes(term) || title.toLowerCase().includes(term);
@@ -67,6 +68,19 @@ export function hasCompleteCustomization(
     return (
       isSideComplete("Front", frontMethod) &&
       isSideComplete("Back", backMethod)
+    );
+  }
+
+  const isDivotTool = includesProductTerm(handle, title, "divot");
+
+  if (isDivotTool) {
+    const engravingText = getAttribute(attributes, "Name or Message");
+    const fontStyle = getAttribute(attributes, "Font Style");
+
+    return Boolean(
+      engravingText &&
+        engravingText.length <= DIVOT_TOOL_MAX_CHARACTERS &&
+        fontStyle,
     );
   }
 

@@ -50,6 +50,11 @@ export type ProductVariant = {
   currentlyNotInStock: boolean;
 };
 
+export type ProductColorOption = {
+  name: string;
+  swatch?: string;
+};
+
 export type ProductSummary = {
   title: string;
   handle: string;
@@ -62,6 +67,7 @@ export type ProductSummary = {
   ctaLabel: string;
   availableForSale?: boolean;
   variants?: ProductVariant[];
+  colorOptions?: ProductColorOption[];
   shopifyProductHandle?: string;
   shopifyProductId?: string;
   collectionHandles?: string[];

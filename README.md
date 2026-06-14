@@ -31,6 +31,12 @@ npm start
 Railway can detect this as a Node/Next.js app from `package.json`. The production build command is
 `npm run build` and the start command is `npm start`.
 
+## Shopify Catalog
+
+The Storefront API token must include product listing access. To display Shopify category colors
+such as Gold and Silver, it must also include the `unauthenticated_read_metaobjects` scope. Product
+colors are read from Shopify's standard `shopify.color-pattern` category metafield.
+
 ## Customer Artwork Uploads
 
 Club Links logo artwork is uploaded to Shopify Files through the Admin GraphQL API. Configure a

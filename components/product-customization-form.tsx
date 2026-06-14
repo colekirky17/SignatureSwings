@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  type CSSProperties,
   type ChangeEvent,
   type FormEvent,
   type RefObject,
@@ -16,8 +17,16 @@ import {
 } from "./ball-marker-preview-modal";
 import { CartSuccessActions } from "./cart-success-actions";
 import { ClubLinksPreviewModal } from "./club-links-preview-modal";
+import {
+  DivotToolPreviewModal,
+  engravingFontFamilies,
+} from "./divot-tool-preview-modal";
 import { useProductVariant } from "./product-variant-context";
-import { CUSTOMIZATION_REQUIRED_KEY } from "../lib/product-customization";
+import {
+  CUSTOMIZATION_REQUIRED_KEY,
+  DIVOT_TOOL_MAX_CHARACTERS,
+} from "../lib/product-customization";
+import type { ProductColorOption } from "../lib/catalog";
 
 export type PersonalizationMethodId = "initials" | "logo" | "design";
 
@@ -49,6 +58,8 @@ type ProductCustomizationFormProps = {
   clubLinksPreviewEnabled?: boolean;
   logoUploadEnabled?: boolean;
   ballMarkerSides?: 1 | 2;
+  colorOptions?: ProductColorOption[];
+  divotToolPreviewEnabled?: boolean;
 };
 
 type UploadedLogo = {
@@ -65,6 +76,69 @@ const UNSUPPORTED_LOGO_FILE_MESSAGE =
   "Please choose a PNG, JPG, or JPEG image. Other file types are not supported.";
 const LOGO_PREVIEW_UNAVAILABLE_MESSAGE =
   "Preview unavailable for this artwork. Our design team will review your logo before production.";
+
+const NAMED_COLOR_SWATCHES: Record<string, string> = {
+  black: "#171717",
+  blue: "#2563eb",
+  bronze: "#a97142",
+  copper: "#b87333",
+  gold: "#d6a400",
+  gray: "#8b9290",
+  green: "#24834b",
+  grey: "#8b9290",
+  red: "#c83c3c",
+  silver: "#c5c8ca",
+  white: "#f4f4f0",
+};
+
+function getColorSwatch(option: ProductColorOption): string {
+  return option.swatch || NAMED_COLOR_SWATCHES[option.name.toLowerCase()] || "#607269";
+}
+
+function ProductColorPicker({
+  colorOptions,
+  selectedColor,
+  onSelect,
+}: {
+  colorOptions: ProductColorOption[];
+  selectedColor: string;
+  onSelect: (color: string) => void;
+}) {
+  if (!colorOptions.length) {
+    return null;
+  }
+
+  return (
+    <fieldset className="product-color-options">
+      <legend>
+        Color <strong aria-hidden="true">*</strong>
+      </legend>
+      <div className="product-color-option-grid" role="radiogroup">
+        {colorOptions.map((option) => {
+          const isSelected = selectedColor === option.name;
+          const style = {
+            "--product-color-swatch": getColorSwatch(option),
+          } as CSSProperties;
+
+          return (
+            <button
+              key={option.name}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              className={`product-color-option${isSelected ? " is-selected" : ""}`}
+              onClick={() => onSelect(option.name)}
+              style={style}
+            >
+              <span className="product-color-swatch" aria-hidden="true" />
+              <span>{option.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
 
 type RgbColor = {
   red: number;
@@ -287,6 +361,7 @@ function BallMarkerCustomizationForm({
   methods = defaultPersonalizationMethods,
   logoUploadEnabled = false,
   ballMarkerSides = 1,
+  colorOptions = [],
 }: ProductCustomizationFormProps) {
   const {
     options,
@@ -305,6 +380,9 @@ function BallMarkerCustomizationForm({
   const [backText, setBackText] = useState("");
   const [frontDesignRequest, setFrontDesignRequest] = useState("");
   const [backDesignRequest, setBackDesignRequest] = useState("");
+  const [selectedColor, setSelectedColor] = useState(
+    colorOptions.length === 1 ? colorOptions[0].name : "",
+  );
   const [frontUploadedLogo, setFrontUploadedLogo] = useState<UploadedLogo | null>(null);
   const [backUploadedLogo, setBackUploadedLogo] = useState<UploadedLogo | null>(null);
   const [frontLogoUploadStatus, setFrontLogoUploadStatus] = useState<
@@ -370,6 +448,7 @@ function BallMarkerCustomizationForm({
     Boolean(selectedVariant?.availableForSale) &&
     isFrontComplete &&
     (ballMarkerSides === 1 || isBackComplete) &&
+    (!colorOptions.length || Boolean(selectedColor)) &&
     frontLogoUploadStatus !== "uploading" &&
     (ballMarkerSides === 1 || backLogoUploadStatus !== "uploading") &&
     submitStatus !== "submitting";
@@ -410,6 +489,7 @@ function BallMarkerCustomizationForm({
 
     const attributes = [
       { key: CUSTOMIZATION_REQUIRED_KEY, value: "Yes" },
+      selectedColor ? { key: "Color", value: selectedColor } : null,
       ...getSideAttributes(
         "Front",
         frontMethodId,
@@ -428,7 +508,9 @@ function BallMarkerCustomizationForm({
             backUploadedLogo,
           )
         : []),
-    ];
+    ].filter((attribute): attribute is { key: string; value: string } =>
+      Boolean(attribute),
+    );
 
     setSubmitStatus("submitting");
     setSubmitMessage("");
@@ -543,6 +625,7 @@ function BallMarkerCustomizationForm({
 
   function handleReviewDesign() {
     const missingSides = [
+      colorOptions.length && !selectedColor ? "Color" : null,
       !isFrontComplete ? "Front Design" : null,
       ballMarkerSides === 2 && !isBackComplete ? "Back Design" : null,
     ].filter((value): value is string => Boolean(value));
@@ -713,6 +796,15 @@ function BallMarkerCustomizationForm({
             : "Create a design for the customizable side of your ball marker."}
         </p>
 
+        <ProductColorPicker
+          colorOptions={colorOptions}
+          selectedColor={selectedColor}
+          onSelect={(color) => {
+            setSelectedColor(color);
+            setPreviewValidationMessage("");
+          }}
+        />
+
         {options.length ? (
           <fieldset className="product-variant-options">
             <legend>Choose Product Options</legend>
@@ -855,6 +947,313 @@ function BallMarkerCustomizationForm({
   );
 }
 
+function DivotToolCustomizationForm({
+  productLabel = "Divot Tool",
+  bulkOrderHref = "/contact",
+  fontStyles = defaultFontStyles,
+  colorOptions = [],
+}: ProductCustomizationFormProps) {
+  const {
+    options,
+    selectedOptions,
+    selectedVariant,
+    setSelectedOption,
+  } = useProductVariant();
+  const [engravingText, setEngravingText] = useState("");
+  const [selectedFontStyleId, setSelectedFontStyleId] = useState(
+    fontStyles[0]?.id ?? "classic",
+  );
+  const [selectedColor, setSelectedColor] = useState(
+    colorOptions.length === 1 ? colorOptions[0].name : "",
+  );
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "submitting" | "success" | "error"
+  >("idle");
+  const [submitMessage, setSubmitMessage] = useState("");
+  const [validationMessage, setValidationMessage] = useState("");
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const customizerRef = useRef<HTMLElement>(null);
+  const previewButtonRef = useRef<HTMLButtonElement>(null);
+
+  const trimmedText = engravingText.trim();
+  const isTextTooLong = engravingText.length > DIVOT_TOOL_MAX_CHARACTERS;
+  const hasValidText = Boolean(trimmedText) && !isTextTooLong;
+  const hasRequiredColor = !colorOptions.length || Boolean(selectedColor);
+  const selectedFontStyle =
+    fontStyles.find((style) => style.id === selectedFontStyleId) ?? fontStyles[0];
+  const canAddToCart =
+    Boolean(selectedVariant?.availableForSale) &&
+    hasValidText &&
+    hasRequiredColor &&
+    submitStatus !== "submitting";
+
+  function getValidationMessage(): string {
+    if (!trimmedText) {
+      return "Enter the engraving text before reviewing your design.";
+    }
+
+    if (isTextTooLong) {
+      return `Keep the engraving to ${DIVOT_TOOL_MAX_CHARACTERS} characters or fewer so it fits cleanly on the tool.`;
+    }
+
+    if (!hasRequiredColor) {
+      return "Choose a color before reviewing your design.";
+    }
+
+    return "";
+  }
+
+  function handleReviewDesign() {
+    const message = getValidationMessage();
+
+    if (message) {
+      setValidationMessage(message);
+      return;
+    }
+
+    setValidationMessage("");
+    setIsPreviewOpen(true);
+  }
+
+  function closePreview() {
+    setIsPreviewOpen(false);
+    window.requestAnimationFrame(() => previewButtonRef.current?.focus());
+  }
+
+  function editPreview() {
+    setIsPreviewOpen(false);
+    window.requestAnimationFrame(() => {
+      customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      previewButtonRef.current?.focus();
+    });
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!selectedVariant || !canAddToCart || !selectedFontStyle) {
+      setValidationMessage(getValidationMessage());
+      return;
+    }
+
+    const attributes = [
+      { key: CUSTOMIZATION_REQUIRED_KEY, value: "Yes" },
+      { key: "Personalization Method", value: "Engraving Text" },
+      { key: "Name or Message", value: trimmedText },
+      { key: "Font Style", value: selectedFontStyle.label },
+      selectedColor ? { key: "Color", value: selectedColor } : null,
+    ].filter((attribute): attribute is { key: string; value: string } =>
+      Boolean(attribute),
+    );
+
+    setSubmitStatus("submitting");
+    setSubmitMessage("");
+
+    try {
+      const response = await fetch("/api/cart/lines", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variantId: selectedVariant.id,
+          attributes,
+        }),
+      });
+      const result = (await response.json()) as {
+        added?: boolean;
+        totalQuantity?: number;
+        message?: string;
+      };
+
+      if (!response.ok || !result.added) {
+        throw new Error(result.message || "Could not add this item to the cart.");
+      }
+
+      setSubmitStatus("success");
+      setSubmitMessage(
+        `Added to cart. ${result.totalQuantity ?? 1} ${
+          result.totalQuantity === 1 ? "item" : "items"
+        } in cart.`,
+      );
+      window.dispatchEvent(
+        new CustomEvent("cart:updated", {
+          detail: { totalQuantity: result.totalQuantity ?? 1 },
+        }),
+      );
+    } catch (error) {
+      setSubmitStatus("error");
+      setSubmitMessage(
+        error instanceof Error ? error.message : "Could not add this item to the cart.",
+      );
+    }
+  }
+
+  return (
+    <section
+      ref={customizerRef}
+      className="club-link-customizer divot-tool-customizer"
+      aria-labelledby="divot-tool-customizer-heading"
+    >
+      <form className="club-link-customizer-main" onSubmit={handleSubmit}>
+        <h2 id="divot-tool-customizer-heading">Customize Your {productLabel}</h2>
+        <p className="divot-tool-customizer-intro">
+          Add one line of engraving text and choose the style that fits it best.
+        </p>
+
+        <ProductColorPicker
+          colorOptions={colorOptions}
+          selectedColor={selectedColor}
+          onSelect={(color) => {
+            setSelectedColor(color);
+            setValidationMessage("");
+          }}
+        />
+
+        {options.length ? (
+          <fieldset className="product-variant-options">
+            <legend>Choose Product Options</legend>
+            <div className="product-variant-option-grid">
+              {options.map((option) => (
+                <label key={option.name} className="club-link-input-field">
+                  <span>{option.name}</span>
+                  <select
+                    value={selectedOptions[option.name] ?? ""}
+                    onChange={(event) =>
+                      setSelectedOption(option.name, event.target.value)
+                    }
+                  >
+                    {option.values.map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ) : null}
+
+        <section
+          className="club-link-personalization-panel"
+          aria-labelledby="divot-tool-engraving-heading"
+        >
+          <h3 id="divot-tool-engraving-heading">Engraving Details</h3>
+          <label className="club-link-input-field">
+            <span>
+              Engraving Text <strong aria-hidden="true">*</strong>
+            </span>
+            <input
+              type="text"
+              name="divot-tool-engraving-text"
+              value={engravingText}
+              onChange={(event) => {
+                setEngravingText(event.target.value);
+                setValidationMessage("");
+              }}
+              placeholder="e.g., Four Amigos"
+              aria-invalid={isTextTooLong || undefined}
+              aria-describedby="divot-tool-character-count"
+              required
+            />
+          </label>
+          <p
+            id="divot-tool-character-count"
+            className={`divot-tool-character-count${isTextTooLong ? " is-error" : ""}`}
+          >
+            {engravingText.length}/{DIVOT_TOOL_MAX_CHARACTERS} characters
+          </p>
+
+          <fieldset className="club-link-font-style-block">
+            <legend>Font Style</legend>
+            <div className="club-link-font-style-grid" role="radiogroup">
+              {fontStyles.map((style) => {
+                const isSelected = style.id === selectedFontStyleId;
+
+                return (
+                  <button
+                    key={style.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={isSelected}
+                    className={`club-link-font-style is-${style.id}${
+                      isSelected ? " is-selected" : ""
+                    }`}
+                    style={{
+                      fontFamily:
+                        engravingFontFamilies[style.id] ??
+                        engravingFontFamilies.classic,
+                    }}
+                    onClick={() => setSelectedFontStyleId(style.id)}
+                  >
+                    {style.label}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        </section>
+
+        <p className="club-link-preview-note" id="divot-tool-preview-helper">
+          Review the engraving placement before adding this item to your cart.
+        </p>
+
+        <div className="club-link-actions">
+          <button type="submit" className="club-link-primary-action" disabled={!canAddToCart}>
+            {submitStatus === "submitting" ? "ADDING..." : "ADD TO CART"}
+          </button>
+          <Link href={bulkOrderHref} className="club-link-secondary-action">
+            REQUEST BULK ORDER
+          </Link>
+          <button
+            ref={previewButtonRef}
+            type="button"
+            className="club-link-preview-action"
+            data-preview-incomplete={!hasValidText || !hasRequiredColor ? "true" : undefined}
+            aria-describedby={
+              validationMessage
+                ? "divot-tool-preview-validation"
+                : "divot-tool-preview-helper"
+            }
+            onClick={handleReviewDesign}
+          >
+            REVIEW DESIGN
+          </button>
+        </div>
+
+        {validationMessage ? (
+          <p
+            id="divot-tool-preview-validation"
+            className="club-link-preview-validation"
+            role="alert"
+          >
+            {validationMessage}
+          </p>
+        ) : null}
+        {submitMessage ? (
+          <>
+            <p
+              className={`cart-submit-status is-${submitStatus}`}
+              role={submitStatus === "error" ? "alert" : "status"}
+            >
+              {submitMessage}
+            </p>
+            {submitStatus === "success" ? <CartSuccessActions /> : null}
+          </>
+        ) : null}
+      </form>
+
+      <DivotToolPreviewModal
+        isOpen={isPreviewOpen}
+        engravingText={trimmedText}
+        fontStyleId={selectedFontStyle?.id ?? "classic"}
+        fontStyleLabel={selectedFontStyle?.label ?? "Classic"}
+        onClose={closePreview}
+        onEdit={editPreview}
+      />
+    </section>
+  );
+}
+
 function StandardProductCustomizationForm({
   productLabel = "Club Links",
   bulkOrderHref = "/contact",
@@ -870,6 +1269,7 @@ function StandardProductCustomizationForm({
   designPlaceholder = "Describe the design idea, theme, logo concept, initials, event, or style you want us to create.",
   clubLinksPreviewEnabled = false,
   logoUploadEnabled = false,
+  colorOptions = [],
 }: ProductCustomizationFormProps) {
   const {
     options,
@@ -882,6 +1282,9 @@ function StandardProductCustomizationForm({
   const [selectedMethodId, setSelectedMethodId] =
     useState<PersonalizationMethodId | null>(null);
   const [initials, setInitials] = useState("");
+  const [selectedColor, setSelectedColor] = useState(
+    colorOptions.length === 1 ? colorOptions[0].name : "",
+  );
   const [selectedFontStyleId, setSelectedFontStyleId] = useState(fontStyles[0]?.id ?? "");
   const [designRequest, setDesignRequest] = useState("");
   const [uploadedLogo, setUploadedLogo] = useState<UploadedLogo | null>(null);
@@ -938,6 +1341,7 @@ function StandardProductCustomizationForm({
     Boolean(selectedVariant?.availableForSale) &&
     hasRequiredCustomerDetails &&
     hasRequiredPersonalization &&
+    (!colorOptions.length || Boolean(selectedColor)) &&
     submitStatus !== "submitting" &&
     logoUploadStatus !== "uploading";
   const previewMissingFields = useMemo(() => {
@@ -947,6 +1351,7 @@ function StandardProductCustomizationForm({
 
     const missingFields: string[] = [];
 
+    if (colorOptions.length && !selectedColor) missingFields.push("Color");
     if (!name.trim()) missingFields.push("Name");
     if (!phoneNumber.trim()) missingFields.push("Phone Number");
     if (!selectedMethodId) missingFields.push("Personalization Method");
@@ -963,11 +1368,13 @@ function StandardProductCustomizationForm({
     return missingFields;
   }, [
     clubLinksPreviewEnabled,
+    colorOptions.length,
     designRequest,
     initials,
     name,
     phoneNumber,
     selectedMethodId,
+    selectedColor,
     uploadedLogo,
   ]);
   const canReviewDesign = clubLinksPreviewEnabled
@@ -1089,6 +1496,7 @@ function StandardProductCustomizationForm({
 
     const attributes = [
       { key: CUSTOMIZATION_REQUIRED_KEY, value: "Yes" },
+      selectedColor ? { key: "Color", value: selectedColor } : null,
       { key: "Personalization Method", value: selectedMethod.label },
       customerDetailsRequired ? { key: "Name", value: name } : null,
       customerDetailsRequired ? { key: "Phone Number", value: phoneNumber } : null,
@@ -1163,6 +1571,15 @@ function StandardProductCustomizationForm({
     >
       <form className="club-link-customizer-main" onSubmit={handleSubmit}>
         <h2 id="club-link-customizer-heading">Customize Your {productLabel}</h2>
+
+        <ProductColorPicker
+          colorOptions={colorOptions}
+          selectedColor={selectedColor}
+          onSelect={(color) => {
+            setSelectedColor(color);
+            clearPreviewValidation();
+          }}
+        />
 
         {options.length ? (
           <fieldset className="product-variant-options">
@@ -1477,6 +1894,10 @@ function StandardProductCustomizationForm({
 }
 
 export function ProductCustomizationForm(props: ProductCustomizationFormProps) {
+  if (props.divotToolPreviewEnabled) {
+    return <DivotToolCustomizationForm {...props} />;
+  }
+
   return props.ballMarkerSides ? (
     <BallMarkerCustomizationForm {...props} />
   ) : (

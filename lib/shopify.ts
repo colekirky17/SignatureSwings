@@ -4,6 +4,7 @@ import {
   shopCategoryCollections,
   productCategories,
   type ProductCategorySlug,
+  type ProductColorOption,
   type ProductImage,
   type ProductMoney,
   type ProductVariant,
@@ -48,6 +49,26 @@ type ShopifyVariantNode = {
   currentlyNotInStock?: boolean;
 };
 
+type ShopifyMetaobjectNode = {
+  __typename: "Metaobject";
+  id: string;
+  handle: string;
+  type: string;
+  fields: Array<{
+    key: string;
+    type: string;
+    value: string | null;
+  }>;
+};
+
+type ShopifyColorMetafield = {
+  type: string;
+  value: string;
+  references: {
+    nodes: ShopifyMetaobjectNode[];
+  } | null;
+};
+
 type ShopifyProductNode = {
   id: string;
   title: string;
@@ -64,6 +85,7 @@ type ShopifyProductNode = {
   variants: {
     nodes: ShopifyVariantNode[];
   };
+  colorPattern?: ShopifyColorMetafield | null;
   collections: {
     nodes: ShopifyCollectionSummary[];
   };
@@ -138,6 +160,36 @@ const PRODUCT_FIELDS = `
   }
 `;
 
+const COLOR_PATTERN_FIELDS = `
+  colorPattern: metafield(namespace: "shopify", key: "color-pattern") {
+    type
+    value
+    references(first: 20) {
+      nodes {
+        __typename
+        ... on Metaobject {
+          id
+          handle
+          type
+          fields {
+            key
+            type
+            value
+          }
+        }
+      }
+    }
+  }
+`;
+
+const PRODUCT_FIELDS_WITH_COLOR = PRODUCT_FIELDS.replace(
+  "  availableForSale",
+  `  availableForSale\n${COLOR_PATTERN_FIELDS}`,
+);
+const PRODUCT_FIELDS_WITH_COLOR_AND_QUANTITY = PRODUCT_FIELDS_WITH_COLOR.replace(
+  "      currentlyNotInStock",
+  "      quantityAvailable\n      currentlyNotInStock",
+);
 const PRODUCT_FIELDS_WITH_QUANTITY = PRODUCT_FIELDS.replace(
   "      currentlyNotInStock",
   "      quantityAvailable\n      currentlyNotInStock",
@@ -318,7 +370,7 @@ async function queryCatalogWithInventoryFallback<T>(
   }
 
   const fullResult = await queryStorefront<T>(
-    buildQuery(PRODUCT_FIELDS_WITH_QUANTITY),
+    buildQuery(PRODUCT_FIELDS_WITH_COLOR_AND_QUANTITY),
     variables,
   );
 
@@ -328,6 +380,30 @@ async function queryCatalogWithInventoryFallback<T>(
 
   console.warn(
     "Retrying Shopify catalog request without protected quantityAvailable fields.",
+  );
+  const colorCompatibleResult = await queryStorefront<T>(
+    buildQuery(PRODUCT_FIELDS_WITH_COLOR),
+    variables,
+  );
+
+  if (colorCompatibleResult) {
+    return colorCompatibleResult;
+  }
+
+  console.warn(
+    "Retrying Shopify catalog request without taxonomy color metafields.",
+  );
+  const inventoryCompatibleResult = await queryStorefront<T>(
+    buildQuery(PRODUCT_FIELDS_WITH_QUANTITY),
+    variables,
+  );
+
+  if (inventoryCompatibleResult) {
+    return inventoryCompatibleResult;
+  }
+
+  console.warn(
+    "Retrying Shopify catalog request without protected quantityAvailable fields or taxonomy colors.",
   );
   const compatibleResult = await queryStorefront<T>(
     buildQuery(PRODUCT_FIELDS),
@@ -390,6 +466,65 @@ function mapVariant(variant: ShopifyVariantNode): ProductVariant {
   };
 }
 
+function getMetaobjectField(
+  metaobject: ShopifyMetaobjectNode,
+  keys: string[],
+): string | undefined {
+  const acceptedKeys = new Set(keys);
+  return metaobject.fields
+    .find((field) => acceptedKeys.has(field.key.toLowerCase()))
+    ?.value?.trim();
+}
+
+function formatTaxonomyHandle(handle: string): string {
+  return handle
+    .replace(/^shopify--/i, "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function getProductColorOptions(product: ShopifyProductNode): ProductColorOption[] {
+  const hasColorVariant = product.variants.nodes.some((variant) =>
+    variant.selectedOptions.some(
+      (option) =>
+        option.name.trim().toLowerCase() === "color" &&
+        option.value.trim().toLowerCase() !== "default title",
+    ),
+  );
+
+  if (hasColorVariant) {
+    return [];
+  }
+
+  const references = product.colorPattern?.references?.nodes ?? [];
+  const options = references.map((metaobject) => {
+    const name =
+      getMetaobjectField(metaobject, ["label", "name", "display_name"]) ||
+      formatTaxonomyHandle(metaobject.handle);
+    const swatchValue = getMetaobjectField(metaobject, [
+      "color",
+      "hex",
+      "hex_code",
+    ]);
+
+    return {
+      name,
+      swatch:
+        swatchValue && /^#[0-9a-f]{3,8}$/i.test(swatchValue)
+          ? swatchValue
+          : undefined,
+    };
+  });
+
+  return Array.from(
+    new Map(
+      options
+        .filter((option) => option.name)
+        .map((option) => [option.name.toLowerCase(), option]),
+    ).values(),
+  );
+}
+
 function getDisplayCollection(
   product: ShopifyProductNode,
   collectionContext?: ShopifyCollectionSummary,
@@ -427,6 +562,7 @@ function mapProduct(
     ctaLabel: "Product Inquiry",
     availableForSale: product.availableForSale,
     variants: product.variants.nodes.map(mapVariant),
+    colorOptions: getProductColorOptions(product),
     shopifyProductHandle: product.handle,
     shopifyProductId: product.id,
     collectionHandles: product.collections.nodes.map((item) => item.handle),
