@@ -195,7 +195,6 @@ export function CompleteGolfSetup({ products }: CompleteGolfSetupProps) {
                   <strong>{getDisplayPriceLabel(item.priceLabel)}</strong>
                   <span className="club-link-upsell-action">
                     Customize Now
-                    <span aria-hidden="true">&rarr;</span>
                   </span>
                 </div>
               </Link>
