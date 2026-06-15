@@ -29,48 +29,6 @@ type ProductDetailPageProps = {
   params: Promise<{ handle: string }>;
 };
 
-const clubLinkInfoPanels = [
-  {
-    title: "Description",
-    icon: "i",
-    copy:
-      "Club Links are personalized golf club ID tags designed to add a clean custom detail to your grip. This placeholder section will later pull richer product copy from Shopify.",
-  },
-  {
-    title: "Customization Details",
-    icon: "c",
-    copy:
-      "Engraved with your name, phone number, initials, or logo. Made to fit securely on top of your golf grip.",
-  },
-  {
-    title: "Shipping & Returns",
-    icon: "s",
-    copy:
-      "Free shipping on orders over $75. Custom products are non-returnable unless there is a defect.",
-  },
-];
-
-const ballMarkerInfoPanels = [
-  {
-    title: "Description",
-    icon: "i",
-    copy:
-      "Custom ball markers are circular engraved golf accessories designed for logos, initials, event branding, and personal artwork. This placeholder section will later pull richer product copy from Shopify.",
-  },
-  {
-    title: "Customization Details",
-    icon: "c",
-    copy:
-      "Add a logo, initials, event mark, or short line of text. Artwork will be confirmed before production.",
-  },
-  {
-    title: "Shipping & Returns",
-    icon: "s",
-    copy:
-      "Free shipping on orders over $75. Custom products are non-returnable unless there is a defect.",
-  },
-];
-
 const ballMarkerPersonalizationMethods: PersonalizationMethodOption[] = [
   {
     id: "initials",
@@ -169,6 +127,66 @@ function isBottleOpenerDivotTool(product: ProductSummary): boolean {
   ].includes(product.handle);
 }
 
+function ProductInformation({ product }: { product: ProductSummary }) {
+  return (
+    <section className="product-information" aria-label={`${product.title} product information`}>
+      <article className="product-description-card">
+        <h2>Description</h2>
+        {product.descriptionHtml ? (
+          <div
+            className="shopify-rich-text"
+            dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
+          />
+        ) : (
+          <div className="shopify-rich-text">
+            <p>{product.shortDescription}</p>
+          </div>
+        )}
+      </article>
+
+      <div className="product-policy-card">
+        <article className="product-policy-section">
+          <span className="product-policy-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <path d="M4 11h25v23H4zM29 20h8l7 8v6H29z" />
+              <circle cx="13" cy="37" r="5" />
+              <circle cx="36" cy="37" r="5" />
+              <path d="M29 28h15" />
+            </svg>
+          </span>
+          <div>
+            <h2>Shipping Information</h2>
+            <p>Free shipping on orders over $75.</p>
+            <p>
+              Orders are typically processed within 1-2 business days and delivered within 3-7
+              business days.
+            </p>
+            <p>Custom products are non-returnable unless there is a defect.</p>
+          </div>
+        </article>
+
+        <article className="product-policy-section">
+          <span className="product-policy-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <path d="M37 17V7l7 7-7 7v-4a15 15 0 1 0 2 18" />
+              <path d="M11 31v10l-7-7 7-7v4" />
+              <circle cx="24" cy="24" r="5" />
+            </svg>
+          </span>
+          <div>
+            <h2>Returns &amp; Exchanges</h2>
+            <p>
+              We want you to love your purchase. If there is an issue with your order, contact us
+              within 14 days of delivery and we&apos;ll make it right.
+            </p>
+            <p>Custom items are non-returnable unless there is a defect.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function ClubLinkProductDetail({
   product,
   categoryTitle,
@@ -184,7 +202,6 @@ function ClubLinkProductDetail({
   const ballMarkerSides = isBallMarker
     ? getBallMarkerCustomizationSides(product)
     : undefined;
-  const infoPanels = isBallMarker ? ballMarkerInfoPanels : clubLinkInfoPanels;
   const introCopy = isBallMarker
     ? "Custom engraved ball markers made for logos, initials, events, and personal artwork with a clean circular finish. Final options and availability will be confirmed by inquiry."
     : "Custom engraved Club Links made to personalize the top of your golf grip with a clean, durable finish. Final options and availability will be confirmed by inquiry.";
@@ -196,7 +213,10 @@ function ClubLinkProductDetail({
         fallbackImage={product.image}
       >
         <article className="club-link-detail">
-          <div className="club-link-gallery" aria-label={`${product.title} images`}>
+          <div
+            className="club-link-gallery product-detail-gallery"
+            aria-label={`${product.title} images`}
+          >
             <div className="club-link-main-image">
               <ProductVariantImage
                 productTitle={product.title}
@@ -234,19 +254,7 @@ function ClubLinkProductDetail({
         </article>
       </ProductVariantProvider>
 
-      <section className="club-link-info-panels" aria-label={`${productTypeLabel} product information`}>
-        {infoPanels.map((panel) => (
-          <article key={panel.title} className="club-link-info-panel">
-            <div className="club-link-info-heading">
-              <span className={`club-link-info-icon is-${panel.icon}`} aria-hidden="true">
-                {panel.icon}
-              </span>
-              <h2>{panel.title}</h2>
-            </div>
-            <p>{panel.copy}</p>
-          </article>
-        ))}
-      </section>
+      <ProductInformation product={product} />
     </>
   );
 }
@@ -314,7 +322,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             fallbackImage={product.image}
           >
             <article className="product-detail">
-              <div className="product-detail-media">
+              <div className="product-detail-media product-detail-gallery">
                 <ProductVariantImage
                   productTitle={product.title}
                   placeholderLabel={product.imagePlaceholderLabel}
@@ -343,23 +351,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             </article>
           </ProductVariantProvider>
 
-          <section className="product-detail-panels" aria-label="Future product information">
-            <article className="product-detail-panel">
-              <h2>Customization Options</h2>
-              <p>
-                {usesDivotToolCustomizer
-                  ? "Personalize this divot tool with a single line of engraved text and your preferred font style."
-                  : "Customization details are being prepared. Future inquiries can cover artwork, personalization, gifting, and bulk order ideas for this product."}
-              </p>
-            </article>
-            <article className="product-detail-panel">
-              <h2>Product Information</h2>
-              <p>
-                Pricing and available product imagery shown here come from the current catalog
-                when provided. Contact us for current customization and fulfillment details.
-              </p>
-            </article>
-          </section>
+          <ProductInformation product={product} />
         </>
       )}
 

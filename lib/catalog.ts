@@ -61,6 +61,7 @@ export type ProductSummary = {
   categorySlug: ProductCategorySlug;
   categoryTitle?: string;
   shortDescription: string;
+  descriptionHtml?: string;
   priceLabel: string;
   imagePlaceholderLabel: string;
   image?: ProductImage;

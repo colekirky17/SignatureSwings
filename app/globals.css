@@ -308,9 +308,12 @@ p {
 
 .contact-copy h1 {
   color: var(--text);
+  font-family: Impact, "Arial Narrow", Arial, sans-serif;
   font-size: clamp(2.75rem, 4vw, 4.3rem);
+  font-weight: 400;
+  letter-spacing: 0;
   line-height: 1;
-  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .contact-title-rule {
@@ -2085,6 +2088,15 @@ p {
   align-items: start;
 }
 
+@media (min-width: 901px) {
+  .product-detail-gallery {
+    position: sticky;
+    top: 2rem;
+    align-self: start;
+    height: max-content;
+  }
+}
+
 .product-detail-media {
   display: flex;
   min-height: 32rem;
@@ -2158,32 +2170,6 @@ p {
   font-size: 0.76rem;
   font-weight: 700;
   text-transform: uppercase;
-}
-
-.product-detail-panels {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 3rem;
-}
-
-.product-detail-panel {
-  padding: 1.4rem;
-  border: 1px solid var(--border);
-  border-radius: 0.5rem;
-  background: #09130f;
-}
-
-.product-detail-panel h2 {
-  color: var(--text);
-  font-size: 1.05rem;
-}
-
-.product-detail-panel p {
-  margin-top: 0.75rem;
-  color: var(--muted);
-  font-size: 0.91rem;
-  line-height: 1.65;
 }
 
 .blog-page,
@@ -2814,11 +2800,6 @@ p {
     min-height: 18rem;
   }
 
-  .product-detail-panels {
-    grid-template-columns: 1fr;
-    margin-top: 2rem;
-  }
-
   .blog-page,
   .blog-article {
     padding: 2.25rem 0 3rem;
@@ -2897,6 +2878,15 @@ p {
 
   .product-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .product-detail {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .product-detail-media {
+    min-height: 24rem;
   }
 
   .blog-grid {

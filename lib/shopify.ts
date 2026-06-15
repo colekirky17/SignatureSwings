@@ -74,6 +74,7 @@ type ShopifyProductNode = {
   title: string;
   handle: string;
   description: string;
+  descriptionHtml: string;
   productType: string;
   tags: string[];
   availableForSale: boolean;
@@ -105,6 +106,7 @@ const PRODUCT_FIELDS = `
   title
   handle
   description
+  descriptionHtml
   productType
   tags
   availableForSale
@@ -556,6 +558,7 @@ function mapProduct(
     shortDescription:
       product.description.trim() ||
       "Contact us to discuss customization and availability for this product.",
+    descriptionHtml: product.descriptionHtml.trim() || undefined,
     priceLabel: getPriceLabel(product),
     imagePlaceholderLabel: `${product.title} image`,
     image: product.featuredImage ?? undefined,
