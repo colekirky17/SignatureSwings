@@ -1506,45 +1506,90 @@
 
 .club-link-upsell {
   margin-top: clamp(2rem, 3.5vw, 3.2rem);
-  padding: clamp(1.2rem, 2.5vw, 1.7rem);
-  border: 1px solid var(--border);
-  border-radius: 0.55rem;
+  padding: clamp(1.75rem, 4vw, 3.25rem);
+  border: 1px solid rgba(79, 106, 89, 0.72);
+  border-radius: 1.15rem;
   background:
-    linear-gradient(180deg, rgba(16, 39, 27, 0.9), rgba(7, 17, 13, 0.92)),
-    #09130f;
+    radial-gradient(circle at 50% -10%, rgba(67, 135, 77, 0.17), transparent 42%),
+    linear-gradient(145deg, rgba(18, 39, 28, 0.97), rgba(7, 18, 13, 0.98) 68%),
+    #07110d;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 1.5rem 4rem rgba(0, 0, 0, 0.2);
 }
 
 .club-link-upsell-heading {
   text-align: center;
 }
 
+.club-link-upsell-crown {
+  display: grid;
+  grid-template-columns: minmax(2.5rem, 6rem) 2.4rem minmax(2.5rem, 6rem);
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: min(100%, 15rem);
+  margin: 0 auto 0.8rem;
+  color: #c9a85f;
+}
+
+.club-link-upsell-crown > span {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, currentcolor);
+}
+
+.club-link-upsell-crown > span:last-child {
+  background: linear-gradient(90deg, currentcolor, transparent);
+}
+
+.club-link-upsell-crown svg {
+  display: block;
+  width: 100%;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
 .club-link-upsell-heading h2 {
   font-family: Impact, "Arial Narrow", Arial, sans-serif;
-  font-size: clamp(1.45rem, 2.3vw, 1.95rem);
+  font-size: clamp(2rem, 4vw, 3.25rem);
   font-weight: 400;
   letter-spacing: 0;
-  line-height: 1.1;
+  line-height: 1;
   text-transform: uppercase;
 }
 
 .club-link-upsell-heading p {
-  margin-top: 0.4rem;
+  margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
 }
 
 .club-link-upsell-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(0.8rem, 2vw, 1.7rem);
-  margin-top: 1.25rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 1.7rem);
+  margin-top: clamp(1.75rem, 3.5vw, 2.6rem);
 }
 
 .club-link-upsell-card {
   overflow: hidden;
-  border: 1px solid rgba(39, 54, 47, 0.9);
-  border-radius: 0.45rem;
-  background: #07110d;
+  border: 1px solid rgba(71, 82, 76, 0.92);
+  border-radius: 0.85rem;
+  background:
+    linear-gradient(180deg, rgba(13, 22, 17, 0.98), rgba(5, 13, 9, 0.99)),
+    #07110d;
+  box-shadow: 0 0.9rem 2.5rem rgba(0, 0, 0, 0.2);
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease;
+}
+
+.club-link-upsell-card:hover {
+  border-color: rgba(120, 184, 70, 0.72);
+  transform: translateY(-0.2rem);
 }
 
 .club-link-upsell-card-link {
@@ -1554,13 +1599,16 @@
 }
 
 .club-link-upsell-media {
+  position: relative;
   display: flex;
-  min-height: clamp(6rem, 10vw, 8.3rem);
+  min-height: clamp(15rem, 22vw, 22rem);
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(71, 82, 76, 0.82);
   background:
-    radial-gradient(circle at 50% 45%, rgba(218, 219, 214, 0.28), transparent 34%),
-    linear-gradient(135deg, rgba(218, 219, 214, 0.18), rgba(120, 184, 70, 0.07)),
+    radial-gradient(circle at 50% 45%, rgba(218, 219, 214, 0.17), transparent 38%),
+    linear-gradient(135deg, rgba(50, 56, 52, 0.92), rgba(23, 31, 27, 0.98)),
     #17231d;
   color: rgba(245, 247, 242, 0.76);
   font-size: 0.76rem;
@@ -1572,56 +1620,183 @@
 .club-link-upsell-media img {
   display: block;
   width: 100%;
-  height: clamp(9rem, 13vw, 12rem);
-  object-fit: contain;
+  height: clamp(15rem, 22vw, 22rem);
+  object-fit: cover;
+  transition: transform 240ms ease;
+}
+
+.club-link-upsell-card:hover .club-link-upsell-media img {
+  transform: scale(1.025);
+}
+
+.club-link-upsell-badge {
+  position: absolute;
+  z-index: 1;
+  top: 1rem;
+  left: 1rem;
+  display: inline-flex;
+  min-height: 1.9rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(120, 184, 70, 0.55);
+  border-radius: 999px;
+  background: rgba(15, 25, 19, 0.88);
+  color: #a7d06d;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  backdrop-filter: blur(0.35rem);
+}
+
+.club-link-upsell-badge.is-gold {
+  border-color: rgba(201, 168, 95, 0.58);
+  color: #d7b76b;
+}
+
+.club-link-upsell-badge > span {
+  display: grid;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
+  border-radius: 999px;
+  background: currentcolor;
+  color: #102016;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.club-link-upsell-placeholder {
+  max-width: 15rem;
+  padding: 1rem;
+  text-align: center;
 }
 
 .club-link-upsell-body {
   display: flex;
   flex: 1;
   flex-direction: column;
-  padding: 0.9rem;
+  padding: clamp(1.1rem, 2vw, 1.5rem);
 }
 
 .club-link-upsell-body h3 {
   color: var(--text);
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  letter-spacing: 0.035em;
+  line-height: 1.3;
   text-transform: uppercase;
 }
 
+.club-link-upsell-title-rule {
+  width: 2.1rem;
+  height: 0.12rem;
+  margin-top: 0.9rem;
+  background: var(--accent);
+}
+
+.club-link-upsell-card.is-gold .club-link-upsell-title-rule {
+  background: #c9a85f;
+}
+
 .club-link-upsell-body p {
-  display: -webkit-box;
-  overflow: hidden;
-  min-height: 3.3rem;
-  margin-top: 0.45rem;
+  margin-top: 1rem;
   color: var(--muted);
-  font-size: 0.76rem;
-  line-height: 1.45;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  font-size: clamp(0.84rem, 1vw, 0.96rem);
+  line-height: 1.6;
 }
 
 .club-link-upsell-body strong {
   display: block;
-  margin-top: 0.55rem;
+  margin-top: auto;
+  padding-top: 1.2rem;
   color: var(--text);
-  font-size: 0.92rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.35rem);
 }
 
 .club-link-upsell-action {
   display: inline-flex;
   width: 100%;
-  min-height: 2.45rem;
+  min-height: 3.25rem;
   align-items: center;
   justify-content: center;
-  margin-top: auto;
-  border: 1px solid rgba(120, 184, 70, 0.8);
-  border-radius: 0.28rem;
-  color: var(--accent);
-  font-size: 0.72rem;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+  border: 1px solid rgba(120, 184, 70, 0.88);
+  border-radius: 0.45rem;
+  background: linear-gradient(180deg, rgba(75, 126, 48, 0.92), rgba(42, 88, 34, 0.95));
+  color: var(--text);
+  font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease;
+}
+
+.club-link-upsell-action > span {
+  margin-left: auto;
+  padding-right: 1rem;
+  color: #b9db67;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.club-link-upsell-card-link:hover .club-link-upsell-action {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, rgba(88, 145, 55, 0.98), rgba(49, 101, 39, 0.98));
+}
+
+.club-link-upsell-benefits {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: clamp(1.5rem, 3vw, 2rem);
+  padding: clamp(1rem, 2vw, 1.35rem);
+  border: 1px solid rgba(71, 82, 76, 0.86);
+  border-radius: 0.8rem;
+  background: rgba(5, 14, 10, 0.66);
+}
+
+.club-link-upsell-benefit {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 1rem;
+  padding: 0 clamp(1rem, 2.5vw, 2rem);
+}
+
+.club-link-upsell-benefit + .club-link-upsell-benefit {
+  border-left: 1px solid rgba(71, 82, 76, 0.86);
+}
+
+.club-link-upsell-benefit-icon {
+  display: block;
+  width: 2.6rem;
+  color: #72b544;
+}
+
+.club-link-upsell-benefit-icon svg {
+  display: block;
+  width: 100%;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+
+.club-link-upsell-benefit h3 {
+  color: var(--text);
+  font-size: 0.9rem;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.club-link-upsell-benefit p {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
 }
 
 @media (min-width: 641px) and (max-width: 900px) {
@@ -1643,6 +1818,29 @@
     padding-top: 1.5rem;
     padding-left: 0;
     border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .club-link-upsell-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .club-link-upsell-card:last-child {
+    grid-column: 1 / -1;
+    width: min(100%, calc(50% - 0.5rem));
+    justify-self: center;
+  }
+
+  .club-link-upsell-benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .club-link-upsell-benefit {
+    padding: 1rem;
+  }
+
+  .club-link-upsell-benefit + .club-link-upsell-benefit {
+    border-top: 1px solid rgba(71, 82, 76, 0.86);
     border-left: 0;
   }
 }
@@ -1690,6 +1888,35 @@
   .product-policy-card,
   .shopify-rich-text ul {
     grid-template-columns: 1fr;
+  }
+
+  .club-link-upsell {
+    padding: 1.25rem;
+    border-radius: 0.8rem;
+  }
+
+  .club-link-upsell-card:last-child {
+    grid-column: auto;
+    width: auto;
+  }
+
+  .club-link-upsell-media,
+  .club-link-upsell-media img {
+    height: 16rem;
+    min-height: 16rem;
+  }
+
+  .club-link-upsell-benefits {
+    grid-template-columns: 1fr;
+  }
+
+  .club-link-upsell-benefit {
+    padding: 1rem 0.5rem;
+  }
+
+  .club-link-upsell-benefit + .club-link-upsell-benefit {
+    border-top: 1px solid rgba(71, 82, 76, 0.86);
+    border-left: 0;
   }
 
   .product-policy-section {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { CartPage } from "../../components/cart-page";
 import { CompleteGolfSetup } from "../../components/complete-golf-setup";
+import { getAllProducts } from "../../lib/catalog";
 import { fetchShopifyProductsByCollectionHandle } from "../../lib/shopify";
 
 export const revalidate = 300;
@@ -21,7 +22,7 @@ export default async function ShoppingCartPage() {
   return (
     <main className="cart-page">
       <CartPage />
-      <CompleteGolfSetup products={(bestSellerProducts ?? []).slice(0, 4)} />
+      <CompleteGolfSetup products={(bestSellerProducts ?? getAllProducts()).slice(0, 3)} />
     </main>
   );
 }

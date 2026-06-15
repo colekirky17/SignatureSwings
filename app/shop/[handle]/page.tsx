@@ -355,7 +355,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
         </>
       )}
 
-      <CompleteGolfSetup products={(bestSellerProducts ?? []).slice(0, 4)} />
+      <CompleteGolfSetup products={(bestSellerProducts ?? getAllProducts()).slice(0, 3)} />
     </main>
   );
 }
