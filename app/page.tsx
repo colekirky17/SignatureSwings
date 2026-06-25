@@ -31,22 +31,22 @@ const homepageCategories = productCategories
     image:
       category.slug === "ball-markers"
         ? {
-            url: "/images/category-ball-markers.png",
+            url: "/images/category-ball-markers.jpg",
             altText: "Custom golf ball markers on a putting green",
           }
         : category.slug === "divot-repair-tools"
           ? {
-              url: "/images/category-divot-tools.png",
+              url: "/images/category-divot-tools.jpg",
               altText: "Premium divot repair tools on a putting green",
             }
           : category.slug === "club-links"
             ? {
-                url: "/images/category-club-links.png",
+                url: "/images/category-club-links.jpg",
                 altText: "Personalized golf club links on club grips",
               }
             : category.slug === "bundles"
               ? {
-                  url: "/images/category-bundles.png",
+                  url: "/images/category-bundles.jpg",
                   altText: "Bundle of custom golf accessories on a putting green",
                 }
               : undefined,
