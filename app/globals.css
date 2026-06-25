@@ -801,7 +801,6 @@ p {
   animation: heroTextReveal 760ms cubic-bezier(0.16, 1, 0.3, 1) 120ms both;
 }
 
-.home-hero h1,
 .home-section-title,
 .home-category-card h3 {
   font-family: Impact, "Arial Narrow", Arial, sans-serif;
@@ -813,31 +812,47 @@ p {
 .home-hero h1 {
   max-width: 39rem;
   color: var(--text);
-  font-size: clamp(3rem, 4.6vw, 4.1rem);
-  line-height: 0.98;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(2.85rem, 4.2vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 0.94;
+  text-transform: uppercase;
 }
 
 .home-hero-line {
+  --hero-delay: 260ms;
   display: block;
-  animation: heroTextReveal 860ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform, filter;
+  background: linear-gradient(105deg, #f9fff7 0%, #d0d8d1 31%, #ffffff 48%, #aeb9b2 60%, #f7fff6 100%);
+  background-size: 230% 100%;
+  color: transparent;
+  text-shadow: 0 0 1.1rem rgba(230, 238, 225, 0.16);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation:
+    heroTextReveal 980ms cubic-bezier(0.16, 1, 0.3, 1) var(--hero-delay) both,
+    heroMetalSweep 1350ms ease-out calc(var(--hero-delay) + 220ms) both;
+  will-change: opacity, transform, filter, background-position;
 }
 
 .home-hero-line:nth-child(1) {
-  animation-delay: 260ms;
+  --hero-delay: 260ms;
 }
 
 .home-hero-line:nth-child(2) {
-  animation-delay: 410ms;
+  --hero-delay: 430ms;
 }
 
 .home-hero-line:nth-child(3) {
-  animation-delay: 560ms;
+  --hero-delay: 600ms;
 }
 
 .home-hero-emphasis {
-  color: #fbfff8;
-  text-shadow: 0 0 1.65rem rgba(79, 200, 90, 0.18);
+  background-image: linear-gradient(105deg, #ffffff 0%, #d5ddd7 28%, #f3fff2 47%, #b6c1ba 62%, #ffffff 100%);
+  text-shadow:
+    0 0 1rem rgba(238, 246, 235, 0.2),
+    0 0 2.4rem rgba(79, 200, 90, 0.24);
 }
 
 .home-hero-copy {
@@ -845,7 +860,7 @@ p {
   color: var(--muted);
   font-size: clamp(1.08rem, 1.2vw, 1.2rem);
   line-height: 1.7;
-  animation: heroTextReveal 820ms cubic-bezier(0.16, 1, 0.3, 1) 760ms both;
+  animation: heroTextReveal 920ms cubic-bezier(0.16, 1, 0.3, 1) 880ms both;
 }
 
 .home-button {
@@ -862,7 +877,8 @@ p {
   font-size: 0.95rem;
   font-weight: 700;
   text-transform: uppercase;
-  animation: heroButtonReveal 840ms cubic-bezier(0.16, 1, 0.3, 1) 940ms both;
+  box-shadow: 0 0.85rem 2rem rgba(7, 148, 71, 0.2);
+  animation: heroButtonReveal 960ms cubic-bezier(0.16, 1, 0.3, 1) 1080ms both;
 }
 
 .home-button span,
@@ -878,8 +894,8 @@ p {
 @keyframes heroTextReveal {
   from {
     opacity: 0;
-    filter: blur(0.45rem);
-    transform: translateY(1.15rem);
+    filter: blur(0.7rem);
+    transform: translateY(1.45rem);
   }
 
   to {
@@ -889,11 +905,21 @@ p {
   }
 }
 
+@keyframes heroMetalSweep {
+  from {
+    background-position: 115% 50%;
+  }
+
+  to {
+    background-position: 0% 50%;
+  }
+}
+
 @keyframes heroButtonReveal {
   from {
     opacity: 0;
     filter: blur(0.35rem);
-    transform: translateY(0.85rem) scale(0.98);
+    transform: translateY(1rem) scale(0.97);
   }
 
   to {
@@ -909,6 +935,10 @@ p {
   .home-hero-copy,
   .home-button {
     animation: none;
+  }
+
+  .home-hero-line {
+    background-position: 0% 50%;
   }
 }
 
@@ -2590,7 +2620,7 @@ p {
   }
 
   .home-hero h1 {
-    font-size: 2.85rem;
+    font-size: 2.08rem;
   }
 
   .home-button {

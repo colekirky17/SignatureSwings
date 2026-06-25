@@ -228,9 +228,7 @@ export default async function Home() {
             Start Custom Order
           </Link>
         </div>
-        <div className="home-custom-media">
-          <span className="media-label">Custom image banner placeholder</span>
-        </div>
+        <div className="home-custom-media" aria-hidden="true" />
       </section>
 
       <FeaturedProductsCarousel
