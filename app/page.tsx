@@ -186,9 +186,9 @@ export default async function Home() {
           <div className="home-hero-content">
             <p className="home-eyebrow">Custom Golf Accessories</p>
             <h1>
-              Your Game Feels Different
-              <br />
-              When It&apos;s Yours.
+              <span className="home-hero-line">Your Game Feels</span>
+              <span className="home-hero-line home-hero-emphasis">More Confident</span>
+              <span className="home-hero-line">When It&apos;s Yours.</span>
             </h1>
             <p className="home-hero-copy">
               Personalized golf accessories engineered to bring confidence, character, and a
