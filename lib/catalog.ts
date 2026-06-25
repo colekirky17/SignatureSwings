@@ -10,6 +10,7 @@ export type ProductCategory = {
   slug: ProductCategorySlug;
   shortDescription: string;
   shopifyCollectionHandle?: string;
+  image?: ProductImage;
 };
 
 export type ShopifyCollectionPlacement = {

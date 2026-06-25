@@ -66,7 +66,7 @@
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 0.5rem;
-  background: #15251d;
+  background: var(--surface-raised);
 }
 
 .club-link-main-image {
@@ -168,7 +168,7 @@
   justify-content: center;
   border: 1px solid var(--border);
   border-radius: 0.35rem;
-  background: #09130f;
+  background: var(--surface);
   color: var(--text);
   font-size: 0.76rem;
   font-weight: 700;
@@ -213,7 +213,7 @@
   padding: clamp(1.05rem, 2vw, 1.45rem);
   border: 1px solid var(--border);
   border-radius: 0.5rem;
-  background: rgba(9, 19, 15, 0.78);
+  background: rgba(21, 21, 21, 0.88);
 }
 
 .club-link-customizer-main {
@@ -254,7 +254,7 @@
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 0.35rem;
-  background: #07110d;
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   font-size: 0.88rem;
@@ -406,7 +406,7 @@
   padding: 0.8rem;
   border: 1px solid var(--border);
   border-radius: 0.45rem;
-  background: #07110d;
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   text-align: left;
@@ -473,7 +473,7 @@
 .club-link-upload-coming-soon {
   border: 1px solid var(--border);
   border-radius: 0.35rem;
-  background: #09130f;
+  background: var(--surface);
 }
 
 .club-link-font-style {
@@ -543,7 +543,7 @@
   padding: 0.95rem;
   border: 1px solid var(--border);
   border-radius: 0.35rem;
-  background: #09130f;
+  background: var(--surface);
 }
 
 .club-link-file-input {
@@ -653,7 +653,7 @@
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: 0.45rem;
-  background: #09130f;
+  background: var(--surface);
 }
 
 .ball-marker-side-heading {
@@ -708,7 +708,7 @@
 .club-link-logo-row {
   border: 1px solid var(--border);
   border-radius: 0.35rem;
-  background: #07110d;
+  background: var(--surface);
 }
 
 .club-link-field,
@@ -864,7 +864,7 @@
 
 .club-link-preview-action {
   border-color: #31463b;
-  background: #09130f;
+  background: var(--surface);
   color: var(--text);
 }
 
@@ -955,7 +955,7 @@
   justify-content: center;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: #07110d;
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   font-size: 1.55rem;
@@ -1006,7 +1006,7 @@
   border-radius: 0.6rem;
   background:
     radial-gradient(circle at center, rgba(255, 255, 255, 0.08), transparent 56%),
-    #07110d;
+    var(--surface);
 }
 
 .club-links-preview-svg {
@@ -1305,7 +1305,7 @@
 
 .club-links-preview-actions .is-secondary {
   border: 1px solid var(--border);
-  background: #07110d;
+  background: var(--surface);
   color: var(--text);
 }
 
@@ -1415,7 +1415,7 @@
   place-items: center;
   border-radius: 999px;
   background: var(--accent);
-  color: #07110d;
+  color: #000;
   content: "✓";
   font-size: 0.62rem;
   font-weight: 900;
@@ -1510,9 +1510,9 @@
   border: 1px solid rgba(79, 106, 89, 0.72);
   border-radius: 1.15rem;
   background:
-    radial-gradient(circle at 50% -10%, rgba(67, 135, 77, 0.17), transparent 42%),
-    linear-gradient(145deg, rgba(18, 39, 28, 0.97), rgba(7, 18, 13, 0.98) 68%),
-    #07110d;
+    radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.06), transparent 42%),
+    linear-gradient(145deg, rgba(24, 24, 24, 0.98), rgba(9, 9, 9, 0.99) 68%),
+    var(--surface);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.025),
     0 1.5rem 4rem rgba(0, 0, 0, 0.2);
@@ -1579,8 +1579,8 @@
   border: 1px solid rgba(71, 82, 76, 0.92);
   border-radius: 0.85rem;
   background:
-    linear-gradient(180deg, rgba(13, 22, 17, 0.98), rgba(5, 13, 9, 0.99)),
-    #07110d;
+    linear-gradient(180deg, rgba(21, 21, 21, 0.98), rgba(5, 5, 5, 0.99)),
+    var(--surface);
   box-shadow: 0 0.9rem 2.5rem rgba(0, 0, 0, 0.2);
   transition:
     border-color 180ms ease,

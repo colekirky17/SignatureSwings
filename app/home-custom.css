@@ -8,8 +8,8 @@
   border-top: 1px solid #30443a;
   border-bottom: 1px solid #30443a;
   background:
-    linear-gradient(90deg, rgba(5, 13, 10, 0.9) 0%, rgba(5, 13, 10, 0.76) 34%, rgba(5, 13, 10, 0.36) 55%, rgba(5, 13, 10, 0.14) 100%),
-    linear-gradient(0deg, rgba(5, 13, 10, 0.22), rgba(5, 13, 10, 0.22)),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.76) 34%, rgba(0, 0, 0, 0.36) 55%, rgba(0, 0, 0, 0.14) 100%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22)),
     url("/images/make-it-custom-hero.png") center / cover no-repeat;
   box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.16);
 }
@@ -79,8 +79,8 @@
     min-height: 34rem;
     margin-top: 2.25rem;
     background:
-      linear-gradient(180deg, rgba(5, 13, 10, 0.92) 0%, rgba(5, 13, 10, 0.82) 42%, rgba(5, 13, 10, 0.34) 100%),
-      linear-gradient(0deg, rgba(5, 13, 10, 0.18), rgba(5, 13, 10, 0.18)),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.82) 42%, rgba(0, 0, 0, 0.34) 100%),
+      linear-gradient(0deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)),
       url("/images/make-it-custom-hero.png") 62% center / cover no-repeat;
   }
 

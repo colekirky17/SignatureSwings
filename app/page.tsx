@@ -28,6 +28,28 @@ const homepageCategories = productCategories
   .map((category) => ({
     ...category,
     title: category.slug === "divot-repair-tools" ? "Divot Tools" : category.title,
+    image:
+      category.slug === "ball-markers"
+        ? {
+            url: "/images/category-ball-markers.png",
+            altText: "Custom golf ball markers on a putting green",
+          }
+        : category.slug === "divot-repair-tools"
+          ? {
+              url: "/images/category-divot-tools.png",
+              altText: "Premium divot repair tools on a putting green",
+            }
+          : category.slug === "club-links"
+            ? {
+                url: "/images/category-club-links.png",
+                altText: "Personalized golf club links on club grips",
+              }
+            : category.slug === "bundles"
+              ? {
+                  url: "/images/category-bundles.png",
+                  altText: "Bundle of custom golf accessories on a putting green",
+                }
+              : undefined,
   }));
 
 const processSteps = [

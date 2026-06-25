@@ -11,7 +11,15 @@ export function CategoryCard({ category }: CategoryCardProps) {
   return (
     <article className="home-category-card">
       <div className="category-media">
-        <span className="media-label">Image placeholder</span>
+        {category.image ? (
+          <img
+            src={category.image.url}
+            alt={category.image.altText ?? category.title}
+            loading="lazy"
+          />
+        ) : (
+          <span className="media-label">Image placeholder</span>
+        )}
       </div>
       <div className="category-body">
         <h3>{category.title}</h3>
