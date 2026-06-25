@@ -181,20 +181,21 @@ export default async function Home() {
   return (
     <main className="home-page">
       <section className="home-hero" aria-label="Featured collection">
-        <div className="home-hero-media">
-          <span className="media-label">Golf lifestyle image placeholder</span>
-        </div>
+        <div className="home-hero-media" />
         <div className="container home-hero-layout">
           <div className="home-hero-content">
             <p className="home-eyebrow">Custom Golf Accessories</p>
-            <h1>Elevate Every Round</h1>
-            <p className="home-hero-copy">
-              Custom designed. Premium crafted.
+            <h1>
+              Your Game Feels Different
               <br />
-              Browse the collection. Website ordering coming soon.
+              When It&apos;s Yours.
+            </h1>
+            <p className="home-hero-copy">
+              Personalized golf accessories engineered to bring confidence, character, and a
+              personal edge to every round.
             </p>
             <Link href="/shop" className="home-button">
-              Explore Collection
+              Shop Custom Golf Gear
             </Link>
           </div>
           <div className="hero-dots" aria-hidden="true">

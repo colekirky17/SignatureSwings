@@ -65,8 +65,9 @@ p {
   display: grid;
   grid-template-columns: minmax(10rem, 1fr) auto minmax(10rem, 1fr);
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.4rem 0;
+  min-height: 4.9rem;
+  gap: clamp(1.25rem, 2.8vw, 3rem);
+  padding: 0.7rem 0;
 }
 
 .brand {
@@ -79,7 +80,7 @@ p {
 
 .brand-logo {
   display: block;
-  width: clamp(9.5rem, 15vw, 13rem);
+  width: clamp(10.5rem, 13vw, 12rem);
   height: auto;
 }
 
@@ -87,14 +88,15 @@ p {
   display: flex;
   grid-column: 2;
   align-items: center;
-  gap: 1.5rem;
+  gap: clamp(1.45rem, 2.2vw, 2.25rem);
   color: var(--muted);
-  font-size: 0.95rem;
 }
 
 .nav-link {
-  font-size: 0.9rem;
+  padding: 0.45rem 0;
+  font-size: 0.98rem;
   font-weight: 700;
+  line-height: 1;
   text-transform: uppercase;
   transition: color 150ms ease;
 }
@@ -108,38 +110,53 @@ p {
   top: 50%;
   right: 0;
   display: inline-flex;
-  width: 2.7rem;
-  height: 2.7rem;
+  width: 3.15rem;
+  height: 3.15rem;
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
   color: var(--text);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-transform: uppercase;
+  border-radius: 0.35rem;
   transform: translateY(-50%);
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+.nav-link:focus-visible,
+.header-cart-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0.25rem;
+}
+
+.header-cart-link:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .header-cart-icon {
   display: block;
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 1.6rem;
+  height: 1.6rem;
 }
 
 .header-cart-count {
   position: absolute;
-  top: -0.1rem;
-  right: -0.2rem;
+  top: 0.15rem;
+  right: 0.08rem;
   display: inline-flex;
-  min-width: 1.15rem;
-  height: 1.15rem;
+  min-width: 1.25rem;
+  height: 1.25rem;
   align-items: center;
   justify-content: center;
   padding: 0 0.25rem;
   border-radius: 999px;
   background: var(--accent);
   color: #08120e;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
+  font-weight: 800;
 }
 
 .menu-toggle {
@@ -763,7 +780,7 @@ p {
 .home-hero-content {
   position: relative;
   display: flex;
-  width: min(100%, 35rem);
+  width: min(100%, 39rem);
   flex-direction: column;
   justify-content: center;
   padding: 3.25rem 0 4.75rem;
@@ -788,9 +805,9 @@ p {
 }
 
 .home-hero h1 {
-  max-width: 20rem;
+  max-width: 39rem;
   color: var(--text);
-  font-size: clamp(3.35rem, 5.8vw, 4.8rem);
+  font-size: clamp(3rem, 4.6vw, 4.1rem);
   line-height: 0.98;
 }
 
@@ -843,8 +860,8 @@ p {
   justify-content: flex-end;
   padding: 0 2.75rem 2.75rem;
   background:
-    radial-gradient(circle at 74% 34%, rgba(58, 86, 72, 0.42), transparent 32%),
-    linear-gradient(120deg, #192b23 0%, #112019 100%);
+    linear-gradient(90deg, rgba(5, 13, 10, 0.26) 0%, rgba(5, 13, 10, 0.05) 56%, rgba(5, 13, 10, 0.2) 100%),
+    url("/images/signature-swings-hero.png") center / cover no-repeat;
 }
 
 .home-hero-media .media-label {
