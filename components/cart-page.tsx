@@ -6,6 +6,7 @@ import {
   CUSTOMIZATION_REQUIRED_KEY,
   hasCompleteCustomization,
 } from "../lib/product-customization";
+import { trackMetaStandardEvent } from "../lib/analytics";
 
 type Cart = {
   totalQuantity: number;
@@ -137,6 +138,13 @@ export function CartPage() {
         throw new Error(result.message || "Could not start checkout.");
       }
 
+      trackMetaStandardEvent("InitiateCheckout", {
+        content_ids: cart.lines.nodes.map((line) => line.merchandise.id),
+        content_type: "product",
+        currency: cart.cost.totalAmount.currencyCode,
+        num_items: cart.totalQuantity,
+        value: Number(cart.cost.totalAmount.amount),
+      });
       window.location.assign(result.checkoutUrl);
     } catch (checkoutError) {
       setError(

@@ -27,6 +27,7 @@ import {
   DIVOT_TOOL_MAX_CHARACTERS,
 } from "../lib/product-customization";
 import type { ProductColorOption } from "../lib/catalog";
+import { trackMetaStandardEvent } from "../lib/analytics";
 
 export type PersonalizationMethodId = "initials" | "logo" | "design";
 
@@ -565,6 +566,12 @@ function BallMarkerCustomizationForm({
           detail: { totalQuantity: result.totalQuantity ?? 1 },
         }),
       );
+      trackMetaStandardEvent("AddToCart", {
+        content_ids: [selectedVariant.id],
+        content_type: "product",
+        currency: selectedVariant.price.currencyCode,
+        value: Number(selectedVariant.price.amount),
+      });
     } catch (error) {
       setSubmitStatus("error");
       setSubmitMessage(
@@ -1105,6 +1112,12 @@ function DivotToolCustomizationForm({
           detail: { totalQuantity: result.totalQuantity ?? 1 },
         }),
       );
+      trackMetaStandardEvent("AddToCart", {
+        content_ids: [selectedVariant.id],
+        content_type: "product",
+        currency: selectedVariant.price.currencyCode,
+        value: Number(selectedVariant.price.amount),
+      });
     } catch (error) {
       setSubmitStatus("error");
       setSubmitMessage(
@@ -1583,6 +1596,12 @@ function StandardProductCustomizationForm({
           detail: { totalQuantity: result.totalQuantity ?? 1 },
         }),
       );
+      trackMetaStandardEvent("AddToCart", {
+        content_ids: [selectedVariant.id],
+        content_type: "product",
+        currency: selectedVariant.price.currencyCode,
+        value: Number(selectedVariant.price.amount),
+      });
     } catch (error) {
       setSubmitStatus("error");
       setSubmitMessage(

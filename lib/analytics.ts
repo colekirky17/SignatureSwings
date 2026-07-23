@@ -33,8 +33,28 @@ export function hasAnyAnalyticsConfiguration(): boolean {
 
 export type AnalyticsEventPayload = Record<
   string,
-  string | number | boolean | null | undefined
+  string | number | boolean | Array<string | number> | null | undefined
 >;
+
+export type MetaStandardEventName =
+  | "AddPaymentInfo"
+  | "AddToCart"
+  | "AddToWishlist"
+  | "CompleteRegistration"
+  | "Contact"
+  | "CustomizeProduct"
+  | "Donate"
+  | "FindLocation"
+  | "InitiateCheckout"
+  | "Lead"
+  | "PageView"
+  | "Purchase"
+  | "Schedule"
+  | "Search"
+  | "StartTrial"
+  | "SubmitApplication"
+  | "Subscribe"
+  | "ViewContent";
 
 declare global {
   interface Window {
@@ -67,4 +87,15 @@ export function trackEvent(
   safelyTrack(() => window.ttq?.track?.(eventName, payload));
 
   // Clarity or internal event forwarding can be added here when event requirements are set.
+}
+
+export function trackMetaStandardEvent(
+  eventName: MetaStandardEventName,
+  payload: AnalyticsEventPayload = {},
+): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  safelyTrack(() => window.fbq?.("track", eventName, payload));
 }

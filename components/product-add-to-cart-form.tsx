@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from "react";
 import { CartSuccessActions } from "./cart-success-actions";
 import { useProductVariant } from "./product-variant-context";
+import { trackMetaStandardEvent } from "../lib/analytics";
 
 export function ProductAddToCartForm() {
   const {
@@ -58,6 +59,12 @@ export function ProductAddToCartForm() {
           detail: { totalQuantity: result.totalQuantity ?? 1 },
         }),
       );
+      trackMetaStandardEvent("AddToCart", {
+        content_ids: [selectedVariant.id],
+        content_type: "product",
+        currency: selectedVariant.price.currencyCode,
+        value: Number(selectedVariant.price.amount),
+      });
     } catch (error) {
       setStatus("error");
       setMessage(

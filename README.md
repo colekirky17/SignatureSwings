@@ -31,6 +31,19 @@ npm start
 Railway can detect this as a Node/Next.js app from `package.json`. The production build command is
 `npm run build` and the start command is `npm start`.
 
+## Analytics Tracking
+
+Tracking IDs are configured through environment variables so vendor IDs are not hardcoded in the
+source. To enable Meta Pixel, set this public environment variable in Railway:
+
+```bash
+NEXT_PUBLIC_META_PIXEL_ID=1607176220778834
+```
+
+When configured, the site loads the Meta Pixel base script, sends `PageView` events for the initial
+load and client-side page changes, and sends standard `ViewContent`, `AddToCart`, and
+`InitiateCheckout` events from the product and cart flows.
+
 ## Shopify Catalog
 
 The Storefront API token must include product listing access. To display Shopify category colors

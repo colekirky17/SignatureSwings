@@ -81,7 +81,7 @@
     background:
       linear-gradient(180deg, rgba(0, 0, 0, 0.92) 0%, rgba(0, 0, 0, 0.82) 42%, rgba(0, 0, 0, 0.34) 100%),
       linear-gradient(0deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.18)),
-      url("/images/make-it-custom-hero.jpg") 62% center / cover no-repeat;
+      url("/images/make-it-custom-hero-mobile.jpg") 68% center / cover no-repeat;
   }
 
   .home-custom-content {

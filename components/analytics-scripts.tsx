@@ -1,4 +1,5 @@
 import Script from "next/script";
+import { MetaPixelPageView } from "./meta-pixel-page-view";
 import {
   analyticsConfig,
   googleTagIds,
@@ -81,9 +82,23 @@ export function AnalyticsScripts() {
         </>
       )}
       {analyticsConfig.metaPixelId && (
-        <Script id="meta-pixel" strategy="afterInteractive">
-          {buildMetaPixelScript(analyticsConfig.metaPixelId)}
-        </Script>
+        <>
+          <Script id="meta-pixel" strategy="afterInteractive">
+            {buildMetaPixelScript(analyticsConfig.metaPixelId)}
+          </Script>
+          <noscript>
+            <img
+              alt=""
+              height="1"
+              src={`https://www.facebook.com/tr?id=${encodeURIComponent(
+                analyticsConfig.metaPixelId,
+              )}&ev=PageView&noscript=1`}
+              style={{ display: "none" }}
+              width="1"
+            />
+          </noscript>
+          <MetaPixelPageView />
+        </>
       )}
       {analyticsConfig.tiktokPixelId && (
         <Script id="tiktok-pixel" strategy="afterInteractive">

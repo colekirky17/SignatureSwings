@@ -1798,15 +1798,17 @@ p {
 
 .about-story-layout {
   display: grid;
-  grid-template-columns: minmax(20rem, 0.78fr) minmax(27rem, 1.22fr);
-  gap: clamp(2rem, 5vw, 5.5rem);
-  margin-top: 1.35rem;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: clamp(2.35rem, 4.5vw, 4.25rem);
+  margin-top: clamp(2.6rem, 5vw, 4.5rem);
 }
 
 .about-story-panel {
-  margin-top: 0.6rem;
-  padding-left: 1.2rem;
-  border-left: 2px solid var(--accent);
+  width: min(100%, 48rem);
+  padding-top: 1.35rem;
+  border-top: 2px solid var(--accent);
+  text-align: center;
 }
 
 .about-story-panel h2,
@@ -1828,14 +1830,22 @@ p {
 }
 
 .about-story-copy p {
+  max-width: 44rem;
+  margin-right: auto;
+  margin-left: auto;
   color: var(--muted);
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .about-supporting-content {
+  width: min(100%, 68rem);
   display: grid;
   gap: 1.8rem;
+}
+
+.about-values {
+  text-align: center;
 }
 
 .about-process-grid {
@@ -1944,6 +1954,7 @@ p {
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.055), transparent 52%),
     var(--surface);
+  text-align: left;
 }
 
 .about-value-icon {
@@ -2640,6 +2651,9 @@ p {
     min-height: 0;
     justify-content: center;
     padding: 0 1.35rem 4.5rem;
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.06) 56%, rgba(0, 0, 0, 0.22) 100%),
+      url("/images/signature-swings-hero-mobile.jpg") 63% center / cover no-repeat;
   }
 
   .home-hero h1 {
@@ -2880,12 +2894,11 @@ p {
   }
 
   .about-story-layout {
-    margin-top: 0.25rem;
+    margin-top: 2.1rem;
   }
 
   .about-story-panel {
-    margin-top: 0;
-    padding-left: 1rem;
+    padding-top: 1.1rem;
   }
 
   .about-story-copy p {
@@ -2988,6 +3001,9 @@ p {
 
   .home-hero-media {
     padding: 0 2.75rem 2.75rem;
+    background:
+      linear-gradient(90deg, rgba(0, 0, 0, 0.34) 0%, rgba(0, 0, 0, 0.06) 56%, rgba(0, 0, 0, 0.22) 100%),
+      url("/images/signature-swings-hero-mobile.jpg") center / cover no-repeat;
   }
 
   .home-category-grid {

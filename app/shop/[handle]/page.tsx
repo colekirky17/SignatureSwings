@@ -12,6 +12,7 @@ import {
   ProductVariantImage,
   ProductVariantPriceStatus,
 } from "../../../components/product-variant-display";
+import { ProductViewTracker } from "../../../components/product-view-tracker";
 import {
   getAllProducts,
   getProductByHandle,
@@ -312,6 +313,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   return (
     <main className="product-detail-page">
+      <ProductViewTracker product={product} />
       <Link href="/shop" className="product-detail-back-link">
         Back To Shop
       </Link>
