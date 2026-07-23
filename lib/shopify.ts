@@ -544,6 +544,32 @@ function getDisplayCollection(
   );
 }
 
+function getShopifyShortDescription(product: ShopifyProductNode): string {
+  const fallback = "Contact us to discuss customization and availability for this product.";
+  const description = product.description.trim();
+
+  if (!description) {
+    return fallback;
+  }
+
+  const cleanDescription = description.replace(/\s+/g, " ");
+  const introWithoutPolicy = cleanDescription
+    .split(/\b(?:Return & Refund Policy|Shipping Information|Returns? & Exchanges)\b/i)[0]
+    .trim();
+  const introWithoutFeatures = introWithoutPolicy.split(/\bKey Features?:\b/i)[0].trim();
+  const firstSentence = introWithoutFeatures.match(/^(.+?[.!?])(?:\s|$)/)?.[1];
+  const shortDescription = (firstSentence ?? introWithoutFeatures).trim() || fallback;
+
+  if (shortDescription.length <= 220) {
+    return shortDescription;
+  }
+
+  const truncated = shortDescription.slice(0, 221);
+  const lastSpace = truncated.lastIndexOf(" ");
+
+  return `${truncated.slice(0, lastSpace > 160 ? lastSpace : 220).trim()}...`;
+}
+
 function mapProduct(
   product: ShopifyProductNode,
   collectionContext?: ShopifyCollectionSummary,
@@ -555,9 +581,7 @@ function mapProduct(
     handle: product.handle,
     categorySlug: getCategorySlug(collection?.handle),
     categoryTitle: collection?.title || product.productType || undefined,
-    shortDescription:
-      product.description.trim() ||
-      "Contact us to discuss customization and availability for this product.",
+    shortDescription: getShopifyShortDescription(product),
     descriptionHtml: product.descriptionHtml.trim() || undefined,
     priceLabel: getPriceLabel(product),
     imagePlaceholderLabel: `${product.title} image`,

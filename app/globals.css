@@ -1762,19 +1762,21 @@ p {
 .about-founder-photo {
   min-height: clamp(17rem, 25vw, 22rem);
   border-radius: 0.55rem;
-  background:
-    linear-gradient(90deg, rgba(7, 17, 13, 0.42), rgba(7, 17, 13, 0.2)),
-    radial-gradient(circle at 28% 38%, rgba(245, 247, 242, 0.36) 0 3rem, transparent 3.1rem),
-    radial-gradient(circle at 68% 39%, rgba(245, 247, 242, 0.34) 0 3.2rem, transparent 3.3rem),
-    linear-gradient(160deg, transparent 0 41%, rgba(245, 247, 242, 0.12) 41.3% 60%, transparent 60.3%),
-    linear-gradient(90deg, #1a211e, #2a2f2b 46%, #151b18);
-  filter: grayscale(1);
+  background: #101010;
+}
+
+.about-founder-photo-image {
+  object-fit: cover;
+  object-position: center;
 }
 
 .about-founder-photo::after {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.08), rgba(0, 0, 0, 0.48));
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.02) 42%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.3));
   content: "";
 }
 
@@ -2630,8 +2632,8 @@ p {
 
   .home-hero-content {
     min-height: inherit;
-    justify-content: flex-start;
-    padding: 2.25rem 0.35rem 8.5rem;
+    justify-content: center;
+    padding: 2rem 0.35rem 5.75rem;
   }
 
   .home-hero-media {

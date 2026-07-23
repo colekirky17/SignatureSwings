@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "About Signature Swings",
@@ -14,13 +15,6 @@ const storyParagraphs = [
   "For Mike and Caleb, customization is not about showing off. It's about making the game more memorable.",
   "Signature Swings exists for the golfers, gift-givers, tournament hosts, and weekend players who want something a little more personal than the standard stuff on the shelf.",
   "Because when it comes to golf, the smallest details can make the game feel more like your own.",
-];
-
-const processSteps = [
-  { title: "Workshop / Laser Engraving", tone: "laser" },
-  { title: "Product Finishing", tone: "finish" },
-  { title: "Custom Design Process", tone: "design" },
-  { title: "Packaging / Final Product", tone: "package" },
 ];
 
 const values = [
@@ -55,8 +49,15 @@ export default function AboutPage() {
           <span className="about-title-rule" aria-hidden="true" />
         </div>
 
-        <div className="about-founder-photo" aria-label="Mike and Caleb founder photo placeholder">
-          <span>Founders Photo Placeholder</span>
+        <div className="about-founder-photo">
+          <Image
+            src="/images/founderspic.jpg"
+            alt="Mike and Caleb standing on a golf course"
+            fill
+            priority
+            sizes="(max-width: 900px) 100vw, 55vw"
+            className="about-founder-photo-image"
+          />
         </div>
       </section>
 
@@ -71,23 +72,6 @@ export default function AboutPage() {
         </article>
 
         <div className="about-supporting-content">
-          <section className="about-process" aria-labelledby="about-process-heading">
-            <h2 id="about-process-heading">Made With Purpose</h2>
-            <div className="about-process-grid">
-              {processSteps.map((step) => (
-                <article key={step.title} className="about-process-card">
-                  <div className={`about-process-media about-process-${step.tone}`} aria-hidden="true" />
-                  <div className="about-process-label">
-                    <span className="about-card-icon" aria-hidden="true">
-                      {step.title.slice(0, 1)}
-                    </span>
-                    <h3>{step.title}</h3>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-
           <section className="about-values" aria-labelledby="about-values-heading">
             <h2 id="about-values-heading">Our Values</h2>
             <div className="about-values-grid">

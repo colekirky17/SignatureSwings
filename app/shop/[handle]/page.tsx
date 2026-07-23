@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CompleteGolfSetup } from "../../../components/complete-golf-setup";
 import { ProductAddToCartForm } from "../../../components/product-add-to-cart-form";
-import styles from "../../../components/catalog-product-media.module.css";
 import {
   ProductCustomizationForm,
   type PersonalizationMethodOption,
@@ -125,6 +124,14 @@ function isBottleOpenerDivotTool(product: ProductSummary): boolean {
     "premium-custom-divot-tool-with-bottle-opener",
     "premium-divot-repair-tool",
   ].includes(product.handle);
+}
+
+function getProductIntroCopy(product: ProductSummary): string {
+  if (isBottleOpenerDivotTool(product)) {
+    return "A premium divot repair tool with a refined metal finish, personalized engraving options, and a built-in bottle opener for the course.";
+  }
+
+  return product.shortDescription;
 }
 
 function ProductInformation({ product }: { product: ProductSummary }) {
@@ -280,7 +287,7 @@ export async function generateMetadata({
 
   return {
     title: product.title,
-    description: `${product.shortDescription} Contact Signature Swings to inquire about this product.`,
+    description: `${getProductIntroCopy(product)} Contact Signature Swings to inquire about this product.`,
     // Keep individual products out of search until the catalog content is launch-ready.
     robots: {
       index: false,
@@ -332,8 +339,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
               <div className="product-detail-summary">
                 {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
                 <h1>{product.title}</h1>
-                <p className={styles.handle}>/{product.handle}</p>
-                <p className="product-detail-description">{product.shortDescription}</p>
+                <p className="product-detail-description">{getProductIntroCopy(product)}</p>
                 <ProductVariantPriceStatus
                   fallbackPriceLabel={getDisplayPriceLabel(product.priceLabel)}
                 />
