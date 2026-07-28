@@ -54,6 +54,58 @@ function mixHexColor(color: string, target: string, amount: number): string {
   return `#${channels.join("")}`;
 }
 
+const BALL_MARKER_ARTWORK = {
+  x: 160,
+  y: 160,
+  textSafeWidth: 218,
+  textSafeHeight: 116,
+  logoSize: 198,
+  guideRadius: 78,
+};
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getWeightedTextLength(text: string): number {
+  return Array.from(text.trim()).reduce((total, character) => {
+    if (character === " ") {
+      return total + 0.42;
+    }
+
+    if (/['.,-]/.test(character)) {
+      return total + 0.36;
+    }
+
+    if (/[ilI1]/.test(character)) {
+      return total + 0.52;
+    }
+
+    if (/[mwMW]/.test(character)) {
+      return total + 1.24;
+    }
+
+    return total + 1;
+  }, 0);
+}
+
+function getBallMarkerTextSize(text: string): number {
+  const weightedLength = Math.max(1, getWeightedTextLength(text));
+  const fillTarget =
+    weightedLength <= 3
+      ? 0.88
+      : weightedLength <= 5
+        ? 0.84
+        : weightedLength <= 9
+          ? 0.78
+          : 0.72;
+  const widthBasedSize =
+    (BALL_MARKER_ARTWORK.textSafeWidth * fillTarget) / (weightedLength * 0.58);
+  const heightBasedSize = BALL_MARKER_ARTWORK.textSafeHeight * 0.82;
+
+  return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), 42, 98));
+}
+
 function BallMarkerCoin({
   design,
   finishColor,
@@ -68,8 +120,7 @@ function BallMarkerCoin({
     Boolean(design.logoPreviewUrl),
   );
   const text = design.text.trim() || "TEXT";
-  const textSize =
-    text.length <= 2 ? 100 : text.length <= 4 ? 80 : text.length <= 8 ? 58 : 44;
+  const textSize = getBallMarkerTextSize(text);
   const metalHighlight = mixHexColor(finishColor, "#ffffff", 0.72);
   const metalMidtone = mixHexColor(finishColor, "#ffffff", 0.22);
   const metalShadow = mixHexColor(finishColor, "#000000", 0.3);
@@ -116,18 +167,22 @@ function BallMarkerCoin({
         />
 
         {design.methodId === "initials" ? (
-          <text
-            x="160"
-            y="160"
-            textAnchor="middle"
-            dominantBaseline="central"
-            className="ball-marker-preview-center-text"
-            style={{ fontSize: textSize }}
-            textLength={text.length > 8 ? 170 : undefined}
-            lengthAdjust={text.length > 8 ? "spacingAndGlyphs" : undefined}
+          <g
+            className="ball-marker-preview-center-artwork"
+            transform={`translate(${BALL_MARKER_ARTWORK.x} ${BALL_MARKER_ARTWORK.y})`}
           >
-            {text}
-          </text>
+            <text
+              x="0"
+              y="0"
+              textAnchor="middle"
+              dominantBaseline="central"
+              alignmentBaseline="central"
+              className="ball-marker-preview-center-text"
+              style={{ fontSize: textSize }}
+            >
+              {text}
+            </text>
+          </g>
         ) : null}
 
         {design.methodId === "logo" ? (
@@ -135,17 +190,27 @@ function BallMarkerCoin({
             <image
               className="club-links-preview-logo"
               href={design.logoPreviewUrl}
-              x="76"
-              y="76"
-              width="168"
-              height="168"
+              x={BALL_MARKER_ARTWORK.x - BALL_MARKER_ARTWORK.logoSize / 2}
+              y={BALL_MARKER_ARTWORK.y - BALL_MARKER_ARTWORK.logoSize / 2}
+              width={BALL_MARKER_ARTWORK.logoSize}
+              height={BALL_MARKER_ARTWORK.logoSize}
               preserveAspectRatio="xMidYMid meet"
               onError={() => setIsLogoPreviewAvailable(false)}
             />
           ) : (
             <g className="club-links-preview-logo-fallback">
-              <circle cx="160" cy="160" r="65" />
-              <text x="160" y="165" textAnchor="middle">
+              <circle
+                cx={BALL_MARKER_ARTWORK.x}
+                cy={BALL_MARKER_ARTWORK.y}
+                r={BALL_MARKER_ARTWORK.guideRadius}
+              />
+              <text
+                x={BALL_MARKER_ARTWORK.x}
+                y={BALL_MARKER_ARTWORK.y}
+                textAnchor="middle"
+                dominantBaseline="central"
+                alignmentBaseline="central"
+              >
                 LOGO
               </text>
             </g>
@@ -154,10 +219,19 @@ function BallMarkerCoin({
 
         {design.methodId === "design" ? (
           <g className="club-links-preview-placeholder">
-            <circle cx="160" cy="160" r="65" strokeDasharray="7 6" />
-            <text x="160" y="154" textAnchor="middle">
-              <tspan x="160">DESIGN</tspan>
-              <tspan x="160" dy="20">
+            <circle
+              cx={BALL_MARKER_ARTWORK.x}
+              cy={BALL_MARKER_ARTWORK.y}
+              r={BALL_MARKER_ARTWORK.guideRadius}
+              strokeDasharray="7 6"
+            />
+            <text
+              x={BALL_MARKER_ARTWORK.x}
+              y={BALL_MARKER_ARTWORK.y - 10}
+              textAnchor="middle"
+            >
+              <tspan x={BALL_MARKER_ARTWORK.x}>DESIGN</tspan>
+              <tspan x={BALL_MARKER_ARTWORK.x} dy="20">
                 REQUEST
               </tspan>
             </text>

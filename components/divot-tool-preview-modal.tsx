@@ -19,11 +19,67 @@ export const engravingFontFamilies: Record<string, string> = {
   minimal: '"Arial Narrow", "Helvetica Neue", Arial, sans-serif',
 };
 
-function getEngravingFontSize(text: string, fontStyleId: string): number {
-  const baseSize =
-    text.length <= 8 ? 62 : text.length <= 12 ? 52 : text.length <= 16 ? 43 : 36;
+const ENGRAVING_PANEL = {
+  x: 615,
+  y: 118,
+  width: 520,
+  height: 104,
+  paddingX: 56,
+  paddingY: 18,
+};
 
-  return fontStyleId === "script" ? baseSize + 5 : baseSize;
+const fontWidthRatios: Record<string, number> = {
+  classic: 0.54,
+  modern: 0.58,
+  script: 0.42,
+  minimal: 0.68,
+};
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getWeightedTextLength(text: string): number {
+  return Array.from(text.trim()).reduce((total, character) => {
+    if (character === " ") {
+      return total + 0.42;
+    }
+
+    if (/['.,-]/.test(character)) {
+      return total + 0.36;
+    }
+
+    if (/[ilI1]/.test(character)) {
+      return total + 0.52;
+    }
+
+    if (/[mwMW]/.test(character)) {
+      return total + 1.25;
+    }
+
+    return total + 1;
+  }, 0);
+}
+
+function getEngravingFontSize(text: string, fontStyleId: string): number {
+  const weightedLength = Math.max(1, getWeightedTextLength(text));
+  const widthRatio = fontWidthRatios[fontStyleId] ?? fontWidthRatios.classic;
+  const safeWidth = ENGRAVING_PANEL.width - ENGRAVING_PANEL.paddingX * 2;
+  const safeHeight = ENGRAVING_PANEL.height - ENGRAVING_PANEL.paddingY * 2;
+  const characterTarget =
+    weightedLength <= 5
+      ? 0.86
+      : weightedLength <= 9
+        ? 0.82
+        : weightedLength <= 13
+          ? 0.76
+          : 0.7;
+  const widthBasedSize = (safeWidth * characterTarget) / (weightedLength * widthRatio);
+  const heightBasedSize = safeHeight * (fontStyleId === "script" ? 1.08 : 0.96);
+  const maxSize = fontStyleId === "script" ? 90 : 82;
+  const minSize = fontStyleId === "minimal" ? 34 : 38;
+
+  return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), minSize, maxSize));
 }
 
 export function DivotToolPreviewModal({
@@ -95,7 +151,13 @@ export function DivotToolPreviewModal({
             >
               <defs>
                 <clipPath id={clipPathId}>
-                  <rect x="615" y="118" width="520" height="104" rx="8" />
+                  <rect
+                    x={ENGRAVING_PANEL.x}
+                    y={ENGRAVING_PANEL.y}
+                    width={ENGRAVING_PANEL.width}
+                    height={ENGRAVING_PANEL.height}
+                    rx="8"
+                  />
                 </clipPath>
               </defs>
               <image
@@ -107,9 +169,10 @@ export function DivotToolPreviewModal({
                 preserveAspectRatio="xMidYMid meet"
               />
               <text
-                x="875"
-                y="187"
+                x={ENGRAVING_PANEL.x + ENGRAVING_PANEL.width / 2}
+                y={ENGRAVING_PANEL.y + ENGRAVING_PANEL.height / 2 + 5}
                 textAnchor="middle"
+                dominantBaseline="middle"
                 clipPath={`url(#${clipPathId})`}
                 className={`divot-tool-preview-text is-${fontStyleId}`}
                 style={{ fontFamily, fontSize }}

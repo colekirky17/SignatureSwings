@@ -1042,12 +1042,15 @@
 }
 
 .divot-tool-preview-text {
-  fill: #252927;
+  fill: #202522;
   font-weight: 700;
   letter-spacing: 0.5px;
   paint-order: stroke fill;
-  stroke: rgba(0, 0, 0, 0.13);
-  stroke-width: 0.55px;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 0.7px;
+  text-rendering: geometricPrecision;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.16))
+    drop-shadow(0 -1px 0 rgba(0, 0, 0, 0.2));
 }
 
 .divot-tool-preview-text.is-script {
@@ -1057,7 +1060,7 @@
 
 .divot-tool-preview-text.is-minimal {
   font-weight: 500;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
 }
 
 .ball-marker-preview-stage {
@@ -1094,6 +1097,11 @@
   letter-spacing: 1px;
 }
 
+.ball-marker-preview-center-artwork {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 .ball-marker-preview-file,
 .ball-marker-preview-request {
   display: block;
@@ -1117,6 +1125,11 @@
   font-size: 58px;
   font-weight: 800;
   letter-spacing: 2px;
+}
+
+.club-links-preview-center-artwork {
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .club-links-preview-center-text.is-script {

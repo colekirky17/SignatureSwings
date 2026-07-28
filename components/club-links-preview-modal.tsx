@@ -28,6 +28,12 @@ const fontFamilies: Record<string, string> = {
   minimal: '"Arial Narrow", "Helvetica Neue", Arial, sans-serif',
 };
 
+const CENTER_ARTWORK = {
+  x: 160,
+  y: 160,
+  logoSize: 116,
+};
+
 export function ClubLinksPreviewModal({
   isOpen,
   name,
@@ -168,15 +174,22 @@ export function ClubLinksPreviewModal({
               </text>
 
               {methodId === "initials" ? (
-                <text
-                  x="160"
-                  y="176"
-                  textAnchor="middle"
-                  className={`club-links-preview-center-text is-${fontStyleId}`}
-                  style={{ fontFamily: centerFontFamily, fontSize: centerFontSize }}
+                <g
+                  className="club-links-preview-center-artwork"
+                  transform={`translate(${CENTER_ARTWORK.x} ${CENTER_ARTWORK.y})`}
                 >
-                  {centerText}
-                </text>
+                  <text
+                    x="0"
+                    y="0"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    alignmentBaseline="central"
+                    className={`club-links-preview-center-text is-${fontStyleId}`}
+                    style={{ fontFamily: centerFontFamily, fontSize: centerFontSize }}
+                  >
+                    {centerText}
+                  </text>
+                </g>
               ) : null}
 
               {methodId === "logo" ? (
@@ -184,17 +197,23 @@ export function ClubLinksPreviewModal({
                   <image
                     className="club-links-preview-logo"
                     href={logoPreviewUrl}
-                    x="102"
-                    y="102"
-                    width="116"
-                    height="116"
+                    x={CENTER_ARTWORK.x - CENTER_ARTWORK.logoSize / 2}
+                    y={CENTER_ARTWORK.y - CENTER_ARTWORK.logoSize / 2}
+                    width={CENTER_ARTWORK.logoSize}
+                    height={CENTER_ARTWORK.logoSize}
                     preserveAspectRatio="xMidYMid meet"
                     onError={() => setIsLogoPreviewAvailable(false)}
                   />
                 ) : (
                   <g className="club-links-preview-logo-fallback">
-                    <circle cx="160" cy="160" r="48" />
-                    <text x="160" y="165" textAnchor="middle">
+                    <circle cx={CENTER_ARTWORK.x} cy={CENTER_ARTWORK.y} r="48" />
+                    <text
+                      x={CENTER_ARTWORK.x}
+                      y={CENTER_ARTWORK.y}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      alignmentBaseline="central"
+                    >
                       LOGO
                     </text>
                   </g>
