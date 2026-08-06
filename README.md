@@ -50,6 +50,24 @@ The Storefront API token must include product listing access. To display Shopify
 such as Gold and Silver, it must also include the `unauthenticated_read_metaobjects` scope. Product
 colors are read from Shopify's standard `shopify.color-pattern` category metafield.
 
+If the production shop page shows "Products temporarily unavailable", the Storefront catalog
+request is failing. Production does not render demo products when Shopify is unavailable. Check the
+Railway deployment logs for the detailed Shopify warning, then confirm:
+
+- `SHOPIFY_STORE_DOMAIN` is the Shopify API host, usually `your-store.myshopify.com`, not the public
+  website domain.
+- `SHOPIFY_STOREFRONT_PRIVATE_ACCESS_TOKEN` is the private Storefront token for the connected
+  Headless/custom storefront.
+- `SHOPIFY_API_VERSION` is a supported Shopify API version, such as `2026-04`.
+- The products are active and published to the Headless/custom storefront sales channel and relevant
+  market.
+- Website placement collections still use the expected handles: `ball-markers`, `divot-tools`,
+  `club-links`, `bundles`, and optional homepage collections such as `best-sellers`, `20-off`, and
+  `seasonal`.
+
+Local development may use sample catalog products when Shopify is not configured, but
+`NODE_ENV=production` always disables that fallback.
+
 ## Customer Artwork Uploads
 
 Club Links logo artwork is uploaded to Shopify Files through the Admin GraphQL API. Configure a

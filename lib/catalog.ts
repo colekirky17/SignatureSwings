@@ -165,79 +165,62 @@ export const homepageFeaturedCollection: ShopifyCollectionPlacement = {
   handle: "homepage-featured",
 };
 
-// Shopify will later be the source of truth for products, variants, prices, and availability.
-// These handles are kept ready to map to Shopify product handles when commerce is connected.
-export const products: ProductSummary[] = [
+// Development-only product samples for local UI work when Shopify is not configured.
+// Production must never render these values.
+const developmentProducts: ProductSummary[] = [
   {
-    title: "Custom Ball Marker",
-    handle: "custom-ball-marker",
+    title: "Premium Custom Ball Markers",
+    handle: "premium-bulk-golf-markers",
     categorySlug: "ball-markers",
-    shortDescription: "Engraved detail for a personal finish on every green.",
+    shortDescription: "Custom ball markers made for logos, initials, events, and bulk orders.",
     priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Ball marker image",
+    imagePlaceholderLabel: "Premium custom ball markers image",
     ctaLabel: "Inquiry Coming Soon",
+    tags: ["ball markers", "customization-two-sided"],
   },
   {
-    title: "Premium Divot Repair Tool",
-    handle: "premium-divot-repair-tool",
-    categorySlug: "divot-repair-tools",
-    shortDescription: "A precision course essential with a refined feel.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Divot tool image",
-    ctaLabel: "Inquiry Coming Soon",
-  },
-  {
-    title: "Club Link Tag",
-    handle: "club-link-tag",
+    title: 'ClubLinks "Wedge Set" (3-Pack)',
+    handle: "custom-engraved-premium-clublinks-golf-club-id-tag",
     categorySlug: "club-links",
-    shortDescription: "A clean custom tag made to identify your club.",
+    shortDescription: "A three-pack of engraved ClubLinks for personalizing your wedge set.",
     priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Club link image",
+    imagePlaceholderLabel: "ClubLinks wedge set image",
     ctaLabel: "Inquiry Coming Soon",
   },
   {
-    title: "Signature Bundle",
-    handle: "signature-bundle",
-    categorySlug: "bundles",
-    shortDescription: "Coordinated golf accessories presented as one giftable set.",
+    title: 'ClubLinks "Whole Bag" (14-Pack)',
+    handle: "clublinks-14-pack",
+    categorySlug: "club-links",
+    shortDescription: "A full-bag ClubLinks set for identifying and personalizing every club.",
     priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Bundle image",
+    imagePlaceholderLabel: "ClubLinks whole bag image",
     ctaLabel: "Inquiry Coming Soon",
   },
   {
-    title: "Groomsmen Gift Set",
-    handle: "groomsmen-gift-set",
-    categorySlug: "bundles",
-    shortDescription: "Personalized pieces for the golfers in your wedding party.",
+    title: "Single-Pronged Divot Tool",
+    handle: "custom-divot-tool-flat",
+    categorySlug: "divot-repair-tools",
+    shortDescription: "A slim course tool designed for quick repairs and clean personalization.",
     priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Gift set image",
+    imagePlaceholderLabel: "Single-pronged divot tool image",
     ctaLabel: "Inquiry Coming Soon",
   },
   {
-    title: "Custom Event Marker",
-    handle: "custom-event-marker",
-    categorySlug: "ball-markers",
-    shortDescription: "Event-ready markers for outings and memorable occasions.",
+    title: "Single-Pronged Divot Tool w/ Bottle Opener",
+    handle: "premium-custom-divot-tool-with-bottle-opener",
+    categorySlug: "divot-repair-tools",
+    shortDescription: "A personalized divot repair tool with a built-in bottle opener.",
     priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Event marker image",
+    imagePlaceholderLabel: "Bottle opener divot tool image",
     ctaLabel: "Inquiry Coming Soon",
   },
   {
-    title: "Miscellaneous Golf Accessory",
-    handle: "miscellaneous-golf-accessory",
-    categorySlug: "miscellaneous",
-    shortDescription: "A small premium addition made to complement your gear.",
+    title: "Two-Pronged Divot Tool",
+    handle: "two-pronged-divot-tools",
+    categorySlug: "divot-repair-tools",
+    shortDescription: "A classic two-prong repair tool made for personalized golf rounds and gifts.",
     priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Accessory image",
-    ctaLabel: "Inquiry Coming Soon",
-  },
-  {
-    title: "Bulk Order Starter Pack",
-    handle: "bulk-order-starter-pack",
-    categorySlug: "bundles",
-    shortDescription: "A simple starting point for tournaments and group gifts.",
-    priceLabel: "Pricing by inquiry",
-    imagePlaceholderLabel: "Bulk order image",
+    imagePlaceholderLabel: "Two-pronged divot tool image",
     ctaLabel: "Inquiry Coming Soon",
   },
 ];
@@ -265,13 +248,13 @@ export function getProductCategoryTitle(product: ProductSummary): string | undef
 }
 
 export function getAllProducts(): ProductSummary[] {
-  return products;
+  return process.env.NODE_ENV === "production" ? [] : developmentProducts;
 }
 
 export function getProductByHandle(handle: string): ProductSummary | undefined {
-  return products.find((product) => product.handle === handle);
+  return getAllProducts().find((product) => product.handle === handle);
 }
 
 export function getProductsByCategory(categorySlug: ProductCategorySlug): ProductSummary[] {
-  return products.filter((product) => product.categorySlug === categorySlug);
+  return getAllProducts().filter((product) => product.categorySlug === categorySlug);
 }

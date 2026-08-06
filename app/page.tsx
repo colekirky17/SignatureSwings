@@ -198,7 +198,7 @@ export default async function Home() {
     fetchShopifyCollectionProductGroups(homepageFeaturedCollections),
   ]);
   const usingShopify = shopifyProducts !== null;
-  const featuredProducts = usingShopify ? shopifyProducts : getAllProducts();
+  const featuredProducts = shopifyProducts ?? getAllProducts();
 
   return (
     <main className="home-page">

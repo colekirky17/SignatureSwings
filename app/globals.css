@@ -2120,6 +2120,27 @@ p {
   gap: 1rem;
 }
 
+.product-empty-state {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface);
+  padding: 2rem;
+}
+
+.product-empty-state h3 {
+  color: var(--text);
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.product-empty-state p {
+  max-width: 38rem;
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
 .product-card {
   display: flex;
   overflow: hidden;

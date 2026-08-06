@@ -76,39 +76,46 @@ function getDisplayPriceLabel(priceLabel: string): string {
   return cleanPrice;
 }
 
-function isClubLinkProduct(product: ProductSummary, categoryTitle?: string): boolean {
-  const collectionKeys = [
+function getProductRoutingKeys(product: ProductSummary, categoryTitle?: string): string[] {
+  return [
     product.categorySlug,
     categoryTitle,
+    product.handle,
+    product.title,
     ...(product.collectionHandles ?? []),
     ...(product.collectionTitles ?? []),
+    ...(product.tags ?? []),
   ]
     .filter((value): value is string => Boolean(value))
     .map((value) => value.toLowerCase());
+}
 
-  return collectionKeys.some(
+function isClubLinkProduct(product: ProductSummary, categoryTitle?: string): boolean {
+  const productKeys = getProductRoutingKeys(product, categoryTitle);
+
+  return productKeys.some(
     (value) =>
       value === "club-links" ||
       value === "club links" ||
-      value.includes("club link"),
+      value.includes("club link") ||
+      value.includes("clublink"),
   );
 }
 
 function isBallMarkerProduct(product: ProductSummary, categoryTitle?: string): boolean {
-  const collectionKeys = [
-    product.categorySlug,
-    categoryTitle,
-    ...(product.collectionHandles ?? []),
-    ...(product.collectionTitles ?? []),
-  ]
-    .filter((value): value is string => Boolean(value))
-    .map((value) => value.toLowerCase());
+  const productKeys = getProductRoutingKeys(product, categoryTitle);
 
-  return collectionKeys.some(
+  return productKeys.some(
     (value) =>
       value === "ball-markers" ||
       value === "ball markers" ||
       value.includes("ball marker"),
+  );
+}
+
+function isDivotToolProduct(product: ProductSummary, categoryTitle?: string): boolean {
+  return getProductRoutingKeys(product, categoryTitle).some((value) =>
+    value.includes("divot"),
   );
 }
 
@@ -120,11 +127,15 @@ function getBallMarkerCustomizationSides(product: ProductSummary): 1 | 2 {
   return isExplicitlyTwoSided && !isExplicitlyOneSided ? 2 : 1;
 }
 
-function isBottleOpenerDivotTool(product: ProductSummary): boolean {
+function isBottleOpenerDivotTool(product: ProductSummary, categoryTitle?: string): boolean {
   return [
+    "custom-divot-tool-flat",
     "premium-custom-divot-tool-with-bottle-opener",
     "premium-divot-repair-tool",
-  ].includes(product.handle);
+    "single-prong-divot-tool",
+    "two-pronged-divot-tools",
+    "two-prong-divot-tool",
+  ].includes(product.handle) || isDivotToolProduct(product, categoryTitle);
 }
 
 function getProductIntroCopy(product: ProductSummary): string {
@@ -309,7 +320,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
   }
 
   const categoryTitle = getProductCategoryTitle(product);
-  const usesDivotToolCustomizer = isBottleOpenerDivotTool(product);
+  const usesDivotToolCustomizer = isBottleOpenerDivotTool(product, categoryTitle);
 
   return (
     <main className="product-detail-page">

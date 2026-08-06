@@ -19,23 +19,21 @@ type FeaturedCollection = {
 
 const staticFeaturedHandles = {
   "best-sellers": [
-    "custom-ball-marker",
-    "premium-divot-repair-tool",
-    "club-link-tag",
-    "signature-bundle",
-    "custom-event-marker",
+    "premium-bulk-golf-markers",
+    "custom-engraved-premium-clublinks-golf-club-id-tag",
+    "premium-custom-divot-tool-with-bottle-opener",
+    "custom-divot-tool-flat",
+    "two-pronged-divot-tools",
   ],
   offers: [
-    "signature-bundle",
-    "groomsmen-gift-set",
-    "bulk-order-starter-pack",
-    "custom-ball-marker",
+    "premium-bulk-golf-markers",
+    "clublinks-14-pack",
+    "two-pronged-divot-tools",
   ],
   seasonal: [
-    "custom-event-marker",
-    "groomsmen-gift-set",
-    "signature-bundle",
-    "club-link-tag",
+    "custom-divot-tool-flat",
+    "premium-custom-divot-tool-with-bottle-opener",
+    "custom-engraved-premium-clublinks-golf-club-id-tag",
   ],
 };
 

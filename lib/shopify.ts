@@ -33,6 +33,21 @@ type GraphqlResponse<T> = {
   errors?: Array<{ message: string }>;
 };
 
+let loggedMissingStorefrontConfiguration = false;
+let loggedUnusualStorefrontDomain = false;
+
+function logStorefrontConfigurationWarning(message: string, details?: unknown) {
+  console.warn(`Shopify Storefront catalog configuration warning: ${message}`, details ?? "");
+}
+
+function getEndpointHost(endpoint: string): string {
+  try {
+    return new URL(endpoint).host;
+  } catch {
+    return "unknown-host";
+  }
+}
+
 type ShopifyVariantNode = {
   id: string;
   title: string;
@@ -76,7 +91,7 @@ type ShopifyProductNode = {
   description: string;
   descriptionHtml: string;
   productType: string;
-  tags: string[];
+  tags?: string[];
   availableForSale: boolean;
   featuredImage: ProductImage | null;
   priceRange: {
@@ -200,6 +215,10 @@ const CORE_PRODUCT_FIELDS = PRODUCT_FIELDS.replace(
   "      currentlyNotInStock\n",
   "",
 );
+const PRODUCT_FIELDS_WITHOUT_TAGS = CORE_PRODUCT_FIELDS.replace(
+  "  tags\n",
+  "",
+);
 
 function buildProductsQuery(productFields: string): string {
   return `
@@ -277,6 +296,17 @@ function getStorefrontConfiguration(): StorefrontConfiguration | null {
   const apiVersion = process.env.SHOPIFY_API_VERSION?.trim();
 
   if (!domain || !privateToken || !apiVersion) {
+    if (!loggedMissingStorefrontConfiguration) {
+      loggedMissingStorefrontConfiguration = true;
+      logStorefrontConfigurationWarning("missing required environment variable(s).", {
+        missing: [
+          !domain ? "SHOPIFY_STORE_DOMAIN" : null,
+          !privateToken ? "SHOPIFY_STOREFRONT_PRIVATE_ACCESS_TOKEN" : null,
+          !apiVersion ? "SHOPIFY_API_VERSION" : null,
+        ].filter(Boolean),
+      });
+    }
+
     return null;
   }
 
@@ -288,7 +318,19 @@ function getStorefrontConfiguration(): StorefrontConfiguration | null {
     !/^[a-z0-9.-]+$/i.test(storeDomain) ||
     !/^(?:\d{4}-\d{2}|latest|unstable)$/.test(apiVersion)
   ) {
+    logStorefrontConfigurationWarning("invalid Shopify domain or API version format.", {
+      storeDomain,
+      apiVersion,
+    });
     return null;
+  }
+
+  if (!storeDomain.endsWith(".myshopify.com") && !loggedUnusualStorefrontDomain) {
+    loggedUnusualStorefrontDomain = true;
+    logStorefrontConfigurationWarning(
+      "SHOPIFY_STORE_DOMAIN is not a myshopify.com host. If this is the public website domain, DNS changes can route Storefront API requests back to the website instead of Shopify.",
+      { storeDomain },
+    );
   }
 
   return {
@@ -346,19 +388,44 @@ async function queryStorefront<T>(
         tags: ["shopify-catalog"],
       },
     });
-    const result = (await response.json()) as GraphqlResponse<T>;
+
+    const responseText = await response.text();
+    let result: GraphqlResponse<T>;
+
+    try {
+      result = JSON.parse(responseText) as GraphqlResponse<T>;
+    } catch (error) {
+      console.error("Shopify Storefront catalog request returned non-JSON.", {
+        host: getEndpointHost(configuration.endpoint),
+        status: response.status,
+        statusText: response.statusText,
+        contentType: response.headers.get("content-type"),
+        bodyPreview: responseText.slice(0, 160),
+        error,
+      });
+      return null;
+    }
 
     if (!response.ok || result.errors?.length || !result.data) {
       console.error(
         "Shopify Storefront catalog request failed.",
-        result.errors?.map((error) => error.message),
+        {
+          host: getEndpointHost(configuration.endpoint),
+          status: response.status,
+          statusText: response.statusText,
+          errors: result.errors?.map((error) => error.message),
+          hasData: Boolean(result.data),
+        },
       );
       return null;
     }
 
     return result.data;
-  } catch {
-    console.error("Shopify Storefront catalog request failed.");
+  } catch (error) {
+    console.error("Shopify Storefront catalog request failed.", {
+      host: getEndpointHost(configuration.endpoint),
+      error,
+    });
     return null;
   }
 }
@@ -419,7 +486,16 @@ async function queryCatalogWithInventoryFallback<T>(
   console.warn(
     "Retrying Shopify catalog request with core variant availability fields.",
   );
-  return queryStorefront<T>(buildQuery(CORE_PRODUCT_FIELDS), variables);
+  const coreResult = await queryStorefront<T>(buildQuery(CORE_PRODUCT_FIELDS), variables);
+
+  if (coreResult) {
+    return coreResult;
+  }
+
+  console.warn(
+    "Retrying Shopify catalog request without protected product tag fields.",
+  );
+  return queryStorefront<T>(buildQuery(PRODUCT_FIELDS_WITHOUT_TAGS), variables);
 }
 
 function getCategorySlug(collectionHandle: string | undefined): ProductCategorySlug {
@@ -594,7 +670,7 @@ function mapProduct(
     shopifyProductId: product.id,
     collectionHandles: product.collections.nodes.map((item) => item.handle),
     collectionTitles: product.collections.nodes.map((item) => item.title),
-    tags: product.tags,
+    tags: product.tags ?? [],
     source: "shopify",
   };
 }

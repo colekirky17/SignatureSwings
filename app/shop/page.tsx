@@ -36,13 +36,25 @@ function getFallbackCollectionGroups(): ShopifyCollectionProductGroup[] {
     .filter((collection) => collection.products.length > 0);
 }
 
+function ProductUnavailableState() {
+  return (
+    <div className="product-empty-state" role="status">
+      <h3>Products temporarily unavailable</h3>
+      <p>
+        We're reconnecting the live Shopify catalog. Please check back shortly or contact us to
+        start a custom order.
+      </p>
+    </div>
+  );
+}
+
 export default async function ShopPage() {
   const [shopifyProducts, shopifyCollectionGroups] = await Promise.all([
     fetchShopifyProducts(),
     fetchShopifyCollectionProductGroups(shopCategoryCollections),
   ]);
   const usingShopify = shopifyProducts !== null;
-  const products = usingShopify ? shopifyProducts : getAllProducts();
+  const products = shopifyProducts ?? getAllProducts();
   const collectionGroups = (
     usingShopify ? shopifyCollectionGroups ?? [] : getFallbackCollectionGroups()
   ).filter((collection) => collection.products.length > 0);
@@ -61,19 +73,25 @@ export default async function ShopPage() {
       <section className="product-section" aria-labelledby="product-grid-heading">
         <div className="product-section-heading">
           <div>
-            <p className="shop-kicker">{usingShopify ? "Product Catalog" : "Product Preview"}</p>
+            <p className="shop-kicker">Product Catalog</p>
             <h2 id="product-grid-heading">Explore The Collection</h2>
           </div>
           <p className="product-count">
-            {products.length} {usingShopify ? "products" : "product previews"}
+            {products.length
+              ? `${products.length} ${products.length === 1 ? "product" : "products"}`
+              : "Catalog unavailable"}
           </p>
         </div>
 
-        <div className="product-grid">
-          {products.map((product) => (
-            <CatalogProductCard key={product.handle} product={product} />
-          ))}
-        </div>
+        {products.length ? (
+          <div className="product-grid">
+            {products.map((product) => (
+              <CatalogProductCard key={product.handle} product={product} />
+            ))}
+          </div>
+        ) : (
+          <ProductUnavailableState />
+        )}
       </section>
 
       {collectionGroups.length ? (
