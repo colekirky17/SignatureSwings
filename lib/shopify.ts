@@ -95,6 +95,9 @@ type ShopifyProductNode = {
   tags?: string[];
   availableForSale: boolean;
   featuredImage: ProductImage | null;
+  images: {
+    nodes: ProductImage[];
+  };
   priceRange: {
     minVariantPrice: ProductMoney;
     maxVariantPrice: ProductMoney;
@@ -132,6 +135,14 @@ const PRODUCT_FIELDS = `
     altText
     width
     height
+  }
+  images(first: 20) {
+    nodes {
+      url
+      altText
+      width
+      height
+    }
   }
   priceRange {
     minVariantPrice {
@@ -623,6 +634,20 @@ function getProductColorOptions(product: ShopifyProductNode): ProductColorOption
   );
 }
 
+function getUniqueProductImages(product: ShopifyProductNode): ProductImage[] {
+  return Array.from(
+    new Map(
+      [
+        product.featuredImage,
+        ...(product.images?.nodes ?? []),
+        ...product.variants.nodes.map((variant) => variant.image),
+      ]
+        .filter((image): image is ProductImage => Boolean(image?.url))
+        .map((image) => [image.url, image]),
+    ).values(),
+  );
+}
+
 function getDisplayCollection(
   product: ShopifyProductNode,
   collectionContext?: ShopifyCollectionSummary,
@@ -682,6 +707,7 @@ function mapProduct(
     priceLabel: getPriceLabel(product),
     imagePlaceholderLabel: `${product.title} image`,
     image: product.featuredImage ?? undefined,
+    images: getUniqueProductImages(product),
     ctaLabel: "Product Inquiry",
     availableForSale: product.availableForSale,
     variants: product.variants.nodes.map(mapVariant),

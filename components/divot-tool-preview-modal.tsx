@@ -8,6 +8,11 @@ type DivotToolPreviewModalProps = {
   engravingText: string;
   fontStyleId: string;
   fontStyleLabel: string;
+  selectedColor?: string;
+  previewVariant?: "standard" | "single-prong" | "two-prong";
+  personalizationMethod?: "text" | "logo";
+  logoFileName?: string;
+  logoPreviewUrl?: string | null;
   onClose: () => void;
   onEdit: () => void;
 };
@@ -26,6 +31,30 @@ const ENGRAVING_PANEL = {
   height: 104,
   paddingX: 56,
   paddingY: 18,
+};
+
+const TWO_PRONG_TEXT_PANEL = {
+  x: 292,
+  y: 420,
+  width: 420,
+  height: 170,
+  paddingX: 42,
+  paddingY: 28,
+};
+
+const TWO_PRONG_LOGO_PANEL = {
+  x: 372,
+  y: 470,
+  size: 280,
+};
+
+const SINGLE_PRONG_TEXT_PANEL = {
+  x: 248,
+  y: 80,
+  width: 520,
+  height: 140,
+  paddingX: 54,
+  paddingY: 28,
 };
 
 const fontWidthRatios: Record<string, number> = {
@@ -82,17 +111,80 @@ function getEngravingFontSize(text: string, fontStyleId: string): number {
   return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), minSize, maxSize));
 }
 
+function getTwoProngTextFontSize(text: string, fontStyleId: string): number {
+  const weightedLength = Math.max(1, getWeightedTextLength(text));
+  const widthRatio = fontWidthRatios[fontStyleId] ?? fontWidthRatios.classic;
+  const safeWidth = TWO_PRONG_TEXT_PANEL.width - TWO_PRONG_TEXT_PANEL.paddingX * 2;
+  const safeHeight = TWO_PRONG_TEXT_PANEL.height - TWO_PRONG_TEXT_PANEL.paddingY * 2;
+  const widthBasedSize = (safeWidth * 0.82) / (weightedLength * widthRatio);
+  const heightBasedSize = safeHeight * (fontStyleId === "script" ? 1.05 : 0.88);
+
+  return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), 34, 76));
+}
+
+function getSingleProngTextFontSize(text: string, fontStyleId: string): number {
+  const weightedLength = Math.max(1, getWeightedTextLength(text));
+  const widthRatio = fontWidthRatios[fontStyleId] ?? fontWidthRatios.classic;
+  const safeWidth = SINGLE_PRONG_TEXT_PANEL.width - SINGLE_PRONG_TEXT_PANEL.paddingX * 2;
+  const safeHeight =
+    SINGLE_PRONG_TEXT_PANEL.height - SINGLE_PRONG_TEXT_PANEL.paddingY * 2;
+  const widthBasedSize = (safeWidth * 0.86) / (weightedLength * widthRatio);
+  const heightBasedSize = safeHeight * (fontStyleId === "script" ? 1.04 : 0.9);
+
+  return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), 30, 74));
+}
+
+function getTwoProngRenderImage(selectedColor: string | undefined): string {
+  const normalizedColor = selectedColor?.trim().toLowerCase() ?? "";
+
+  return normalizedColor.includes("copper")
+    ? "/images/two-prong-divot-tool-copper.png"
+    : "/images/two-prong-divot-tool-silver.png";
+}
+
+function getTwoProngEngravingColor(selectedColor: string | undefined): string {
+  const normalizedColor = selectedColor?.trim().toLowerCase() ?? "";
+
+  return normalizedColor.includes("copper") ? "#22140d" : "#1f2422";
+}
+
+function getSingleProngRenderImage(selectedColor: string | undefined): string {
+  const normalizedColor = selectedColor?.trim().toLowerCase() ?? "";
+
+  if (normalizedColor.includes("black")) {
+    return "/images/single-prong-divot-tool-black.png";
+  }
+
+  if (normalizedColor.includes("gold")) {
+    return "/images/single-prong-divot-tool-gold.png";
+  }
+
+  return "/images/single-prong-divot-tool-silver.png";
+}
+
+function getSingleProngEngravingColor(selectedColor: string | undefined): string {
+  const normalizedColor = selectedColor?.trim().toLowerCase() ?? "";
+
+  return normalizedColor.includes("black") ? "#c9ccc7" : "#161915";
+}
+
 export function DivotToolPreviewModal({
   isOpen,
   engravingText,
   fontStyleId,
   fontStyleLabel,
+  selectedColor,
+  previewVariant = "standard",
+  personalizationMethod = "text",
+  logoFileName = "",
+  logoPreviewUrl = null,
   onClose,
   onEdit,
 }: DivotToolPreviewModalProps) {
   const titleId = useId();
   const subtitleId = useId();
   const clipPathId = useId().replace(/:/g, "");
+  const logoClipPathId = useId().replace(/:/g, "");
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   usePreviewModalBehavior(isOpen, onClose, closeButtonRef);
@@ -104,6 +196,20 @@ export function DivotToolPreviewModal({
   const fontFamily =
     engravingFontFamilies[fontStyleId] ?? engravingFontFamilies.classic;
   const fontSize = getEngravingFontSize(engravingText, fontStyleId);
+  const isTwoProngPreview = previewVariant === "two-prong";
+  const isSingleProngPreview = previewVariant === "single-prong";
+  const isLogoPreview = isTwoProngPreview && personalizationMethod === "logo";
+  const twoProngImage = getTwoProngRenderImage(selectedColor);
+  const twoProngEngravingColor = getTwoProngEngravingColor(selectedColor);
+  const twoProngTextFontSize = getTwoProngTextFontSize(engravingText, fontStyleId);
+  const singleProngImage = getSingleProngRenderImage(selectedColor);
+  const singleProngEngravingColor = getSingleProngEngravingColor(selectedColor);
+  const singleProngTextFontSize = getSingleProngTextFontSize(
+    engravingText,
+    fontStyleId,
+  );
+  const summaryLabel = isLogoPreview ? "Logo / Image" : "Engraving Text";
+  const summaryValue = isLogoPreview ? logoFileName || "Uploaded logo" : engravingText;
 
   return (
     <div
@@ -136,67 +242,229 @@ export function DivotToolPreviewModal({
           <p className="shop-kicker">Engraving Preview</p>
           <h2 id={titleId}>Review Your Divot Tool Design</h2>
           <p id={subtitleId}>
-            This is a close estimate of the engraving placement. Final sizing may be adjusted
-            slightly for the cleanest production result.
+            {isTwoProngPreview
+              ? "This is a close estimate of the two-prong divot tool engraving placement. Text previews run with the tool, while logo previews are shown upright on a vertical tool."
+              : isSingleProngPreview
+                ? "This is a close estimate of the single-prong divot tool engraving placement with the selected finish."
+              : "This is a close estimate of the engraving placement. Final sizing may be adjusted slightly for the cleanest production result."}
           </p>
         </header>
 
         <div className="club-links-preview-layout divot-tool-preview-layout">
           <div className="club-links-preview-stage divot-tool-preview-stage">
-            <svg
-              className="divot-tool-preview-svg"
-              viewBox="0 0 1448 300"
-              role="img"
-              aria-label={`Divot tool engraved with ${engravingText}`}
-            >
-              <defs>
-                <clipPath id={clipPathId}>
-                  <rect
-                    x={ENGRAVING_PANEL.x}
-                    y={ENGRAVING_PANEL.y}
-                    width={ENGRAVING_PANEL.width}
-                    height={ENGRAVING_PANEL.height}
-                    rx="8"
-                  />
-                </clipPath>
-              </defs>
-              <image
-                href="/images/divot-tool.png"
-                x="0"
-                y="0"
-                width="1448"
-                height="300"
-                preserveAspectRatio="xMidYMid meet"
-              />
-              <text
-                x={ENGRAVING_PANEL.x + ENGRAVING_PANEL.width / 2}
-                y={ENGRAVING_PANEL.y + ENGRAVING_PANEL.height / 2 + 5}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                clipPath={`url(#${clipPathId})`}
-                className={`divot-tool-preview-text is-${fontStyleId}`}
-                style={{ fontFamily, fontSize }}
+            {isTwoProngPreview ? (
+              <svg
+                className={`divot-tool-preview-svg two-prong-divot-preview-svg${
+                  isLogoPreview ? " is-logo-layout" : " is-text-layout"
+                }`}
+                viewBox={isLogoPreview ? "0 0 1024 1536" : "0 0 1536 1024"}
+                role="img"
+                aria-label={
+                  isLogoPreview
+                    ? "Two-prong divot tool logo engraving preview"
+                    : `Two-prong divot tool engraved with ${engravingText}`
+                }
               >
-                {engravingText}
-              </text>
-            </svg>
+                <defs>
+                  <clipPath id={clipPathId}>
+                    <rect
+                      x={TWO_PRONG_TEXT_PANEL.x}
+                      y={TWO_PRONG_TEXT_PANEL.y}
+                      width={TWO_PRONG_TEXT_PANEL.width}
+                      height={TWO_PRONG_TEXT_PANEL.height}
+                      rx="10"
+                    />
+                  </clipPath>
+                  <clipPath id={logoClipPathId}>
+                    <rect
+                      x={TWO_PRONG_LOGO_PANEL.x}
+                      y={TWO_PRONG_LOGO_PANEL.y}
+                      width={TWO_PRONG_LOGO_PANEL.size}
+                      height={TWO_PRONG_LOGO_PANEL.size}
+                      rx="14"
+                    />
+                  </clipPath>
+                </defs>
+                {isLogoPreview ? (
+                  <g transform="translate(1024 0) rotate(90)">
+                    <image
+                      href={twoProngImage}
+                      x="0"
+                      y="0"
+                      width="1536"
+                      height="1024"
+                      preserveAspectRatio="xMidYMid meet"
+                    />
+                  </g>
+                ) : (
+                  <image
+                    href={twoProngImage}
+                    x="0"
+                    y="0"
+                    width="1536"
+                    height="1024"
+                    preserveAspectRatio="xMidYMid meet"
+                  />
+                )}
+
+                {isLogoPreview && logoPreviewUrl ? (
+                  <image
+                    href={logoPreviewUrl}
+                    x={TWO_PRONG_LOGO_PANEL.x}
+                    y={TWO_PRONG_LOGO_PANEL.y}
+                    width={TWO_PRONG_LOGO_PANEL.size}
+                    height={TWO_PRONG_LOGO_PANEL.size}
+                    preserveAspectRatio="xMidYMid meet"
+                    clipPath={`url(#${logoClipPathId})`}
+                    opacity="0.86"
+                  />
+                ) : isLogoPreview ? (
+                  <g className="two-prong-logo-placeholder">
+                    <rect
+                      x={TWO_PRONG_LOGO_PANEL.x}
+                      y={TWO_PRONG_LOGO_PANEL.y}
+                      width={TWO_PRONG_LOGO_PANEL.size}
+                      height={TWO_PRONG_LOGO_PANEL.size}
+                      rx="14"
+                    />
+                    <text
+                      x={TWO_PRONG_LOGO_PANEL.x + TWO_PRONG_LOGO_PANEL.size / 2}
+                      y={TWO_PRONG_LOGO_PANEL.y + TWO_PRONG_LOGO_PANEL.size / 2}
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                    >
+                      LOGO
+                    </text>
+                  </g>
+                ) : (
+                  <text
+                    x={TWO_PRONG_TEXT_PANEL.x + TWO_PRONG_TEXT_PANEL.width / 2}
+                    y={TWO_PRONG_TEXT_PANEL.y + TWO_PRONG_TEXT_PANEL.height / 2 + 5}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    clipPath={`url(#${clipPathId})`}
+                    className={`divot-tool-preview-text is-${fontStyleId}`}
+                    style={{
+                      fontFamily,
+                      fontSize: twoProngTextFontSize,
+                      fill: twoProngEngravingColor,
+                    }}
+                  >
+                    {engravingText}
+                  </text>
+                )}
+              </svg>
+            ) : isSingleProngPreview ? (
+              <svg
+                className="divot-tool-preview-svg single-prong-divot-preview-svg"
+                viewBox="0 0 1536 300"
+                role="img"
+                aria-label={`Single-prong divot tool engraved with ${engravingText}`}
+              >
+                <defs>
+                  <clipPath id={clipPathId}>
+                    <rect
+                      x={SINGLE_PRONG_TEXT_PANEL.x}
+                      y={SINGLE_PRONG_TEXT_PANEL.y}
+                      width={SINGLE_PRONG_TEXT_PANEL.width}
+                      height={SINGLE_PRONG_TEXT_PANEL.height}
+                      rx="10"
+                    />
+                  </clipPath>
+                </defs>
+                <g transform="translate(1536 0) scale(-1 1)">
+                  <image
+                    href={singleProngImage}
+                    x="0"
+                    y="0"
+                    width="1536"
+                    height="300"
+                    preserveAspectRatio="xMidYMid meet"
+                  />
+                </g>
+                <text
+                  x={SINGLE_PRONG_TEXT_PANEL.x + SINGLE_PRONG_TEXT_PANEL.width / 2}
+                  y={SINGLE_PRONG_TEXT_PANEL.y + SINGLE_PRONG_TEXT_PANEL.height / 2 + 5}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  clipPath={`url(#${clipPathId})`}
+                  className={`divot-tool-preview-text is-${fontStyleId}`}
+                  style={{
+                    fontFamily,
+                    fontSize: singleProngTextFontSize,
+                    fill: singleProngEngravingColor,
+                  }}
+                >
+                  {engravingText}
+                </text>
+              </svg>
+            ) : (
+              <svg
+                className="divot-tool-preview-svg"
+                viewBox="0 0 1448 300"
+                role="img"
+                aria-label={`Divot tool engraved with ${engravingText}`}
+              >
+                <defs>
+                  <clipPath id={clipPathId}>
+                    <rect
+                      x={ENGRAVING_PANEL.x}
+                      y={ENGRAVING_PANEL.y}
+                      width={ENGRAVING_PANEL.width}
+                      height={ENGRAVING_PANEL.height}
+                      rx="8"
+                    />
+                  </clipPath>
+                </defs>
+                <image
+                  href="/images/divot-tool.png"
+                  x="0"
+                  y="0"
+                  width="1448"
+                  height="300"
+                  preserveAspectRatio="xMidYMid meet"
+                />
+                <text
+                  x={ENGRAVING_PANEL.x + ENGRAVING_PANEL.width / 2}
+                  y={ENGRAVING_PANEL.y + ENGRAVING_PANEL.height / 2 + 5}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  clipPath={`url(#${clipPathId})`}
+                  className={`divot-tool-preview-text is-${fontStyleId}`}
+                  style={{ fontFamily, fontSize }}
+                >
+                  {engravingText}
+                </text>
+              </svg>
+            )}
           </div>
 
           <div className="club-links-preview-details">
             <h3>Customization Summary</h3>
             <dl>
               <div className="is-full">
-                <dt>Engraving Text</dt>
-                <dd>{engravingText}</dd>
+                <dt>{summaryLabel}</dt>
+                <dd>{summaryValue}</dd>
               </div>
-              <div className="is-full">
-                <dt>Font Style</dt>
-                <dd>{fontStyleLabel}</dd>
-              </div>
+              {!isLogoPreview ? (
+                <div className="is-full">
+                  <dt>Font Style</dt>
+                  <dd>{fontStyleLabel}</dd>
+                </div>
+              ) : null}
+              {isTwoProngPreview || isSingleProngPreview ? (
+                <div className="is-full">
+                  <dt>Finish</dt>
+                  <dd>{selectedColor || "Silver"}</dd>
+                </div>
+              ) : null}
             </dl>
             <p className="club-links-preview-callout">
-              Engraving is centered within the flat panel and kept clear of the grip, opener,
-              tip, and outer edges.
+              {isTwoProngPreview
+                ? "Text is shown horizontally along the tool. Uploaded logos are shown upright with the prongs at the bottom for a clearer proof."
+                : isSingleProngPreview
+                  ? "Engraving is centered on the flat handle panel. Black tools preview with light gray engraving; gold and silver tools preview with dark engraving."
+                : "Engraving is centered within the flat panel and kept clear of the grip, opener, tip, and outer edges."}
             </p>
           </div>
         </div>

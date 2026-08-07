@@ -1,5 +1,6 @@
 "use client";
 
+import type { ProductImage } from "../lib/catalog";
 import styles from "./catalog-product-media.module.css";
 import { useProductVariant } from "./product-variant-context";
 
@@ -32,6 +33,100 @@ export function ProductVariantImage({
     />
   ) : (
     <span className="media-label">{placeholderLabel}</span>
+  );
+}
+
+function getUniqueImages(images: Array<ProductImage | undefined>): ProductImage[] {
+  return Array.from(
+    new Map(
+      images
+        .filter((image): image is ProductImage => Boolean(image?.url))
+        .map((image) => [image.url, image]),
+    ).values(),
+  );
+}
+
+function GalleryImage({
+  image,
+  productTitle,
+  placeholderLabel,
+  className,
+}: {
+  image?: ProductImage;
+  productTitle: string;
+  placeholderLabel: string;
+  className?: string;
+}) {
+  return image ? (
+    <img
+      className={className}
+      src={image.url}
+      alt={image.altText || productTitle}
+      width={image.width ?? undefined}
+      height={image.height ?? undefined}
+    />
+  ) : (
+    <span className="media-label">{placeholderLabel}</span>
+  );
+}
+
+export function ProductImageGallery({
+  productTitle,
+  placeholderLabel,
+  images = [],
+  galleryClassName = "product-detail-gallery",
+  mainImageWrapperClassName = "product-detail-media",
+  mainImageClassName = styles.detailImage,
+  thumbnailsClassName = "product-detail-thumbnails",
+  thumbnailClassName = "product-detail-thumbnail",
+  maxThumbnails = 3,
+}: {
+  productTitle: string;
+  placeholderLabel: string;
+  images?: ProductImage[];
+  galleryClassName?: string;
+  mainImageWrapperClassName?: string;
+  mainImageClassName?: string;
+  thumbnailsClassName?: string;
+  thumbnailClassName?: string;
+  maxThumbnails?: number;
+}) {
+  const { fallbackImage, selectedVariant } = useProductVariant();
+  const mainImage = selectedVariant?.image ?? images[0] ?? fallbackImage;
+  const galleryImages = getUniqueImages([
+    ...images,
+    selectedVariant?.image,
+    fallbackImage,
+  ]);
+  const thumbnailImages = galleryImages
+    .filter((image) => image.url !== mainImage?.url)
+    .slice(0, maxThumbnails);
+
+  return (
+    <div className={galleryClassName} aria-label={`${productTitle} images`}>
+      <div className={mainImageWrapperClassName}>
+        <GalleryImage
+          image={mainImage}
+          productTitle={productTitle}
+          placeholderLabel={placeholderLabel}
+          className={mainImageClassName}
+        />
+      </div>
+      {thumbnailImages.length ? (
+        <div className={thumbnailsClassName} aria-hidden="true">
+          {thumbnailImages.map((image) => (
+            <div key={image.url} className={thumbnailClassName}>
+              <GalleryImage
+                image={image}
+                productTitle={productTitle}
+                placeholderLabel={placeholderLabel}
+                className={mainImageClassName}
+              />
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

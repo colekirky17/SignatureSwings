@@ -61,6 +61,8 @@ type ProductCustomizationFormProps = {
   ballMarkerSides?: 1 | 2;
   colorOptions?: ProductColorOption[];
   divotToolPreviewEnabled?: boolean;
+  singleProngDivotToolPreviewEnabled?: boolean;
+  twoProngDivotToolPreviewEnabled?: boolean;
 };
 
 type UploadedLogo = {
@@ -176,6 +178,49 @@ function ProductColorPicker({
             >
               <span className="product-color-swatch" aria-hidden="true" />
               <span>{option.name}</span>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}
+
+function ProductVariantColorPicker({
+  optionName,
+  values,
+  selectedValue,
+  onSelect,
+}: {
+  optionName: string;
+  values: string[];
+  selectedValue: string;
+  onSelect: (color: string) => void;
+}) {
+  return (
+    <fieldset className="product-color-options">
+      <legend>
+        {optionName} <strong aria-hidden="true">*</strong>
+      </legend>
+      <div className="product-color-option-grid" role="radiogroup">
+        {values.map((value) => {
+          const isSelected = selectedValue === value;
+          const style = {
+            "--product-color-swatch": getColorSwatchByName(value),
+          } as CSSProperties;
+
+          return (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={isSelected}
+              className={`product-color-option${isSelected ? " is-selected" : ""}`}
+              onClick={() => onSelect(value)}
+              style={style}
+            >
+              <span className="product-color-swatch" aria-hidden="true" />
+              <span>{value}</span>
             </button>
           );
         })}
@@ -384,16 +429,25 @@ const defaultPersonalizationMethods: PersonalizationMethodOption[] = [
     summary: "Use a logo or image file.",
     reviewDesignEnabled: true,
   },
-  {
-    id: "design",
-    label: "Let Us Design It",
-    summary: "Share your idea with our team.",
-    reviewDesignEnabled: false,
-  },
 ];
 
 const standardPersonalizationMethods: PersonalizationMethodOption[] =
   defaultPersonalizationMethods.filter((method) => method.id !== "design");
+
+const divotToolPersonalizationMethods: PersonalizationMethodOption[] = [
+  {
+    id: "initials",
+    label: "Text",
+    summary: "Add text along the tool.",
+    reviewDesignEnabled: true,
+  },
+  {
+    id: "logo",
+    label: "Upload Logo",
+    summary: "Use a logo or image file.",
+    reviewDesignEnabled: true,
+  },
+];
 
 const defaultFontStyles: FontStyleOption[] = [
   { id: "classic", label: "Classic" },
@@ -417,7 +471,7 @@ function BallMarkerCustomizationForm({
     setSelectedOption,
   } = useProductVariant();
   const availableMethods = methods.filter(
-    (method) => method.id !== "logo" || logoUploadEnabled,
+    (method) => method.id !== "design" && (method.id !== "logo" || logoUploadEnabled),
   );
   const [frontMethodId, setFrontMethodId] =
     useState<PersonalizationMethodId | null>(null);
@@ -428,7 +482,9 @@ function BallMarkerCustomizationForm({
   const [frontDesignRequest, setFrontDesignRequest] = useState("");
   const [backDesignRequest, setBackDesignRequest] = useState("");
   const [selectedColor, setSelectedColor] = useState(
-    getDefaultBallMarkerColor(colorOptions),
+    colorOptions.length
+      ? getDefaultBallMarkerColor(colorOptions)
+      : (selectedOptions.Color ?? selectedOptions.color ?? ""),
   );
   const [frontUploadedLogo, setFrontUploadedLogo] = useState<UploadedLogo | null>(null);
   const [backUploadedLogo, setBackUploadedLogo] = useState<UploadedLogo | null>(null);
@@ -477,10 +533,15 @@ function BallMarkerCustomizationForm({
     availableMethods.find((method) => method.id === backMethodId) ?? null;
   const selectedColorOption =
     colorOptions.find((option) => option.name === selectedColor) ?? null;
-  const previewFinishName = selectedColorOption?.name ?? "Silver";
+  const previewFinishName = (selectedColorOption?.name ?? selectedColor) || "Silver";
   const previewFinishColor = selectedColorOption
     ? getColorSwatch(selectedColorOption)
-    : NAMED_COLOR_SWATCHES.silver;
+    : selectedColor
+      ? getColorSwatchByName(selectedColor)
+      : NAMED_COLOR_SWATCHES.silver;
+  const hasColorVariantOption = options.some((option) => isColorOptionName(option.name));
+  const hasRequiredColor =
+    !(colorOptions.length || hasColorVariantOption) || Boolean(selectedColor);
   const isFrontComplete =
     frontMethodId === "initials"
       ? Boolean(frontText.trim())
@@ -501,7 +562,7 @@ function BallMarkerCustomizationForm({
     Boolean(selectedVariant?.availableForSale) &&
     isFrontComplete &&
     (ballMarkerSides === 1 || isBackComplete) &&
-    (!colorOptions.length || Boolean(selectedColor)) &&
+    hasRequiredColor &&
     frontLogoUploadStatus !== "uploading" &&
     (ballMarkerSides === 1 || backLogoUploadStatus !== "uploading") &&
     submitStatus !== "submitting";
@@ -637,7 +698,7 @@ function BallMarkerCustomizationForm({
     if (file.size > MAX_LOGO_FILE_SIZE) {
       setUploadStatus("error");
       setUploadMessage(
-        "This file is too large for upload. Please choose ‘Let Us Design It’ and describe what you want created.",
+        "This file is too large for upload. Please choose a PNG, JPG, or JPEG image up to 25 MB.",
       );
       return;
     }
@@ -684,7 +745,7 @@ function BallMarkerCustomizationForm({
 
   function handleReviewDesign() {
     const missingSides = [
-      colorOptions.length && !selectedColor ? "Color" : null,
+      !hasRequiredColor ? "Color" : null,
       !isFrontComplete ? "Front Design" : null,
       ballMarkerSides === 2 && !isBackComplete ? "Back Design" : null,
     ].filter((value): value is string => Boolean(value));
@@ -698,6 +759,17 @@ function BallMarkerCustomizationForm({
 
     setPreviewValidationMessage("");
     setIsPreviewOpen(true);
+  }
+
+  function handleColorSelect(color: string) {
+    setSelectedColor(color);
+    const colorOption = options.find((option) => isColorOptionName(option.name));
+
+    if (colorOption) {
+      setSelectedOption(colorOption.name, color);
+    }
+
+    setPreviewValidationMessage("");
   }
 
   function closePreview() {
@@ -857,35 +929,48 @@ function BallMarkerCustomizationForm({
             : "Create a design for the customizable side of your ball marker."}
         </p>
 
-        <ProductColorPicker
-          colorOptions={colorOptions}
-          selectedColor={selectedColor}
-          onSelect={(color) => {
-            setSelectedColor(color);
-            setPreviewValidationMessage("");
-          }}
-        />
+        {!hasColorVariantOption ? (
+          <ProductColorPicker
+            colorOptions={colorOptions}
+            selectedColor={selectedColor}
+            onSelect={handleColorSelect}
+          />
+        ) : null}
 
         {options.length ? (
           <fieldset className="product-variant-options" aria-label="Product options">
             <div className="product-variant-option-grid">
-              {options.map((option) => (
-                <label key={option.name} className="club-link-input-field">
-                  <span>{option.name}</span>
-                  <select
-                    value={selectedOptions[option.name] ?? ""}
-                    onChange={(event) =>
-                      setSelectedOption(option.name, event.target.value)
-                    }
-                  >
-                    {option.values.map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
+              {options.map((option) => {
+                if (isColorOptionName(option.name)) {
+                  return (
+                    <ProductVariantColorPicker
+                      key={option.name}
+                      optionName={option.name}
+                      values={option.values}
+                      selectedValue={selectedOptions[option.name] ?? selectedColor}
+                      onSelect={handleColorSelect}
+                    />
+                  );
+                }
+
+                return (
+                  <label key={option.name} className="club-link-input-field">
+                    <span>{option.name}</span>
+                    <select
+                      value={selectedOptions[option.name] ?? ""}
+                      onChange={(event) =>
+                        setSelectedOption(option.name, event.target.value)
+                      }
+                    >
+                      {option.values.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
         ) : null}
@@ -1014,6 +1099,9 @@ function DivotToolCustomizationForm({
   bulkOrderHref = "/contact",
   fontStyles = defaultFontStyles,
   colorOptions = [],
+  logoUploadEnabled = false,
+  singleProngDivotToolPreviewEnabled = false,
+  twoProngDivotToolPreviewEnabled = false,
 }: ProductCustomizationFormProps) {
   const {
     options,
@@ -1022,39 +1110,73 @@ function DivotToolCustomizationForm({
     setSelectedOption,
   } = useProductVariant();
   const [engravingText, setEngravingText] = useState("");
+  const [selectedMethodId, setSelectedMethodId] =
+    useState<PersonalizationMethodId>("initials");
   const [selectedFontStyleId, setSelectedFontStyleId] = useState(
     fontStyles[0]?.id ?? "classic",
   );
   const [selectedColor, setSelectedColor] = useState(
-    colorOptions.length === 1 ? colorOptions[0].name : "",
+    colorOptions.length === 1
+      ? colorOptions[0].name
+      : (selectedOptions.Color ?? selectedOptions.color ?? ""),
   );
   const [submitStatus, setSubmitStatus] = useState<
     "idle" | "submitting" | "success" | "error"
   >("idle");
   const [submitMessage, setSubmitMessage] = useState("");
   const [validationMessage, setValidationMessage] = useState("");
+  const [uploadedLogo, setUploadedLogo] = useState<UploadedLogo | null>(null);
+  const [logoUploadStatus, setLogoUploadStatus] = useState<
+    "idle" | "uploading" | "success" | "error"
+  >("idle");
+  const [logoUploadMessage, setLogoUploadMessage] = useState("");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const customizerRef = useRef<HTMLElement>(null);
   const previewButtonRef = useRef<HTMLButtonElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const previewUrl = uploadedLogo?.previewUrl;
+
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [uploadedLogo?.previewUrl]);
 
   const trimmedText = engravingText.trim();
+  const isLogoMethod = twoProngDivotToolPreviewEnabled && selectedMethodId === "logo";
   const isTextTooLong = engravingText.length > DIVOT_TOOL_MAX_CHARACTERS;
   const hasValidText = Boolean(trimmedText) && !isTextTooLong;
-  const hasRequiredColor = !colorOptions.length || Boolean(selectedColor);
+  const hasRequiredPersonalization = isLogoMethod ? Boolean(uploadedLogo) : hasValidText;
+  const hasColorVariantOption = options.some((option) => isColorOptionName(option.name));
+  const hasRequiredColor =
+    !(colorOptions.length || hasColorVariantOption) || Boolean(selectedColor);
   const selectedFontStyle =
     fontStyles.find((style) => style.id === selectedFontStyleId) ?? fontStyles[0];
+  const previewVariant = twoProngDivotToolPreviewEnabled
+    ? "two-prong"
+    : singleProngDivotToolPreviewEnabled
+      ? "single-prong"
+      : "standard";
   const canAddToCart =
     Boolean(selectedVariant?.availableForSale) &&
-    hasValidText &&
+    hasRequiredPersonalization &&
     hasRequiredColor &&
+    logoUploadStatus !== "uploading" &&
     submitStatus !== "submitting";
 
   function getValidationMessage(): string {
-    if (!trimmedText) {
+    if (isLogoMethod && !uploadedLogo) {
+      return "Upload your logo or image before reviewing your design.";
+    }
+
+    if (!isLogoMethod && !trimmedText) {
       return "Enter the engraving text before reviewing your design.";
     }
 
-    if (isTextTooLong) {
+    if (!isLogoMethod && isTextTooLong) {
       return `Keep the engraving to ${DIVOT_TOOL_MAX_CHARACTERS} characters or fewer so it fits cleanly on the tool.`;
     }
 
@@ -1077,6 +1199,71 @@ function DivotToolCustomizationForm({
     setIsPreviewOpen(true);
   }
 
+  function handleColorSelect(color: string) {
+    setSelectedColor(color);
+    const colorOption = options.find((option) => isColorOptionName(option.name));
+
+    if (colorOption) {
+      setSelectedOption(colorOption.name, color);
+    }
+
+    setValidationMessage("");
+  }
+
+  async function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setUploadedLogo(null);
+    setLogoUploadStatus("idle");
+    setLogoUploadMessage("");
+    setValidationMessage("");
+
+    if (file.size > MAX_LOGO_FILE_SIZE) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage(
+        "This file is too large for upload. Please choose a PNG, JPG, or JPEG image up to 25 MB.",
+      );
+      return;
+    }
+
+    const isAcceptedType =
+      ACCEPTED_LOGO_FILE_TYPES.has(file.type) &&
+      ACCEPTED_LOGO_FILE_EXTENSIONS.test(file.name);
+
+    if (!isAcceptedType) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage(UNSUPPORTED_LOGO_FILE_MESSAGE);
+      return;
+    }
+
+    setLogoUploadStatus("uploading");
+    setLogoUploadMessage(`Preparing ${file.name} for preview...`);
+    const previewUrl = await createEngravingPreviewUrl(file);
+
+    setUploadedLogo({
+      fileId: `preview-${file.lastModified}-${file.size}`,
+      fileName: file.name,
+      previewUrl,
+      url: null,
+    });
+    setLogoUploadStatus("success");
+    setLogoUploadMessage(
+      previewUrl ? "Logo uploaded for preview." : LOGO_PREVIEW_UNAVAILABLE_MESSAGE,
+    );
+  }
+
+  function removeUploadedLogo() {
+    setUploadedLogo(null);
+    setLogoUploadStatus("idle");
+    setLogoUploadMessage("");
+    logoInputRef.current?.focus();
+  }
+
   function closePreview() {
     setIsPreviewOpen(false);
     window.requestAnimationFrame(() =>
@@ -1095,16 +1282,22 @@ function DivotToolCustomizationForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!selectedVariant || !canAddToCart || !selectedFontStyle) {
+    if (!selectedVariant || !canAddToCart || (!isLogoMethod && !selectedFontStyle)) {
       setValidationMessage(getValidationMessage());
       return;
     }
 
     const attributes = [
       { key: CUSTOMIZATION_REQUIRED_KEY, value: "Yes" },
-      { key: "Personalization Method", value: "Engraving Text" },
-      { key: "Name or Message", value: trimmedText },
-      { key: "Font Style", value: selectedFontStyle.label },
+      {
+        key: "Personalization Method",
+        value: isLogoMethod ? "Upload Logo" : "Engraving Text",
+      },
+      !isLogoMethod ? { key: "Name or Message", value: trimmedText } : null,
+      !isLogoMethod ? { key: "Font Style", value: selectedFontStyle.label } : null,
+      isLogoMethod && uploadedLogo
+        ? { key: "Logo File Name", value: uploadedLogo.fileName }
+        : null,
       selectedColor ? { key: "Color", value: selectedColor } : null,
     ].filter((attribute): attribute is { key: string; value: string } =>
       Boolean(attribute),
@@ -1169,98 +1362,202 @@ function DivotToolCustomizationForm({
           Add one line of engraving text and choose the style that fits it best.
         </p>
 
-        <ProductColorPicker
-          colorOptions={colorOptions}
-          selectedColor={selectedColor}
-          onSelect={(color) => {
-            setSelectedColor(color);
-            setValidationMessage("");
-          }}
-        />
+        {!hasColorVariantOption ? (
+          <ProductColorPicker
+            colorOptions={colorOptions}
+            selectedColor={selectedColor}
+            onSelect={handleColorSelect}
+          />
+        ) : null}
 
         {options.length ? (
           <fieldset className="product-variant-options" aria-label="Product options">
             <div className="product-variant-option-grid">
-              {options.map((option) => (
-                <label key={option.name} className="club-link-input-field">
-                  <span>{option.name}</span>
-                  <select
-                    value={selectedOptions[option.name] ?? ""}
-                    onChange={(event) =>
-                      setSelectedOption(option.name, event.target.value)
-                    }
-                  >
-                    {option.values.map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
+              {options.map((option) => {
+                if (isColorOptionName(option.name)) {
+                  return (
+                    <ProductVariantColorPicker
+                      key={option.name}
+                      optionName={option.name}
+                      values={option.values}
+                      selectedValue={selectedOptions[option.name] ?? selectedColor}
+                      onSelect={handleColorSelect}
+                    />
+                  );
+                }
+
+                return (
+                  <label key={option.name} className="club-link-input-field">
+                    <span>{option.name}</span>
+                    <select
+                      value={selectedOptions[option.name] ?? ""}
+                      onChange={(event) =>
+                        setSelectedOption(option.name, event.target.value)
+                      }
+                    >
+                      {option.values.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
         ) : null}
 
-        <section
-          className="club-link-personalization-panel"
-          aria-labelledby="divot-tool-engraving-heading"
-        >
-          <h3 id="divot-tool-engraving-heading">Engraving Details</h3>
-          <label className="club-link-input-field">
-            <span>
-              Engraving Text <strong aria-hidden="true">*</strong>
-            </span>
-            <input
-              type="text"
-              name="divot-tool-engraving-text"
-              value={engravingText}
-              onChange={(event) => {
-                setEngravingText(event.target.value);
-                setValidationMessage("");
-              }}
-              placeholder="e.g., Four Amigos"
-              aria-invalid={isTextTooLong || undefined}
-              aria-describedby="divot-tool-character-count"
-              required
-            />
-          </label>
-          <p
-            id="divot-tool-character-count"
-            className={`divot-tool-character-count${isTextTooLong ? " is-error" : ""}`}
-          >
-            {engravingText.length}/{DIVOT_TOOL_MAX_CHARACTERS} characters
-          </p>
-
-          <fieldset className="club-link-font-style-block">
-            <legend>Font Style</legend>
-            <div className="club-link-font-style-grid" role="radiogroup">
-              {fontStyles.map((style) => {
-                const isSelected = style.id === selectedFontStyleId;
+        {twoProngDivotToolPreviewEnabled ? (
+          <fieldset className="club-link-method-block">
+            <legend>Choose Your Personalization Method</legend>
+            <p>Select one option below. You can add text or upload a logo.</p>
+            <div className="club-link-method-grid is-two-options" role="radiogroup">
+              {divotToolPersonalizationMethods.map((method) => {
+                const isSelected = method.id === selectedMethodId;
 
                 return (
                   <button
-                    key={style.id}
+                    key={method.id}
                     type="button"
                     role="radio"
                     aria-checked={isSelected}
-                    className={`club-link-font-style is-${style.id}${
-                      isSelected ? " is-selected" : ""
-                    }`}
-                    style={{
-                      fontFamily:
-                        engravingFontFamilies[style.id] ??
-                        engravingFontFamilies.classic,
+                    className={`club-link-method-card${isSelected ? " is-selected" : ""}`}
+                    onClick={() => {
+                      setSelectedMethodId(method.id);
+                      setValidationMessage("");
                     }}
-                    onClick={() => setSelectedFontStyleId(style.id)}
                   >
-                    {style.label}
+                    <span className="club-link-method-radio" aria-hidden="true" />
+                    <span className="club-link-method-label">{method.label}</span>
+                    <span className="club-link-method-summary">{method.summary}</span>
                   </button>
                 );
               })}
             </div>
           </fieldset>
-        </section>
+        ) : null}
+
+        {!isLogoMethod ? (
+          <section
+            className="club-link-personalization-panel"
+            aria-labelledby="divot-tool-engraving-heading"
+          >
+            <h3 id="divot-tool-engraving-heading">Engraving Details</h3>
+            <label className="club-link-input-field">
+              <span>
+                Engraving Text <strong aria-hidden="true">*</strong>
+              </span>
+              <input
+                type="text"
+                name="divot-tool-engraving-text"
+                value={engravingText}
+                onChange={(event) => {
+                  setEngravingText(event.target.value);
+                  setValidationMessage("");
+                }}
+                placeholder="e.g., Four Amigos"
+                aria-invalid={isTextTooLong || undefined}
+                aria-describedby="divot-tool-character-count"
+                required
+              />
+            </label>
+            <p
+              id="divot-tool-character-count"
+              className={`divot-tool-character-count${isTextTooLong ? " is-error" : ""}`}
+            >
+              {engravingText.length}/{DIVOT_TOOL_MAX_CHARACTERS} characters
+            </p>
+
+            <fieldset className="club-link-font-style-block">
+              <legend>Font Style</legend>
+              <div className="club-link-font-style-grid" role="radiogroup">
+                {fontStyles.map((style) => {
+                  const isSelected = style.id === selectedFontStyleId;
+
+                  return (
+                    <button
+                      key={style.id}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      className={`club-link-font-style is-${style.id}${
+                        isSelected ? " is-selected" : ""
+                      }`}
+                      style={{
+                        fontFamily:
+                          engravingFontFamilies[style.id] ??
+                          engravingFontFamilies.classic,
+                      }}
+                      onClick={() => setSelectedFontStyleId(style.id)}
+                    >
+                      {style.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
+          </section>
+        ) : (
+          <section
+            className="club-link-personalization-panel"
+            aria-labelledby="divot-tool-logo-heading"
+          >
+            <h3 id="divot-tool-logo-heading">Upload Logo/Image</h3>
+            {logoUploadEnabled ? (
+              <div className="club-link-upload-control">
+                <input
+                  ref={logoInputRef}
+                  className="club-link-file-input"
+                  type="file"
+                  name="divot-tool-logo-image"
+                  accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+                  onChange={handleLogoFileChange}
+                  disabled={logoUploadStatus === "uploading"}
+                  hidden
+                />
+                <button
+                  type="button"
+                  className="club-link-upload-button"
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={logoUploadStatus === "uploading"}
+                >
+                  {logoUploadStatus === "uploading"
+                    ? "Uploading..."
+                    : uploadedLogo
+                      ? "Replace Image"
+                      : "Choose Image"}
+                </button>
+                <p className="club-link-upload-guidance">
+                  PNG, JPG, or JPEG files up to 25 MB. The proof shows the logo upright with
+                  the tool rotated vertically.
+                </p>
+                {uploadedLogo ? (
+                  <div className="club-link-upload-file">
+                    <span aria-hidden="true">Uploaded</span>
+                    <strong>{uploadedLogo.fileName}</strong>
+                    <button type="button" onClick={removeUploadedLogo}>
+                      Remove
+                    </button>
+                  </div>
+                ) : null}
+                {logoUploadMessage ? (
+                  <p
+                    className={`club-link-upload-status is-${logoUploadStatus}`}
+                    role={logoUploadStatus === "error" ? "alert" : "status"}
+                  >
+                    {logoUploadMessage}
+                  </p>
+                ) : null}
+              </div>
+            ) : (
+              <div className="club-link-upload-coming-soon">
+                <span>Upload Image</span>
+                <p>Upload feature coming soon.</p>
+              </div>
+            )}
+          </section>
+        )}
 
         <p className="club-link-preview-note" id="divot-tool-preview-helper">
           Review the engraving placement before adding this item to your cart.
@@ -1277,7 +1574,9 @@ function DivotToolCustomizationForm({
             ref={previewButtonRef}
             type="button"
             className="club-link-preview-action"
-            data-preview-incomplete={!hasValidText || !hasRequiredColor ? "true" : undefined}
+            data-preview-incomplete={
+              !hasRequiredPersonalization || !hasRequiredColor ? "true" : undefined
+            }
             aria-describedby={
               validationMessage
                 ? "divot-tool-preview-validation"
@@ -1316,6 +1615,11 @@ function DivotToolCustomizationForm({
         engravingText={trimmedText}
         fontStyleId={selectedFontStyle?.id ?? "classic"}
         fontStyleLabel={selectedFontStyle?.label ?? "Classic"}
+        selectedColor={selectedColor}
+        previewVariant={previewVariant}
+        personalizationMethod={isLogoMethod ? "logo" : "text"}
+        logoFileName={uploadedLogo?.fileName ?? ""}
+        logoPreviewUrl={uploadedLogo?.previewUrl ?? null}
         onClose={closePreview}
         onEdit={editPreview}
       />
@@ -1373,6 +1677,7 @@ function StandardProductCustomizationForm({
   const previewButtonRef = useRef<HTMLButtonElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const designRequestRef = useRef<HTMLTextAreaElement>(null);
+  const availableMethods = methods.filter((method) => method.id !== "design");
 
   useEffect(() => {
     const previewUrl = uploadedLogo?.previewUrl;
@@ -1385,10 +1690,13 @@ function StandardProductCustomizationForm({
   }, [uploadedLogo?.previewUrl]);
 
   const selectedMethod = useMemo(
-    () => methods.find((method) => method.id === selectedMethodId) ?? null,
-    [methods, selectedMethodId],
+    () => availableMethods.find((method) => method.id === selectedMethodId) ?? null,
+    [availableMethods, selectedMethodId],
   );
   const hasCompletePhoneNumber = getPhoneDigits(phoneNumber).length === 10;
+  const hasColorVariantOption = options.some((option) => isColorOptionName(option.name));
+  const hasRequiredColor =
+    !(colorOptions.length || hasColorVariantOption) || Boolean(selectedColor);
 
   const hasRequiredCustomerDetails =
     !customerDetailsRequired ||
@@ -1405,7 +1713,7 @@ function StandardProductCustomizationForm({
     Boolean(selectedVariant?.availableForSale) &&
     hasRequiredCustomerDetails &&
     hasRequiredPersonalization &&
-    (!colorOptions.length || Boolean(selectedColor)) &&
+    hasRequiredColor &&
     submitStatus !== "submitting" &&
     logoUploadStatus !== "uploading";
   const previewMissingFields = useMemo(() => {
@@ -1415,7 +1723,7 @@ function StandardProductCustomizationForm({
 
     const missingFields: string[] = [];
 
-    if (colorOptions.length && !selectedColor) missingFields.push("Color");
+    if (!hasRequiredColor) missingFields.push("Color");
     if (!name.trim()) missingFields.push("Name");
     if (!hasCompletePhoneNumber) missingFields.push("Phone Number");
     if (!selectedMethodId) missingFields.push("Personalization Method");
@@ -1436,6 +1744,7 @@ function StandardProductCustomizationForm({
     designRequest,
     initials,
     name,
+    hasRequiredColor,
     hasCompletePhoneNumber,
     phoneNumber,
     selectedMethodId,
@@ -1447,7 +1756,6 @@ function StandardProductCustomizationForm({
     : Boolean(selectedMethod?.reviewDesignEnabled);
   const selectedFontStyle =
     fontStyles.find((style) => style.id === selectedFontStyleId) ?? fontStyles[0];
-  const hasColorVariantOption = options.some((option) => isColorOptionName(option.name));
 
   function handleColorSelect(color: string) {
     setSelectedColor(color);
@@ -1661,36 +1969,13 @@ function StandardProductCustomizationForm({
               {options.map((option) => {
                 if (isColorOptionName(option.name)) {
                   return (
-                    <fieldset key={option.name} className="product-color-options">
-                      <legend>
-                        {option.name} <strong aria-hidden="true">*</strong>
-                      </legend>
-                      <div className="product-color-option-grid" role="radiogroup">
-                        {option.values.map((value) => {
-                          const isSelected = selectedOptions[option.name] === value;
-                          const style = {
-                            "--product-color-swatch": getColorSwatchByName(value),
-                          } as CSSProperties;
-
-                          return (
-                            <button
-                              key={value}
-                              type="button"
-                              role="radio"
-                              aria-checked={isSelected}
-                              className={`product-color-option${
-                                isSelected ? " is-selected" : ""
-                              }`}
-                              onClick={() => handleColorSelect(value)}
-                              style={style}
-                            >
-                              <span className="product-color-swatch" aria-hidden="true" />
-                              <span>{value}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </fieldset>
+                    <ProductVariantColorPicker
+                      key={option.name}
+                      optionName={option.name}
+                      values={option.values}
+                      selectedValue={selectedOptions[option.name] ?? selectedColor}
+                      onSelect={handleColorSelect}
+                    />
                   );
                 }
 
@@ -1764,10 +2049,12 @@ function StandardProductCustomizationForm({
           <legend>Choose Your Personalization Method</legend>
           <p>{methodDescription}</p>
           <div
-            className={`club-link-method-grid${methods.length === 2 ? " is-two-options" : ""}`}
+            className={`club-link-method-grid${
+              availableMethods.length === 2 ? " is-two-options" : ""
+            }`}
             role="radiogroup"
           >
-            {methods.map((method) => {
+            {availableMethods.map((method) => {
               const isSelected = method.id === selectedMethodId;
 
               return (
@@ -1992,6 +2279,7 @@ function StandardProductCustomizationForm({
           phoneNumber={phoneNumber.trim()}
           methodId={selectedMethodId}
           methodLabel={selectedMethod.label}
+          selectedColor={selectedColor}
           initials={initials.trim()}
           fontStyleId={selectedFontStyle?.id ?? "classic"}
           fontStyleLabel={selectedFontStyle?.label ?? "Classic"}

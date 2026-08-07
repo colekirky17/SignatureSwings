@@ -35,11 +35,11 @@ function isMeaningfulOption(option: ProductSelectedOption): boolean {
   );
 }
 
-function getProductOptions(variants: ProductVariant[]): ProductOption[] {
-  if (variants.length <= 1) {
-    return [];
-  }
+function isColorOption(option: ProductOption): boolean {
+  return option.name.trim().toLowerCase() === "color";
+}
 
+function getProductOptions(variants: ProductVariant[]): ProductOption[] {
   const optionValues = new Map<string, Set<string>>();
 
   for (const variant of variants) {
@@ -53,7 +53,7 @@ function getProductOptions(variants: ProductVariant[]): ProductOption[] {
   return Array.from(optionValues, ([name, values]) => ({
     name,
     values: Array.from(values),
-  })).filter((option) => option.values.length > 1);
+  })).filter((option) => option.values.length > 1 || isColorOption(option));
 }
 
 function getInitialVariant(variants: ProductVariant[]): ProductVariant | undefined {

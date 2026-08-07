@@ -1048,6 +1048,34 @@
   filter: drop-shadow(0 0.85rem 0.8rem rgba(0, 0, 0, 0.34));
 }
 
+.two-prong-divot-preview-svg.is-text-layout {
+  width: min(100%, 44rem);
+}
+
+.two-prong-divot-preview-svg.is-logo-layout {
+  width: min(100%, 22rem);
+  max-height: min(68vh, 42rem);
+}
+
+.single-prong-divot-preview-svg {
+  width: min(100%, 44rem);
+}
+
+.two-prong-logo-placeholder rect {
+  fill: rgba(12, 14, 13, 0.16);
+  stroke: rgba(20, 24, 22, 0.72);
+  stroke-dasharray: 12 10;
+  stroke-width: 3;
+}
+
+.two-prong-logo-placeholder text {
+  fill: #1f2422;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
 .divot-tool-preview-text {
   fill: #202522;
   font-weight: 700;
@@ -1119,7 +1147,7 @@
 }
 
 .club-links-preview-arc-text {
-  fill: #101412;
+  fill: var(--club-links-engraving-color, #101412);
   font-family: Arial, Helvetica, sans-serif;
   font-size: 26.25px;
   font-weight: 700;
@@ -1128,10 +1156,13 @@
 }
 
 .club-links-preview-center-text {
-  fill: #101412;
+  fill: var(--club-links-engraving-color, #101412);
   font-size: 58px;
   font-weight: 800;
   letter-spacing: 2px;
+  paint-order: stroke fill;
+  stroke: var(--club-links-engraving-shadow, rgba(255, 255, 255, 0.16));
+  stroke-width: 0.35px;
 }
 
 .club-links-preview-center-artwork {
@@ -1153,13 +1184,13 @@
 
 .club-links-preview-logo-fallback {
   fill: none;
-  stroke: #151a17;
+  stroke: var(--club-links-engraving-color, #151a17);
   stroke-width: 2;
   stroke-dasharray: 6 5;
 }
 
 .club-links-preview-logo-fallback text {
-  fill: #151a17;
+  fill: var(--club-links-engraving-color, #151a17);
   stroke: none;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;

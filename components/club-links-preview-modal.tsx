@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import type { PersonalizationMethodId } from "./product-customization-form";
 import { usePreviewModalBehavior } from "./use-preview-modal-behavior";
 
@@ -10,6 +10,7 @@ type ClubLinksPreviewModalProps = {
   phoneNumber: string;
   methodId: PersonalizationMethodId;
   methodLabel: string;
+  selectedColor: string;
   initials: string;
   fontStyleId: string;
   fontStyleLabel: string;
@@ -33,12 +34,57 @@ const CENTER_ARTWORK = {
   logoSize: 116,
 };
 
+type ClubLinksFinishPalette = {
+  label: string;
+  isDarkFinish: boolean;
+  metalStops: [string, string, string, string];
+  rimStops: [string, string, string];
+  rimStroke: string;
+  engravingColor: string;
+  engravingShadow: string;
+  logoFilterValues: string;
+};
+
+function getClubLinksFinishPalette(selectedColor: string): ClubLinksFinishPalette {
+  const normalizedColor = selectedColor.trim().toLowerCase();
+  const isDarkFinish =
+    normalizedColor === "black" ||
+    normalizedColor.includes("black") ||
+    normalizedColor.includes("dark");
+
+  if (isDarkFinish) {
+    return {
+      label: "Black",
+      isDarkFinish: true,
+      metalStops: ["#4b4d47", "#30322f", "#1c1f1d", "#111412"],
+      rimStops: ["#777b73", "#2f332f", "#5b6058"],
+      rimStroke: "rgba(171, 174, 162, 0.34)",
+      engravingColor: "#b7b3a7",
+      engravingShadow: "rgba(0, 0, 0, 0.42)",
+      logoFilterValues:
+        "0 0 0 0 0.718 0 0 0 0 0.702 0 0 0 0 0.655 0 0 0 1 0",
+    };
+  }
+
+  return {
+    label: selectedColor.trim() || "Silver",
+    isDarkFinish: false,
+    metalStops: ["#ffffff", "#d9ddd9", "#a6aca8", "#777e7a"],
+    rimStops: ["#f7faf8", "#8f9692", "#e4e8e5"],
+    rimStroke: "transparent",
+    engravingColor: "#101412",
+    engravingShadow: "rgba(255, 255, 255, 0.16)",
+    logoFilterValues: "1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 1 0",
+  };
+}
+
 export function ClubLinksPreviewModal({
   isOpen,
   name,
   phoneNumber,
   methodId,
   methodLabel,
+  selectedColor,
   initials,
   fontStyleId,
   fontStyleLabel,
@@ -70,6 +116,8 @@ export function ClubLinksPreviewModal({
   const centerFontFamily = fontFamilies[fontStyleId] ?? fontFamilies.classic;
   const centerText = initials.trim() || "INITIALS";
   const nameText = name.trim();
+  const finishPalette = getClubLinksFinishPalette(selectedColor);
+  const logoTintFilterId = `${topPathId}-logo-tint`;
   const centerFontSize =
     (centerText.length <= 2
       ? 66
@@ -123,20 +171,27 @@ export function ClubLinksPreviewModal({
               className="club-links-preview-svg"
               viewBox="0 0 320 320"
               role="img"
-              aria-label={`Silver Club Links tag engraved for ${name}`}
+              aria-label={`${finishPalette.label} Club Links tag engraved for ${name}`}
+              style={{
+                "--club-links-engraving-color": finishPalette.engravingColor,
+                "--club-links-engraving-shadow": finishPalette.engravingShadow,
+              } as CSSProperties}
             >
               <defs>
                 <radialGradient id={`${topPathId}-metal`} cx="38%" cy="30%" r="75%">
-                  <stop offset="0%" stopColor="#ffffff" />
-                  <stop offset="35%" stopColor="#d9ddd9" />
-                  <stop offset="72%" stopColor="#a6aca8" />
-                  <stop offset="100%" stopColor="#777e7a" />
+                  <stop offset="0%" stopColor={finishPalette.metalStops[0]} />
+                  <stop offset="35%" stopColor={finishPalette.metalStops[1]} />
+                  <stop offset="72%" stopColor={finishPalette.metalStops[2]} />
+                  <stop offset="100%" stopColor={finishPalette.metalStops[3]} />
                 </radialGradient>
                 <linearGradient id={`${topPathId}-rim`} x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#f7faf8" />
-                  <stop offset="48%" stopColor="#8f9692" />
-                  <stop offset="100%" stopColor="#e4e8e5" />
+                  <stop offset="0%" stopColor={finishPalette.rimStops[0]} />
+                  <stop offset="48%" stopColor={finishPalette.rimStops[1]} />
+                  <stop offset="100%" stopColor={finishPalette.rimStops[2]} />
                 </linearGradient>
+                <filter id={logoTintFilterId} colorInterpolationFilters="sRGB">
+                  <feColorMatrix type="matrix" values={finishPalette.logoFilterValues} />
+                </filter>
                 <filter id={`${topPathId}-shadow`} x="-30%" y="-30%" width="160%" height="160%">
                   <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.38" />
                 </filter>
@@ -153,6 +208,16 @@ export function ClubLinksPreviewModal({
                 strokeWidth="10"
                 filter={`url(#${topPathId}-shadow)`}
               />
+              {finishPalette.isDarkFinish ? (
+                <circle
+                  cx="160"
+                  cy="160"
+                  r="111"
+                  fill="none"
+                  stroke={finishPalette.rimStroke}
+                  strokeWidth="2"
+                />
+              ) : null}
 
               <text className="club-links-preview-arc-text is-top" dy="5">
                 <textPath
@@ -200,6 +265,7 @@ export function ClubLinksPreviewModal({
                     width={CENTER_ARTWORK.logoSize}
                     height={CENTER_ARTWORK.logoSize}
                     preserveAspectRatio="xMidYMid meet"
+                    filter={`url(#${logoTintFilterId})`}
                     onError={() => setIsLogoPreviewAvailable(false)}
                   />
                 ) : (
@@ -235,6 +301,10 @@ export function ClubLinksPreviewModal({
               <div>
                 <dt>Personalization Method</dt>
                 <dd>{methodLabel}</dd>
+              </div>
+              <div>
+                <dt>Finish</dt>
+                <dd>{finishPalette.label}</dd>
               </div>
               {methodId === "initials" ? (
                 <>

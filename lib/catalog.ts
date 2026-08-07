@@ -66,6 +66,7 @@ export type ProductSummary = {
   priceLabel: string;
   imagePlaceholderLabel: string;
   image?: ProductImage;
+  images?: ProductImage[];
   ctaLabel: string;
   availableForSale?: boolean;
   variants?: ProductVariant[];

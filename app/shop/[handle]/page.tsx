@@ -9,7 +9,7 @@ import {
 } from "../../../components/product-customization-form";
 import { ProductVariantProvider } from "../../../components/product-variant-context";
 import {
-  ProductVariantImage,
+  ProductImageGallery,
   ProductVariantPriceStatus,
 } from "../../../components/product-variant-display";
 import { ProductViewTracker } from "../../../components/product-view-tracker";
@@ -40,12 +40,6 @@ const ballMarkerPersonalizationMethods: PersonalizationMethodOption[] = [
     id: "logo",
     label: "Upload Logo",
     summary: "Use a logo or image file.",
-    reviewDesignEnabled: true,
-  },
-  {
-    id: "design",
-    label: "Let Us Design It",
-    summary: "Describe what you want and our team will create the design.",
     reviewDesignEnabled: true,
   },
 ];
@@ -136,6 +130,26 @@ function isBottleOpenerDivotTool(product: ProductSummary, categoryTitle?: string
     "two-pronged-divot-tools",
     "two-prong-divot-tool",
   ].includes(product.handle) || isDivotToolProduct(product, categoryTitle);
+}
+
+function isTwoProngDivotTool(product: ProductSummary): boolean {
+  const productKey = `${product.handle} ${product.title}`.toLowerCase();
+
+  return productKey.includes("two-prong") || productKey.includes("two prong");
+}
+
+function isSingleProngDivotTool(product: ProductSummary): boolean {
+  const productKey = `${product.handle} ${product.title}`.toLowerCase();
+
+  return (
+    !productKey.includes("bottle opener") &&
+    !isTwoProngDivotTool(product) &&
+    (product.handle === "custom-divot-tool-flat" ||
+      product.handle === "single-prong-divot-tool" ||
+      productKey.includes("single-pronged") ||
+      productKey.includes("single-prong") ||
+      productKey.includes("single prong"))
+  );
 }
 
 function getProductIntroCopy(product: ProductSummary): string {
@@ -232,27 +246,15 @@ function ClubLinkProductDetail({
         fallbackImage={product.image}
       >
         <article className="club-link-detail">
-          <div
-            className="club-link-gallery product-detail-gallery"
-            aria-label={`${product.title} images`}
-          >
-            <div className="club-link-main-image">
-              <ProductVariantImage
-                productTitle={product.title}
-                placeholderLabel={product.imagePlaceholderLabel}
-              />
-            </div>
-            <div className="club-link-thumbnails" aria-hidden="true">
-              {[0, 1, 2].map((item) => (
-                <div key={item} className="club-link-thumbnail">
-                  <ProductVariantImage
-                    productTitle={product.title}
-                    placeholderLabel={product.imagePlaceholderLabel}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
+          <ProductImageGallery
+            productTitle={product.title}
+            placeholderLabel={product.imagePlaceholderLabel}
+            images={product.images}
+            galleryClassName="club-link-gallery product-detail-gallery"
+            mainImageWrapperClassName="club-link-main-image"
+            thumbnailsClassName="club-link-thumbnails"
+            thumbnailClassName="club-link-thumbnail"
+          />
 
           <div className="club-link-summary">
             {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
@@ -321,6 +323,8 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   const categoryTitle = getProductCategoryTitle(product);
   const usesDivotToolCustomizer = isBottleOpenerDivotTool(product, categoryTitle);
+  const usesSingleProngDivotPreview = isSingleProngDivotTool(product);
+  const usesTwoProngDivotPreview = isTwoProngDivotTool(product);
 
   return (
     <main className="product-detail-page">
@@ -342,12 +346,11 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
             fallbackImage={product.image}
           >
             <article className="product-detail">
-              <div className="product-detail-media product-detail-gallery">
-                <ProductVariantImage
-                  productTitle={product.title}
-                  placeholderLabel={product.imagePlaceholderLabel}
-                />
-              </div>
+              <ProductImageGallery
+                productTitle={product.title}
+                placeholderLabel={product.imagePlaceholderLabel}
+                images={product.images}
+              />
 
               <div className="product-detail-summary">
                 {categoryTitle ? <p className="product-category">{categoryTitle}</p> : null}
@@ -361,6 +364,9 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
                     productLabel="Divot Tool"
                     fontStyles={clubLinkFontStyles}
                     divotToolPreviewEnabled
+                    singleProngDivotToolPreviewEnabled={usesSingleProngDivotPreview}
+                    twoProngDivotToolPreviewEnabled={usesTwoProngDivotPreview}
+                    logoUploadEnabled={usesTwoProngDivotPreview}
                     colorOptions={product.colorOptions}
                   />
                 ) : (
