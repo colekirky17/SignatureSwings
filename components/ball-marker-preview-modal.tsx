@@ -315,8 +315,8 @@ function BallMarkerCoin({
           </filter>
           <clipPath id={textClipPathId}>
             <rect
-              x={BALL_MARKER_ARTWORK.x - BALL_MARKER_ARTWORK.textSafeWidth / 2}
-              y={BALL_MARKER_ARTWORK.y - BALL_MARKER_ARTWORK.textSafeHeight / 2}
+              x={-BALL_MARKER_ARTWORK.textSafeWidth / 2}
+              y={-BALL_MARKER_ARTWORK.textSafeHeight / 2}
               width={BALL_MARKER_ARTWORK.textSafeWidth}
               height={BALL_MARKER_ARTWORK.textSafeHeight}
               rx="8"

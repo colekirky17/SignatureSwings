@@ -61,7 +61,13 @@ export default function ContactPage() {
             Have a question about custom golf accessories, personalized gifts, bulk orders,
             or an existing project? Reach out and we'll help point you in the right direction.
           </p>
+          <section className="contact-panel" aria-labelledby="contact-form-heading">
+            <h2 id="contact-form-heading">Send Us a Message</h2>
+            <ContactForm />
+          </section>
+        </div>
 
+        <aside className="contact-support" aria-label="Contact support options">
           <div className="contact-topic-list" aria-label="Common contact topics">
             {contactTopics.map((topic) => (
               <article key={topic.title} className="contact-topic-card">
@@ -101,24 +107,19 @@ export default function ContactPage() {
               </Link>
             </div>
           </div>
-        </div>
 
-        <section className="contact-panel" aria-labelledby="contact-form-heading">
-          <h2 id="contact-form-heading">Send Us a Message</h2>
-          <ContactForm />
-        </section>
-      </section>
-
-      <section className="contact-benefits" aria-label="Signature Swings contact benefits">
-        {contactBenefits.map((benefit) => (
-          <article key={benefit.title} className="contact-benefit">
-            <span aria-hidden="true">{benefit.label}</span>
-            <div>
-              <h2>{benefit.title}</h2>
-              <p>{benefit.copy}</p>
-            </div>
-          </article>
-        ))}
+          <section className="contact-benefits" aria-label="Signature Swings contact benefits">
+            {contactBenefits.map((benefit) => (
+              <article key={benefit.title} className="contact-benefit">
+                <span aria-hidden="true">{benefit.label}</span>
+                <div>
+                  <h2>{benefit.title}</h2>
+                  <p>{benefit.copy}</p>
+                </div>
+              </article>
+            ))}
+          </section>
+        </aside>
       </section>
     </main>
   );

@@ -65,8 +65,8 @@ export default async function ShopPage() {
         <p className="shop-kicker">Signature Collection</p>
         <h1>Browse Signature Swings</h1>
         <p>
-          Preview custom golf accessories built to represent your game. Website ordering is
-          coming soon; custom and bulk orders are currently discussed through direct inquiry.
+          Shop personalized golf accessories made to carry your name, logo, event, or favorite
+          detail onto the course.
         </p>
       </section>
 

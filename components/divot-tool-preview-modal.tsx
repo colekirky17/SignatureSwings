@@ -42,10 +42,16 @@ const TWO_PRONG_TEXT_PANEL = {
   paddingY: 24,
 };
 
-const TWO_PRONG_LOGO_PANEL = {
-  x: 392,
-  y: 405,
-  size: 240,
+const TWO_PRONG_LOGO_SAFE_ZONE = {
+  // Coordinates use the vertical 1024 x 1536 two-prong viewBox.
+  // This box sits on the upper flat face, inset from the scalloped sides,
+  // top edge, prong cutout, and tapered prong area so logos do not use the
+  // full product canvas as their positioning reference.
+  x: 444,
+  y: 355,
+  width: 136,
+  height: 270,
+  radius: 10,
 };
 
 const SINGLE_PRONG_TEXT_PANEL = {
@@ -287,11 +293,11 @@ export function DivotToolPreviewModal({
                   </clipPath>
                   <clipPath id={logoClipPathId}>
                     <rect
-                      x={TWO_PRONG_LOGO_PANEL.x}
-                      y={TWO_PRONG_LOGO_PANEL.y}
-                      width={TWO_PRONG_LOGO_PANEL.size}
-                      height={TWO_PRONG_LOGO_PANEL.size}
-                      rx="14"
+                      x={TWO_PRONG_LOGO_SAFE_ZONE.x}
+                      y={TWO_PRONG_LOGO_SAFE_ZONE.y}
+                      width={TWO_PRONG_LOGO_SAFE_ZONE.width}
+                      height={TWO_PRONG_LOGO_SAFE_ZONE.height}
+                      rx={TWO_PRONG_LOGO_SAFE_ZONE.radius}
                     />
                   </clipPath>
                 </defs>
@@ -320,10 +326,10 @@ export function DivotToolPreviewModal({
                 {isLogoPreview && logoPreviewUrl ? (
                   <image
                     href={logoPreviewUrl}
-                    x={TWO_PRONG_LOGO_PANEL.x}
-                    y={TWO_PRONG_LOGO_PANEL.y}
-                    width={TWO_PRONG_LOGO_PANEL.size}
-                    height={TWO_PRONG_LOGO_PANEL.size}
+                    x={TWO_PRONG_LOGO_SAFE_ZONE.x}
+                    y={TWO_PRONG_LOGO_SAFE_ZONE.y}
+                    width={TWO_PRONG_LOGO_SAFE_ZONE.width}
+                    height={TWO_PRONG_LOGO_SAFE_ZONE.height}
                     preserveAspectRatio="xMidYMid meet"
                     clipPath={`url(#${logoClipPathId})`}
                     opacity="0.86"
@@ -331,15 +337,15 @@ export function DivotToolPreviewModal({
                 ) : isLogoPreview ? (
                   <g className="two-prong-logo-placeholder">
                     <rect
-                      x={TWO_PRONG_LOGO_PANEL.x}
-                      y={TWO_PRONG_LOGO_PANEL.y}
-                      width={TWO_PRONG_LOGO_PANEL.size}
-                      height={TWO_PRONG_LOGO_PANEL.size}
-                      rx="14"
+                      x={TWO_PRONG_LOGO_SAFE_ZONE.x}
+                      y={TWO_PRONG_LOGO_SAFE_ZONE.y}
+                      width={TWO_PRONG_LOGO_SAFE_ZONE.width}
+                      height={TWO_PRONG_LOGO_SAFE_ZONE.height}
+                      rx={TWO_PRONG_LOGO_SAFE_ZONE.radius}
                     />
                     <text
-                      x={TWO_PRONG_LOGO_PANEL.x + TWO_PRONG_LOGO_PANEL.size / 2}
-                      y={TWO_PRONG_LOGO_PANEL.y + TWO_PRONG_LOGO_PANEL.size / 2}
+                      x={TWO_PRONG_LOGO_SAFE_ZONE.x + TWO_PRONG_LOGO_SAFE_ZONE.width / 2}
+                      y={TWO_PRONG_LOGO_SAFE_ZONE.y + TWO_PRONG_LOGO_SAFE_ZONE.height / 2}
                       textAnchor="middle"
                       dominantBaseline="middle"
                     >
