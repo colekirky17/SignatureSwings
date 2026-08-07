@@ -184,6 +184,14 @@ function getSingleProngEngravingColor(selectedColor: string | undefined): string
   return normalizedColor.includes("black") ? "#c9ccc7" : "#161915";
 }
 
+function getStandardDivotRenderImage(selectedColor: string | undefined): string {
+  const normalizedColor = selectedColor?.trim().toLowerCase() ?? "";
+
+  return normalizedColor.includes("gold")
+    ? "/images/divot-tool-gold.png"
+    : "/images/divot-tool.png";
+}
+
 export function DivotToolPreviewModal({
   isOpen,
   engravingText,
@@ -220,6 +228,7 @@ export function DivotToolPreviewModal({
   const twoProngTextFontSize = getTwoProngTextFontSize(engravingText, fontStyleId);
   const singleProngImage = getSingleProngRenderImage(selectedColor);
   const singleProngEngravingColor = getSingleProngEngravingColor(selectedColor);
+  const standardDivotImage = getStandardDivotRenderImage(selectedColor);
   const singleProngTextFontSize = getSingleProngTextFontSize(
     engravingText,
     fontStyleId,
@@ -433,7 +442,7 @@ export function DivotToolPreviewModal({
                   </clipPath>
                 </defs>
                 <image
-                  href="/images/divot-tool.png"
+                  href={standardDivotImage}
                   x="0"
                   y="0"
                   width="1448"
