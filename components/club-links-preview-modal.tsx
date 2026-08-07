@@ -31,7 +31,16 @@ const fontFamilies: Record<string, string> = {
 const CENTER_ARTWORK = {
   x: 160,
   y: 160,
-  logoSize: 116,
+};
+
+const CLUB_LINKS_LOGO_SAFE_ZONE = {
+  // Coordinates use the 320 x 320 circular Club Links viewBox. This square
+  // sits inside the open center of the tag, clear of the name and phone arcs.
+  x: 88,
+  y: 88,
+  width: 144,
+  height: 144,
+  radius: 8,
 };
 
 type ClubLinksFinishPalette = {
@@ -118,6 +127,7 @@ export function ClubLinksPreviewModal({
   const nameText = name.trim();
   const finishPalette = getClubLinksFinishPalette(selectedColor);
   const logoTintFilterId = `${topPathId}-logo-tint`;
+  const logoClipPathId = `${topPathId}-logo-safe-zone`;
   const centerFontSize =
     (centerText.length <= 2
       ? 66
@@ -195,6 +205,15 @@ export function ClubLinksPreviewModal({
                 <filter id={`${topPathId}-shadow`} x="-30%" y="-30%" width="160%" height="160%">
                   <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.38" />
                 </filter>
+                <clipPath id={logoClipPathId}>
+                  <rect
+                    x={CLUB_LINKS_LOGO_SAFE_ZONE.x}
+                    y={CLUB_LINKS_LOGO_SAFE_ZONE.y}
+                    width={CLUB_LINKS_LOGO_SAFE_ZONE.width}
+                    height={CLUB_LINKS_LOGO_SAFE_ZONE.height}
+                    rx={CLUB_LINKS_LOGO_SAFE_ZONE.radius}
+                  />
+                </clipPath>
                 <path id={topPathId} d="M 66.7 116.5 A 103 103 0 0 1 253.3 116.5" />
                 <path id={bottomPathId} d="M 66.7 203.5 A 103 103 0 0 0 253.3 203.5" />
               </defs>
@@ -208,16 +227,6 @@ export function ClubLinksPreviewModal({
                 strokeWidth="10"
                 filter={`url(#${topPathId}-shadow)`}
               />
-              {finishPalette.isDarkFinish ? (
-                <circle
-                  cx="160"
-                  cy="160"
-                  r="111"
-                  fill="none"
-                  stroke={finishPalette.rimStroke}
-                  strokeWidth="2"
-                />
-              ) : null}
 
               <text className="club-links-preview-arc-text is-top" dy="5">
                 <textPath
@@ -260,17 +269,24 @@ export function ClubLinksPreviewModal({
                   <image
                     className="club-links-preview-logo"
                     href={logoPreviewUrl}
-                    x={CENTER_ARTWORK.x - CENTER_ARTWORK.logoSize / 2}
-                    y={CENTER_ARTWORK.y - CENTER_ARTWORK.logoSize / 2}
-                    width={CENTER_ARTWORK.logoSize}
-                    height={CENTER_ARTWORK.logoSize}
+                    x={CLUB_LINKS_LOGO_SAFE_ZONE.x}
+                    y={CLUB_LINKS_LOGO_SAFE_ZONE.y}
+                    width={CLUB_LINKS_LOGO_SAFE_ZONE.width}
+                    height={CLUB_LINKS_LOGO_SAFE_ZONE.height}
                     preserveAspectRatio="xMidYMid meet"
+                    clipPath={`url(#${logoClipPathId})`}
                     filter={`url(#${logoTintFilterId})`}
                     onError={() => setIsLogoPreviewAvailable(false)}
                   />
                 ) : (
                   <g className="club-links-preview-logo-fallback">
-                    <circle cx={CENTER_ARTWORK.x} cy={CENTER_ARTWORK.y} r="48" />
+                    <rect
+                      x={CLUB_LINKS_LOGO_SAFE_ZONE.x}
+                      y={CLUB_LINKS_LOGO_SAFE_ZONE.y}
+                      width={CLUB_LINKS_LOGO_SAFE_ZONE.width}
+                      height={CLUB_LINKS_LOGO_SAFE_ZONE.height}
+                      rx={CLUB_LINKS_LOGO_SAFE_ZONE.radius}
+                    />
                     <text
                       x={CENTER_ARTWORK.x}
                       y={CENTER_ARTWORK.y}

@@ -103,7 +103,9 @@ export function hasCompleteCustomization(
 
   if (/logo|image/i.test(method)) {
     const logoUpload = getAttribute(attributes, "Logo Upload");
-    return Boolean(logoUpload && /^https:\/\//i.test(logoUpload));
+    const logoFileName = getAttribute(attributes, "Logo File Name");
+
+    return Boolean((logoUpload && /^https:\/\//i.test(logoUpload)) || logoFileName);
   }
 
   return Boolean(

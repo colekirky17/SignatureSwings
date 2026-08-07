@@ -47,10 +47,10 @@ const TWO_PRONG_LOGO_SAFE_ZONE = {
   // This box sits on the upper flat face, inset from the scalloped sides,
   // top edge, prong cutout, and tapered prong area so logos do not use the
   // full product canvas as their positioning reference.
-  x: 444,
-  y: 355,
-  width: 136,
-  height: 270,
+  x: 420,
+  y: 330,
+  width: 184,
+  height: 320,
   radius: 10,
 };
 

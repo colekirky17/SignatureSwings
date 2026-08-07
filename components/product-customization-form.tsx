@@ -1717,7 +1717,7 @@ function StandardProductCustomizationForm({
       : selectedMethodId === "design"
         ? designRequest.trim().length > 0
         : selectedMethodId === "logo"
-          ? Boolean(uploadedLogo?.url)
+          ? Boolean(uploadedLogo)
           : false;
   const canAddToCart =
     Boolean(selectedVariant?.availableForSale) &&
@@ -1904,7 +1904,7 @@ function StandardProductCustomizationForm({
       selectedMethodId === "logo" && uploadedLogo?.url
         ? { key: "Logo Upload", value: uploadedLogo.url }
         : null,
-      selectedMethodId === "logo" && uploadedLogo?.url
+      selectedMethodId === "logo" && uploadedLogo
         ? { key: "Logo File Name", value: uploadedLogo.fileName }
         : null,
     ].filter((attribute): attribute is { key: string; value: string } => Boolean(attribute));
