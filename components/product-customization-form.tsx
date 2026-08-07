@@ -159,7 +159,12 @@ function ProductColorPicker({
       <legend>
         Color <strong aria-hidden="true">*</strong>
       </legend>
-      <div className="product-color-option-grid" role="radiogroup">
+      <div
+        className={`product-color-option-grid${
+          colorOptions.length === 3 ? " is-three-options" : ""
+        }`}
+        role="radiogroup"
+      >
         {colorOptions.map((option) => {
           const isSelected = selectedColor === option.name;
           const style = {
@@ -202,7 +207,12 @@ function ProductVariantColorPicker({
       <legend>
         {optionName} <strong aria-hidden="true">*</strong>
       </legend>
-      <div className="product-color-option-grid" role="radiogroup">
+      <div
+        className={`product-color-option-grid${
+          values.length === 3 ? " is-three-options" : ""
+        }`}
+        role="radiogroup"
+      >
         {values.map((value) => {
           const isSelected = selectedValue === value;
           const style = {

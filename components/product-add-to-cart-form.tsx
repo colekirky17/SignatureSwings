@@ -99,7 +99,12 @@ export function ProductAddToCartForm() {
                     <legend>
                       {option.name} <strong aria-hidden="true">*</strong>
                     </legend>
-                    <div className="product-color-option-grid" role="radiogroup">
+                    <div
+                      className={`product-color-option-grid${
+                        option.values.length === 3 ? " is-three-options" : ""
+                      }`}
+                      role="radiogroup"
+                    >
                       {option.values.map((value) => {
                         const isSelected = selectedOptions[option.name] === value;
                         const style = {

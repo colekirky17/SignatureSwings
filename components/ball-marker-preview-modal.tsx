@@ -57,11 +57,28 @@ function mixHexColor(color: string, target: string, amount: number): string {
 const BALL_MARKER_ARTWORK = {
   x: 160,
   y: 160,
-  textSafeWidth: 218,
-  textSafeHeight: 116,
+  textSafeWidth: 196,
+  textSafeHeight: 112,
+  textMinFontSize: 24,
+  textMaxFontSize: 70,
+  textLineHeight: 0.92,
+  textLetterSpacing: 1,
   logoSize: 198,
   guideRadius: 78,
 };
+
+const BALL_MARKER_TEXT_FONT =
+  "Arial, Helvetica, sans-serif";
+const BALL_MARKER_TEXT_FONT_WEIGHT = 800;
+
+type BallMarkerTextLayout = {
+  lines: string[];
+  fontSize: number;
+  lineHeight: number;
+  mayBeTooLong: boolean;
+};
+
+let measurementCanvasContext: CanvasRenderingContext2D | null | undefined;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -89,21 +106,162 @@ function getWeightedTextLength(text: string): number {
   }, 0);
 }
 
-function getBallMarkerTextSize(text: string): number {
-  const weightedLength = Math.max(1, getWeightedTextLength(text));
-  const fillTarget =
-    weightedLength <= 3
-      ? 0.88
-      : weightedLength <= 5
-        ? 0.84
-        : weightedLength <= 9
-          ? 0.78
-          : 0.72;
-  const widthBasedSize =
-    (BALL_MARKER_ARTWORK.textSafeWidth * fillTarget) / (weightedLength * 0.58);
-  const heightBasedSize = BALL_MARKER_ARTWORK.textSafeHeight * 0.82;
+function getMeasurementContext(): CanvasRenderingContext2D | null {
+  if (measurementCanvasContext !== undefined) {
+    return measurementCanvasContext;
+  }
 
-  return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), 42, 98));
+  if (typeof document === "undefined") {
+    measurementCanvasContext = null;
+    return measurementCanvasContext;
+  }
+
+  measurementCanvasContext = document.createElement("canvas").getContext("2d");
+
+  return measurementCanvasContext;
+}
+
+function measureBallMarkerTextLine(text: string, fontSize: number): number {
+  const context = getMeasurementContext();
+  const letterSpacing =
+    Math.max(0, Array.from(text).length - 1) * BALL_MARKER_ARTWORK.textLetterSpacing;
+
+  if (!context) {
+    return (
+      getWeightedTextLength(text) * fontSize * 0.58 +
+      letterSpacing
+    );
+  }
+
+  context.font = `${BALL_MARKER_TEXT_FONT_WEIGHT} ${fontSize}px ${BALL_MARKER_TEXT_FONT}`;
+
+  return context.measureText(text).width + letterSpacing;
+}
+
+function getBallMarkerLayoutHeight(lineCount: number, fontSize: number): number {
+  return lineCount === 1
+    ? fontSize
+    : fontSize * BALL_MARKER_ARTWORK.textLineHeight * lineCount;
+}
+
+function doBallMarkerLinesFit(lines: string[], fontSize: number): boolean {
+  const widestLine = Math.max(
+    ...lines.map((line) => measureBallMarkerTextLine(line, fontSize)),
+  );
+  const layoutHeight = getBallMarkerLayoutHeight(lines.length, fontSize);
+
+  return (
+    widestLine <= BALL_MARKER_ARTWORK.textSafeWidth &&
+    layoutHeight <= BALL_MARKER_ARTWORK.textSafeHeight
+  );
+}
+
+function getFittedBallMarkerFontSize(lines: string[]): {
+  fontSize: number;
+  fits: boolean;
+} {
+  let low = BALL_MARKER_ARTWORK.textMinFontSize;
+  let high = BALL_MARKER_ARTWORK.textMaxFontSize;
+  let best = low;
+
+  while (low <= high) {
+    const candidate = Math.floor((low + high) / 2);
+
+    if (doBallMarkerLinesFit(lines, candidate)) {
+      best = candidate;
+      low = candidate + 1;
+    } else {
+      high = candidate - 1;
+    }
+  }
+
+  return {
+    fontSize: best,
+    fits: doBallMarkerLinesFit(lines, best),
+  };
+}
+
+function getBalancedTwoLineBallMarkerText(text: string): string[] | null {
+  const words = text.trim().split(/\s+/).filter(Boolean);
+
+  if (words.length < 2) {
+    return null;
+  }
+
+  let bestLines: string[] | null = null;
+  let bestScore = Number.POSITIVE_INFINITY;
+
+  for (let splitIndex = 1; splitIndex < words.length; splitIndex += 1) {
+    const lines = [
+      words.slice(0, splitIndex).join(" "),
+      words.slice(splitIndex).join(" "),
+    ];
+    const lineWidths = lines.map((line) =>
+      measureBallMarkerTextLine(line, BALL_MARKER_ARTWORK.textMaxFontSize),
+    );
+    const longestWidth = Math.max(...lineWidths);
+    const widthDifference = Math.abs(lineWidths[0] - lineWidths[1]);
+    const characterDifference = Math.abs(lines[0].length - lines[1].length);
+    const score = longestWidth + widthDifference * 0.28 + characterDifference * 2.5;
+
+    if (score < bestScore) {
+      bestScore = score;
+      bestLines = lines;
+    }
+  }
+
+  return bestLines;
+}
+
+function getBallMarkerTextLayout(text: string): BallMarkerTextLayout {
+  const normalizedText = text.trim().replace(/\s+/g, " ") || "TEXT";
+  const singleLine = [normalizedText];
+  const singleLineAtMaxWidth = measureBallMarkerTextLine(
+    normalizedText,
+    BALL_MARKER_ARTWORK.textMaxFontSize,
+  );
+
+  if (
+    singleLineAtMaxWidth <= BALL_MARKER_ARTWORK.textSafeWidth &&
+    getBallMarkerLayoutHeight(1, BALL_MARKER_ARTWORK.textMaxFontSize) <=
+      BALL_MARKER_ARTWORK.textSafeHeight
+  ) {
+    return {
+      lines: singleLine,
+      fontSize: BALL_MARKER_ARTWORK.textMaxFontSize,
+      lineHeight: BALL_MARKER_ARTWORK.textLineHeight,
+      mayBeTooLong: false,
+    };
+  }
+
+  const balancedLines = normalizedText.includes(" ")
+    ? getBalancedTwoLineBallMarkerText(normalizedText)
+    : null;
+
+  if (balancedLines) {
+    const fittedTwoLineLayout = getFittedBallMarkerFontSize(balancedLines);
+
+    if (fittedTwoLineLayout.fits) {
+      return {
+        lines: balancedLines,
+        fontSize: fittedTwoLineLayout.fontSize,
+        lineHeight: BALL_MARKER_ARTWORK.textLineHeight,
+        mayBeTooLong:
+          fittedTwoLineLayout.fontSize <= BALL_MARKER_ARTWORK.textMinFontSize,
+      };
+    }
+  }
+
+  const fittedSingleLineLayout = getFittedBallMarkerFontSize(singleLine);
+
+  return {
+    lines: singleLine,
+    fontSize: fittedSingleLineLayout.fontSize,
+    lineHeight: BALL_MARKER_ARTWORK.textLineHeight,
+    mayBeTooLong:
+      !fittedSingleLineLayout.fits ||
+      fittedSingleLineLayout.fontSize <= BALL_MARKER_ARTWORK.textMinFontSize,
+  };
 }
 
 function BallMarkerCoin({
@@ -116,11 +274,12 @@ function BallMarkerCoin({
   const shadowId = useId().replace(/:/g, "");
   const metalId = `${shadowId}-metal`;
   const rimId = `${shadowId}-rim`;
+  const textClipPathId = `${shadowId}-text-safe-zone`;
   const [isLogoPreviewAvailable, setIsLogoPreviewAvailable] = useState(
     Boolean(design.logoPreviewUrl),
   );
   const text = design.text.trim() || "TEXT";
-  const textSize = getBallMarkerTextSize(text);
+  const textLayout = getBallMarkerTextLayout(text);
   const metalHighlight = mixHexColor(finishColor, "#ffffff", 0.72);
   const metalMidtone = mixHexColor(finishColor, "#ffffff", 0.22);
   const metalShadow = mixHexColor(finishColor, "#000000", 0.3);
@@ -154,6 +313,15 @@ function BallMarkerCoin({
           <filter id={`${shadowId}-shadow`} x="-30%" y="-30%" width="160%" height="160%">
             <feDropShadow dx="0" dy="10" stdDeviation="9" floodOpacity="0.38" />
           </filter>
+          <clipPath id={textClipPathId}>
+            <rect
+              x={BALL_MARKER_ARTWORK.x - BALL_MARKER_ARTWORK.textSafeWidth / 2}
+              y={BALL_MARKER_ARTWORK.y - BALL_MARKER_ARTWORK.textSafeHeight / 2}
+              width={BALL_MARKER_ARTWORK.textSafeWidth}
+              height={BALL_MARKER_ARTWORK.textSafeHeight}
+              rx="8"
+            />
+          </clipPath>
         </defs>
 
         <circle
@@ -173,15 +341,39 @@ function BallMarkerCoin({
           >
             <text
               x="0"
-              y="0"
               textAnchor="middle"
               dominantBaseline="central"
               alignmentBaseline="central"
               className="ball-marker-preview-center-text"
-              style={{ fontSize: textSize }}
+              clipPath={`url(#${textClipPathId})`}
+              style={{
+                fontSize: textLayout.fontSize,
+                letterSpacing: BALL_MARKER_ARTWORK.textLetterSpacing,
+              }}
             >
-              {text}
+              {textLayout.lines.map((line, index) => {
+                const firstLineOffset =
+                  -((textLayout.lines.length - 1) * textLayout.fontSize *
+                    textLayout.lineHeight) /
+                  2;
+
+                return (
+                  <tspan
+                    key={`${line}-${index}`}
+                    x="0"
+                    y={
+                      firstLineOffset +
+                      index * textLayout.fontSize * textLayout.lineHeight
+                    }
+                  >
+                    {line}
+                  </tspan>
+                );
+              })}
             </text>
+            {textLayout.mayBeTooLong ? (
+              <title>This text may be too long for clean engraving.</title>
+            ) : null}
           </g>
         ) : null}
 
@@ -238,6 +430,11 @@ function BallMarkerCoin({
           </g>
         ) : null}
       </svg>
+      {design.methodId === "initials" && textLayout.mayBeTooLong ? (
+        <p className="ball-marker-preview-warning">
+          This text may be too long for clean engraving.
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -34,18 +34,18 @@ const ENGRAVING_PANEL = {
 };
 
 const TWO_PRONG_TEXT_PANEL = {
-  x: 292,
-  y: 420,
-  width: 420,
-  height: 170,
-  paddingX: 42,
-  paddingY: 28,
+  x: 270,
+  y: 410,
+  width: 480,
+  height: 190,
+  paddingX: 36,
+  paddingY: 24,
 };
 
 const TWO_PRONG_LOGO_PANEL = {
-  x: 372,
-  y: 470,
-  size: 280,
+  x: 392,
+  y: 405,
+  size: 240,
 };
 
 const SINGLE_PRONG_TEXT_PANEL = {
@@ -116,10 +116,20 @@ function getTwoProngTextFontSize(text: string, fontStyleId: string): number {
   const widthRatio = fontWidthRatios[fontStyleId] ?? fontWidthRatios.classic;
   const safeWidth = TWO_PRONG_TEXT_PANEL.width - TWO_PRONG_TEXT_PANEL.paddingX * 2;
   const safeHeight = TWO_PRONG_TEXT_PANEL.height - TWO_PRONG_TEXT_PANEL.paddingY * 2;
-  const widthBasedSize = (safeWidth * 0.82) / (weightedLength * widthRatio);
-  const heightBasedSize = safeHeight * (fontStyleId === "script" ? 1.05 : 0.88);
+  const characterTarget =
+    weightedLength <= 5
+      ? 0.96
+      : weightedLength <= 10
+        ? 0.9
+        : weightedLength <= 15
+          ? 0.82
+          : 0.74;
+  const widthBasedSize =
+    (safeWidth * characterTarget) / (weightedLength * widthRatio);
+  const heightBasedSize = safeHeight * (fontStyleId === "script" ? 1.08 : 0.92);
+  const maxSize = fontStyleId === "script" ? 122 : 112;
 
-  return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), 34, 76));
+  return Math.round(clamp(Math.min(widthBasedSize, heightBasedSize), 38, maxSize));
 }
 
 function getSingleProngTextFontSize(text: string, fontStyleId: string): number {
