@@ -16,6 +16,7 @@ export type ShopifyCollectionSummary = {
   id?: string;
   title: string;
   handle: string;
+  image?: ProductImage | null;
 };
 
 export type ShopifyCollectionProductGroup = ShopifyCollectionSummary & {
@@ -111,6 +112,7 @@ type ShopifyCollectionNode = {
   id: string;
   title: string;
   handle: string;
+  image?: ProductImage | null;
   products: {
     nodes: ShopifyProductNode[];
   };
@@ -249,6 +251,12 @@ const COLLECTIONS_QUERY = `
         id
         title
         handle
+        image {
+          url
+          altText
+          width
+          height
+        }
       }
     }
   }
@@ -261,6 +269,12 @@ function buildCollectionWithProductsQuery(productFields: string): string {
       id
       title
       handle
+      image {
+        url
+        altText
+        width
+        height
+      }
       products(first: 100, sortKey: COLLECTION_DEFAULT) {
         nodes {
           ${productFields}
@@ -279,6 +293,12 @@ function buildCollectionsWithProductsQuery(productFields: string): string {
         id
         title
         handle
+        image {
+          url
+          altText
+          width
+          height
+        }
         products(first: 100, sortKey: TITLE) {
           nodes {
             ${productFields}
@@ -683,6 +703,7 @@ function mapCollectionGroup(
     id: collection.id,
     title: collection.title,
     handle: collection.handle,
+    image: collection.image ?? undefined,
     placementId: placement?.id,
     products: collection.products.nodes.map((product) => mapProduct(product, collection)),
   };

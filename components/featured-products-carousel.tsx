@@ -25,16 +25,6 @@ const staticFeaturedHandles = {
     "custom-divot-tool-flat",
     "two-pronged-divot-tools",
   ],
-  offers: [
-    "premium-bulk-golf-markers",
-    "clublinks-14-pack",
-    "two-pronged-divot-tools",
-  ],
-  seasonal: [
-    "custom-divot-tool-flat",
-    "premium-custom-divot-tool-with-bottle-opener",
-    "custom-engraved-premium-clublinks-golf-club-id-tag",
-  ],
 };
 
 function getFeaturedCollections(
@@ -118,8 +108,8 @@ export function FeaturedProductsCarousel({
         <div>
           <h2 id="home-featured-heading">Shop Favorites</h2>
           <p>
-            Start with our most popular custom golf accessories, seasonal picks, and featured
-            offers.
+            Start with our most popular custom golf accessories from the Shopify best-sellers
+            collection.
           </p>
         </div>
         <div className="home-featured-arrows" aria-label="Browse featured products">
@@ -157,7 +147,7 @@ export function FeaturedProductsCarousel({
         ))}
       </div>
       <p className="home-featured-note">
-        Shopify collections control featured placement. Pricing remains by inquiry.
+        The Shopify best-sellers collection controls this placement. Pricing remains by inquiry.
       </p>
 
       <div

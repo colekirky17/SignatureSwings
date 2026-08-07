@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { ProductCategory } from "../lib/catalog";
 
 type CategoryCardProps = {
@@ -13,16 +12,16 @@ export function CategoryCard({ category }: CategoryCardProps) {
     <article className="home-category-card">
       <div className="category-media">
         {category.image ? (
-          <Image
+          <img
             src={category.image.url}
             alt={category.image.altText ?? category.title}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 900px) 50vw, 25vw"
             loading="lazy"
+            width={category.image.width ?? undefined}
+            height={category.image.height ?? undefined}
             className="category-media-image"
           />
         ) : (
-          <span className="media-label">Image placeholder</span>
+          <span className="media-label">Collection image unavailable</span>
         )}
       </div>
       <div className="category-body">

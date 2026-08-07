@@ -7,11 +7,14 @@ import {
   getAllProducts,
   homepageFeaturedCollections,
   productCategories,
+  shopCategoryCollections,
+  type ProductCategory,
 } from "../lib/catalog";
 import { homepageFaqItems } from "../lib/faq-content";
 import {
   fetchShopifyCollectionProductGroups,
   fetchShopifyProducts,
+  type ShopifyCollectionProductGroup,
 } from "../lib/shopify";
 import "./home-custom.css";
 
@@ -22,35 +25,6 @@ export const metadata: Metadata = {
   description:
     "Explore Signature Swings custom golf accessories, including custom golf ball markers, custom divot repair tools, personalized golf gifts, and bulk order ideas.",
 };
-
-const homepageCategories = productCategories
-  .filter((category) => category.slug !== "miscellaneous")
-  .map((category) => ({
-    ...category,
-    title: category.slug === "divot-repair-tools" ? "Divot Tools" : category.title,
-    image:
-      category.slug === "ball-markers"
-        ? {
-            url: "/images/category-ball-markers.jpg",
-            altText: "Custom golf ball markers on a putting green",
-          }
-        : category.slug === "divot-repair-tools"
-          ? {
-              url: "/images/category-divot-tools.jpg",
-              altText: "Premium divot repair tools on a putting green",
-            }
-          : category.slug === "club-links"
-            ? {
-                url: "/images/category-club-links.jpg",
-                altText: "Personalized golf club links on club grips",
-              }
-            : category.slug === "bundles"
-              ? {
-                  url: "/images/category-bundles.jpg",
-                  altText: "Bundle of custom golf accessories on a putting green",
-                }
-              : undefined,
-  }));
 
 const processSteps = [
   {
@@ -101,6 +75,40 @@ const trustPoints = [
 type ProcessIconName =
   | (typeof processSteps)[number]["icon"]
   | (typeof trustPoints)[number]["icon"];
+
+function getHomepageCategories(
+  collectionGroups: ShopifyCollectionProductGroup[] | null,
+): ProductCategory[] {
+  return shopCategoryCollections
+    .map((placement): ProductCategory | null => {
+      const category = productCategories.find(
+        (item) => item.slug === placement.categorySlug,
+      );
+
+      if (!category) {
+        return null;
+      }
+
+      const collection = collectionGroups?.find(
+        (group) => group.placementId === placement.id,
+      );
+      const collectionImage = collection?.image;
+
+      return {
+        ...category,
+        title: collection?.title ?? placement.title,
+        shopifyCollectionHandle: collection?.handle ?? placement.handle,
+        image: collectionImage
+          ? {
+              ...collectionImage,
+              altText:
+                collectionImage.altText ?? `${collection?.title ?? placement.title} collection`,
+            }
+          : undefined,
+      };
+    })
+    .filter((category): category is ProductCategory => category !== null);
+}
 
 function ProcessIcon({ name }: { name: ProcessIconName }) {
   const commonProps = {
@@ -193,12 +201,18 @@ function ProcessIcon({ name }: { name: ProcessIconName }) {
 export const revalidate = 300;
 
 export default async function Home() {
-  const [shopifyProducts, featuredCollectionGroups] = await Promise.all([
+  const [shopifyProducts, homepageCollectionGroups] = await Promise.all([
     fetchShopifyProducts(),
-    fetchShopifyCollectionProductGroups(homepageFeaturedCollections),
+    fetchShopifyCollectionProductGroups([
+      ...shopCategoryCollections,
+      ...homepageFeaturedCollections,
+    ]),
   ]);
   const usingShopify = shopifyProducts !== null;
   const featuredProducts = shopifyProducts ?? getAllProducts();
+  const homepageCategories = getHomepageCategories(
+    usingShopify ? homepageCollectionGroups ?? [] : null,
+  );
 
   return (
     <main className="home-page">
@@ -255,7 +269,7 @@ export default async function Home() {
 
       <FeaturedProductsCarousel
         products={featuredProducts}
-        collectionGroups={usingShopify ? featuredCollectionGroups ?? [] : null}
+        collectionGroups={usingShopify ? homepageCollectionGroups ?? [] : null}
       />
 
       <section className="home-process" aria-labelledby="home-process-heading">

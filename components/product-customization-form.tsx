@@ -101,6 +101,35 @@ function getColorSwatch(option: ProductColorOption): string {
   return option.swatch || namedColor || "#607269";
 }
 
+function getColorSwatchByName(name: string): string {
+  return getColorSwatch({ name });
+}
+
+function isColorOptionName(name: string): boolean {
+  return name.trim().toLowerCase() === "color";
+}
+
+function getPhoneDigits(value: string): string {
+  return value.replace(/\D/g, "").slice(0, 10);
+}
+
+function formatPhoneNumber(value: string): string {
+  const digits = getPhoneDigits(value);
+  const areaCode = digits.slice(0, 3);
+  const prefix = digits.slice(3, 6);
+  const lineNumber = digits.slice(6, 10);
+
+  if (digits.length <= 3) {
+    return areaCode ? `(${areaCode}` : "";
+  }
+
+  if (digits.length <= 6) {
+    return `(${areaCode}) ${prefix}`;
+  }
+
+  return `(${areaCode}) ${prefix}-${lineNumber}`;
+}
+
 function getDefaultBallMarkerColor(colorOptions: ProductColorOption[]): string {
   return (
     colorOptions.find((option) =>
@@ -362,6 +391,9 @@ const defaultPersonalizationMethods: PersonalizationMethodOption[] = [
     reviewDesignEnabled: false,
   },
 ];
+
+const standardPersonalizationMethods: PersonalizationMethodOption[] =
+  defaultPersonalizationMethods.filter((method) => method.id !== "design");
 
 const defaultFontStyles: FontStyleOption[] = [
   { id: "classic", label: "Classic" },
@@ -835,8 +867,7 @@ function BallMarkerCustomizationForm({
         />
 
         {options.length ? (
-          <fieldset className="product-variant-options">
-            <legend>Choose Product Options</legend>
+          <fieldset className="product-variant-options" aria-label="Product options">
             <div className="product-variant-option-grid">
               {options.map((option) => (
                 <label key={option.name} className="club-link-input-field">
@@ -1148,8 +1179,7 @@ function DivotToolCustomizationForm({
         />
 
         {options.length ? (
-          <fieldset className="product-variant-options">
-            <legend>Choose Product Options</legend>
+          <fieldset className="product-variant-options" aria-label="Product options">
             <div className="product-variant-option-grid">
               {options.map((option) => (
                 <label key={option.name} className="club-link-input-field">
@@ -1296,10 +1326,10 @@ function DivotToolCustomizationForm({
 function StandardProductCustomizationForm({
   productLabel = "Club Links",
   bulkOrderHref = "/contact",
-  methods = defaultPersonalizationMethods,
+  methods = standardPersonalizationMethods,
   fontStyles = defaultFontStyles,
   customerDetailsRequired = true,
-  methodDescription = "Select one option below. You can use initials, upload a logo, or have us create a design for you.",
+  methodDescription = "Select one option below. You can use initials or upload a logo.",
   textHeading = "Initials / Short Text",
   textLabel = "Initials / Short Text",
   textPlaceholder = "e.g., JS",
@@ -1322,7 +1352,9 @@ function StandardProductCustomizationForm({
     useState<PersonalizationMethodId | null>(null);
   const [initials, setInitials] = useState("");
   const [selectedColor, setSelectedColor] = useState(
-    colorOptions.length === 1 ? colorOptions[0].name : "",
+    colorOptions.length === 1
+      ? colorOptions[0].name
+      : (selectedOptions.Color ?? selectedOptions.color ?? ""),
   );
   const [selectedFontStyleId, setSelectedFontStyleId] = useState(fontStyles[0]?.id ?? "");
   const [designRequest, setDesignRequest] = useState("");
@@ -1341,7 +1373,6 @@ function StandardProductCustomizationForm({
   const previewButtonRef = useRef<HTMLButtonElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const designRequestRef = useRef<HTMLTextAreaElement>(null);
-  const focusDesignRequestRef = useRef(false);
 
   useEffect(() => {
     const previewUrl = uploadedLogo?.previewUrl;
@@ -1353,21 +1384,15 @@ function StandardProductCustomizationForm({
     };
   }, [uploadedLogo?.previewUrl]);
 
-  useEffect(() => {
-    if (selectedMethodId === "design" && focusDesignRequestRef.current) {
-      focusDesignRequestRef.current = false;
-      designRequestRef.current?.focus();
-    }
-  }, [selectedMethodId]);
-
   const selectedMethod = useMemo(
     () => methods.find((method) => method.id === selectedMethodId) ?? null,
     [methods, selectedMethodId],
   );
+  const hasCompletePhoneNumber = getPhoneDigits(phoneNumber).length === 10;
 
   const hasRequiredCustomerDetails =
     !customerDetailsRequired ||
-    (name.trim().length > 0 && phoneNumber.trim().length > 0);
+    (name.trim().length > 0 && hasCompletePhoneNumber);
   const hasRequiredPersonalization =
     selectedMethodId === "initials"
       ? initials.trim().length > 0
@@ -1392,7 +1417,7 @@ function StandardProductCustomizationForm({
 
     if (colorOptions.length && !selectedColor) missingFields.push("Color");
     if (!name.trim()) missingFields.push("Name");
-    if (!phoneNumber.trim()) missingFields.push("Phone Number");
+    if (!hasCompletePhoneNumber) missingFields.push("Phone Number");
     if (!selectedMethodId) missingFields.push("Personalization Method");
     if (selectedMethodId === "initials" && !initials.trim()) {
       missingFields.push("Initials / Short Text");
@@ -1411,6 +1436,7 @@ function StandardProductCustomizationForm({
     designRequest,
     initials,
     name,
+    hasCompletePhoneNumber,
     phoneNumber,
     selectedMethodId,
     selectedColor,
@@ -1421,6 +1447,18 @@ function StandardProductCustomizationForm({
     : Boolean(selectedMethod?.reviewDesignEnabled);
   const selectedFontStyle =
     fontStyles.find((style) => style.id === selectedFontStyleId) ?? fontStyles[0];
+  const hasColorVariantOption = options.some((option) => isColorOptionName(option.name));
+
+  function handleColorSelect(color: string) {
+    setSelectedColor(color);
+    const colorOption = options.find((option) => isColorOptionName(option.name));
+
+    if (colorOption) {
+      setSelectedOption(colorOption.name, color);
+    }
+
+    clearPreviewValidation();
+  }
 
   function handleReviewDesign() {
     if (!clubLinksPreviewEnabled) {
@@ -1464,16 +1502,6 @@ function StandardProductCustomizationForm({
     });
   }
 
-  function useDesignService() {
-    focusDesignRequestRef.current = true;
-    setIsPreviewOpen(false);
-    setSelectedMethodId("design");
-    setPreviewValidationMessage("");
-    window.requestAnimationFrame(() => {
-      customizerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
-  }
-
   async function handleLogoFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -1490,7 +1518,7 @@ function StandardProductCustomizationForm({
     if (file.size > MAX_LOGO_FILE_SIZE) {
       setLogoUploadStatus("error");
       setLogoUploadMessage(
-        "This file is too large for upload. Please choose ‘Let Us Design It’ and describe what you want created.",
+        "This file is too large for upload. Please choose a PNG, JPG, or JPEG image up to 25 MB.",
       );
       return;
     }
@@ -1619,36 +1647,71 @@ function StandardProductCustomizationForm({
       <form className="club-link-customizer-main" onSubmit={handleSubmit}>
         <h2 id="club-link-customizer-heading">Customize Your {productLabel}</h2>
 
-        <ProductColorPicker
-          colorOptions={colorOptions}
-          selectedColor={selectedColor}
-          onSelect={(color) => {
-            setSelectedColor(color);
-            clearPreviewValidation();
-          }}
-        />
+        {!hasColorVariantOption ? (
+          <ProductColorPicker
+            colorOptions={colorOptions}
+            selectedColor={selectedColor}
+            onSelect={handleColorSelect}
+          />
+        ) : null}
 
         {options.length ? (
-          <fieldset className="product-variant-options">
-            <legend>Choose Product Options</legend>
+          <fieldset className="product-variant-options" aria-label="Product options">
             <div className="product-variant-option-grid">
-              {options.map((option) => (
-                <label key={option.name} className="club-link-input-field">
-                  <span>{option.name}</span>
-                  <select
-                    value={selectedOptions[option.name] ?? ""}
-                    onChange={(event) =>
-                      setSelectedOption(option.name, event.target.value)
-                    }
-                  >
-                    {option.values.map((value) => (
-                      <option key={value} value={value}>
-                        {value}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
+              {options.map((option) => {
+                if (isColorOptionName(option.name)) {
+                  return (
+                    <fieldset key={option.name} className="product-color-options">
+                      <legend>
+                        {option.name} <strong aria-hidden="true">*</strong>
+                      </legend>
+                      <div className="product-color-option-grid" role="radiogroup">
+                        {option.values.map((value) => {
+                          const isSelected = selectedOptions[option.name] === value;
+                          const style = {
+                            "--product-color-swatch": getColorSwatchByName(value),
+                          } as CSSProperties;
+
+                          return (
+                            <button
+                              key={value}
+                              type="button"
+                              role="radio"
+                              aria-checked={isSelected}
+                              className={`product-color-option${
+                                isSelected ? " is-selected" : ""
+                              }`}
+                              onClick={() => handleColorSelect(value)}
+                              style={style}
+                            >
+                              <span className="product-color-swatch" aria-hidden="true" />
+                              <span>{value}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </fieldset>
+                  );
+                }
+
+                return (
+                  <label key={option.name} className="club-link-input-field">
+                    <span>{option.name}</span>
+                    <select
+                      value={selectedOptions[option.name] ?? ""}
+                      onChange={(event) =>
+                        setSelectedOption(option.name, event.target.value)
+                      }
+                    >
+                      {option.values.map((value) => (
+                        <option key={value} value={value}>
+                          {value}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                );
+              })}
             </div>
           </fieldset>
         ) : null}
@@ -1682,11 +1745,15 @@ function StandardProductCustomizationForm({
                 name="phone-number"
                 value={phoneNumber}
                 onChange={(event) => {
-                  setPhoneNumber(event.target.value);
+                  setPhoneNumber(formatPhoneNumber(event.target.value));
                   clearPreviewValidation();
                 }}
-                placeholder="e.g., (800) 123-4561"
+                placeholder="(123) 456-7890"
                 autoComplete="tel"
+                inputMode="numeric"
+                maxLength={14}
+                pattern="\([0-9]{3}\) [0-9]{3}-[0-9]{4}"
+                aria-invalid={phoneNumber.length > 0 && !hasCompletePhoneNumber}
                 required
               />
             </label>
@@ -1933,7 +2000,6 @@ function StandardProductCustomizationForm({
           logoPreviewUrl={uploadedLogo?.previewUrl ?? ""}
           onClose={closePreview}
           onEdit={editPreview}
-          onUseDesignService={useDesignService}
         />
       ) : null}
     </section>

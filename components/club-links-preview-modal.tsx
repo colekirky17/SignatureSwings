@@ -18,7 +18,6 @@ type ClubLinksPreviewModalProps = {
   logoPreviewUrl: string;
   onClose: () => void;
   onEdit: () => void;
-  onUseDesignService: () => void;
 };
 
 const fontFamilies: Record<string, string> = {
@@ -48,7 +47,6 @@ export function ClubLinksPreviewModal({
   logoPreviewUrl,
   onClose,
   onEdit,
-  onUseDesignService,
 }: ClubLinksPreviewModalProps) {
   const titleId = useId();
   const subtitleId = useId();
@@ -275,9 +273,6 @@ export function ClubLinksPreviewModal({
                     ? "Some multi-color, detailed, or shaded artwork may not convert cleanly to a one-color engraving preview. We’ll review your uploaded artwork before production and adjust it when possible."
                     : "Preview unavailable for this artwork. Our design team will review your logo before production and adjust it when possible."}
                 </p>
-                <button type="button" onClick={onUseDesignService}>
-                  Having trouble? Let us design it for you
-                </button>
               </div>
             ) : null}
             {methodId === "design" ? (

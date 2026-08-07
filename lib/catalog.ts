@@ -146,17 +146,6 @@ export const homepageFeaturedCollections: ShopifyCollectionPlacement[] = [
     title: "Best Sellers",
     handle: "best-sellers",
   },
-  {
-    id: "offers",
-    title: "20% Off",
-    handle: "20-off",
-    fallbackHandles: ["20-percent-off", "twenty-percent-off", "twenty-off"],
-  },
-  {
-    id: "seasonal",
-    title: "Seasonal",
-    handle: "seasonal",
-  },
 ];
 
 export const homepageFeaturedCollection: ShopifyCollectionPlacement = {
@@ -164,6 +153,24 @@ export const homepageFeaturedCollection: ShopifyCollectionPlacement = {
   title: "Homepage Featured",
   handle: "homepage-featured",
 };
+
+function getDevelopmentVariant(
+  handle: string,
+  color: string,
+  index: number,
+): ProductVariant {
+  return {
+    id: `gid://shopify/ProductVariant/${900000 + index}`,
+    title: color,
+    selectedOptions: [{ name: "Color", value: color }],
+    price: { amount: "49.99", currencyCode: "USD" },
+    compareAtPrice: null,
+    sku: `${handle}-${color}`.toUpperCase().replace(/[^A-Z0-9]+/g, "-"),
+    availableForSale: true,
+    quantityAvailable: null,
+    currentlyNotInStock: false,
+  };
+}
 
 // Development-only product samples for local UI work when Shopify is not configured.
 // Production must never render these values.
@@ -186,6 +193,19 @@ const developmentProducts: ProductSummary[] = [
     priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "ClubLinks wedge set image",
     ctaLabel: "Inquiry Coming Soon",
+    availableForSale: true,
+    variants: [
+      getDevelopmentVariant(
+        "custom-engraved-premium-clublinks-golf-club-id-tag",
+        "Black",
+        1,
+      ),
+      getDevelopmentVariant(
+        "custom-engraved-premium-clublinks-golf-club-id-tag",
+        "Silver",
+        2,
+      ),
+    ],
   },
   {
     title: 'ClubLinks "Whole Bag" (14-Pack)',
@@ -195,6 +215,11 @@ const developmentProducts: ProductSummary[] = [
     priceLabel: "Pricing by inquiry",
     imagePlaceholderLabel: "ClubLinks whole bag image",
     ctaLabel: "Inquiry Coming Soon",
+    availableForSale: true,
+    variants: [
+      getDevelopmentVariant("clublinks-14-pack", "Black", 3),
+      getDevelopmentVariant("clublinks-14-pack", "Silver", 4),
+    ],
   },
   {
     title: "Single-Pronged Divot Tool",
