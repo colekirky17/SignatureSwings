@@ -2339,12 +2339,15 @@ p {
 
 .product-detail-summary {
   padding: clamp(1.25rem, 2.4vw, 2rem);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(79, 106, 89, 0.72);
   border-radius: 0.7rem;
   background:
-    radial-gradient(circle at 50% 0%, rgba(79, 200, 90, 0.055), transparent 34%),
-    linear-gradient(160deg, #171b19, #101311 78%);
-  box-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.24);
+    radial-gradient(circle at 50% -10%, rgba(255, 255, 255, 0.06), transparent 42%),
+    linear-gradient(145deg, rgba(24, 24, 24, 0.98), rgba(9, 9, 9, 0.99) 68%),
+    var(--surface);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 1.25rem 3.5rem rgba(0, 0, 0, 0.24);
 }
 
 .product-detail-summary h1 {
