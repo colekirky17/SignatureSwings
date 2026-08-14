@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CartIndicator } from "./cart-indicator";
 
@@ -12,9 +13,20 @@ const navigation = [
   { href: "/contact", label: "Contact Us" },
 ];
 
+const b2bNavigation = [
+  { href: "#products", label: "Products" },
+  { href: "#packages", label: "Packages" },
+  { href: "#how-it-works", label: "How It Works" },
+  { href: "#bulk-pricing", label: "Bulk Pricing" },
+  { href: "/contact", label: "Contact" },
+];
+
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const isB2BLandingPage = pathname === "/Clubs" || pathname === "/tournament-gifts";
+  const activeNavigation = isB2BLandingPage ? b2bNavigation : navigation;
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -34,7 +46,9 @@ export function SiteHeader() {
 
   return (
     <header className="site-header">
-      <div className="container site-header-inner">
+      <div
+        className={`container site-header-inner${isB2BLandingPage ? " is-b2b" : ""}`}
+      >
         <Link href="/" className="brand" onClick={() => setIsMenuOpen(false)}>
           <img
             src="/images/signature-swings-white-script.png"
@@ -65,7 +79,7 @@ export function SiteHeader() {
           aria-label="Primary navigation"
           className={`nav-links${isMenuOpen ? " is-open" : ""}`}
         >
-          {navigation.map((item) => (
+          {activeNavigation.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -75,7 +89,17 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          <CartIndicator onNavigate={() => setIsMenuOpen(false)} />
+          {isB2BLandingPage ? (
+            <Link
+              href="/contact"
+              className="header-quote-link"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Request a Quote
+            </Link>
+          ) : (
+            <CartIndicator onNavigate={() => setIsMenuOpen(false)} />
+          )}
         </nav>
       </div>
     </header>

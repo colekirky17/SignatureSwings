@@ -46,13 +46,13 @@ const TWO_PRONG_LOGO_SAFE_ZONE = {
   // Coordinates use the vertical 1024 x 1536 two-prong viewBox.
   // This box sits on the upper flat face, inset from the scalloped sides,
   // top edge, prong cutout, and tapered prong area so logos do not use the
-  // full product canvas as their positioning reference. The tool artwork is
-  // slightly right of the SVG canvas center after rotation, so this zone is
-  // centered on the visible metal body rather than x=512.
-  x: 435,
-  y: 330,
-  width: 184,
-  height: 320,
+  // full product canvas as their positioning reference. The real product logo
+  // sits a little right of the rotated canvas center, so this zone follows the
+  // visible handle body rather than x=512.
+  x: 450,
+  y: 316,
+  width: 208,
+  height: 344,
   radius: 10,
 };
 

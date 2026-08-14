@@ -70,6 +70,16 @@ p {
   padding: 0.7rem 0;
 }
 
+.site-header-inner.is-b2b {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.site-header-inner.is-b2b .nav-links {
+  grid-column: 2;
+  justify-content: flex-end;
+  gap: clamp(1rem, 1.7vw, 1.65rem);
+}
+
 .brand {
   display: inline-flex;
   align-items: center;
@@ -110,6 +120,31 @@ p {
   color: var(--text);
 }
 
+.header-quote-link {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.4rem;
+  background: var(--accent);
+  color: #07110c;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.header-quote-link:hover {
+  border-color: #75df7e;
+  background: #75df7e;
+}
+
 .header-cart-link {
   position: absolute;
   top: 50%;
@@ -132,7 +167,8 @@ p {
 }
 
 .nav-link:focus-visible,
-.header-cart-link:focus-visible {
+.header-cart-link:focus-visible,
+.header-quote-link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 0.25rem;
 }
@@ -2584,6 +2620,15 @@ p {
     padding: 1.15rem 0;
   }
 
+  .site-header-inner.is-b2b {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .site-header-inner.is-b2b .nav-links {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
   .brand-logo {
     width: clamp(8.5rem, 44vw, 11.5rem);
   }
@@ -2654,6 +2699,11 @@ p {
     justify-content: center;
     padding: 0.75rem 0;
     text-align: center;
+  }
+
+  .header-quote-link {
+    width: 100%;
+    margin-top: 0.35rem;
   }
 
   .page {
