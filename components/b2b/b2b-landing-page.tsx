@@ -109,36 +109,23 @@ export function B2BLandingPage() {
   return (
     <main className={styles.page}>
       <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <p className={styles.eyebrow}>Signature Swings for Clubs & Events</p>
-          <h1>Custom Golf Accessories for Tournaments, Member Gifts & Events</h1>
-          <p className={styles.heroCopy}>
-            Premium engraved golf accessories designed for tournaments, golf clubs, corporate
-            outings, and event gifting.
-          </p>
-          <div className={styles.heroActions}>
-            <Link href="/contact" className={styles.primaryButton}>
-              Request a Quote
-            </Link>
-            <Link href="#packages" className={styles.secondaryButton}>
-              View Packages
-            </Link>
-          </div>
-        </div>
-
-        <div className={styles.heroVisual} aria-label="Reserved product render area">
-          <div className={styles.heroImagePanel}>
-            <Image
-              src="/images/two-prong-divot-tool-silver.png"
-              alt="Two-prong divot tool render placeholder"
-              width={1536}
-              height={1024}
-              priority
-            />
-          </div>
-          <div className={styles.heroMarker}>
-            <span>Future product render</span>
-            <strong>Event package preview</strong>
+        <div className={styles.heroMedia} aria-hidden="true" />
+        <div className={styles.heroLayout}>
+          <div className={styles.heroContent}>
+            <p className={styles.heroEyebrow}>SIGNATURE SWINGS FOR CLUBS & EVENTS</p>
+            <h1>CUSTOM GOLF ACCESSORIES FOR TOURNAMENTS, MEMBER GIFTS & EVENTS</h1>
+            <p className={styles.heroCopy}>
+              Premium engraved golf accessories designed for tournaments, golf clubs, corporate
+              outings, and event gifting.
+            </p>
+            <div className={styles.heroActions}>
+              <Link href="/contact" className={styles.primaryButton}>
+                REQUEST A QUOTE
+              </Link>
+              <Link href="#packages" className={styles.secondaryButton}>
+                VIEW PACKAGES
+              </Link>
+            </div>
           </div>
         </div>
       </section>
