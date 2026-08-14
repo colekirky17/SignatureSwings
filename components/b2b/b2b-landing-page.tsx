@@ -82,17 +82,20 @@ const products = [
   {
     name: "Ball Markers",
     image: "/images/category-ball-markers.jpg",
-    copy: "High-quality metal markers engraved with your logo or event design.",
+    copy: "Keep custom markers stocked for members, guests, tournaments, and everyday pro shop sales.",
+    tag: "Pro shop ready",
   },
   {
     name: "Divot Tools",
     image: "/images/category-divot-tools.jpg",
-    copy: "Durable, precision-crafted tools that combine function and style.",
+    copy: "Offer practical branded tools that look premium on display and get used every round.",
+    tag: "Bulk customizable",
   },
   {
     name: "Club Links",
     image: "/images/category-club-links.jpg",
-    copy: "Magnetic links that stay secure and showcase your brand on the course.",
+    copy: "Add a useful club-branded accessory that helps players identify and recover their gear.",
+    tag: "Member favorite",
   },
 ];
 
@@ -461,15 +464,19 @@ export function B2BLandingPage() {
       </section>
 
       <section
-        className={styles.section}
+        className={`${styles.section} ${styles.productsSection}`}
         id="products"
         aria-labelledby="products-heading"
       >
-        <div className={`${styles.sectionHeader} ${styles.compactCenteredHeader}`}>
-          <p className={styles.eyebrow}>Popular Bulk Order Products</p>
-          <h2 id="products-heading" className={styles.visuallyHidden}>
-            Course-ready products for custom event packages.
-          </h2>
+        <div className={styles.productsHeader}>
+          <h2 id="products-heading">Order Custom Gear for Your Pro Shop</h2>
+          <p>
+            Stock your shop with premium custom golf accessories that feel giftable, useful, and
+            easy for members to pick up before a round.
+          </p>
+        </div>
+        <div className={styles.productsTab} aria-label="Product collection">
+          <span>Best-Sellers</span>
         </div>
         <div className={styles.productGrid}>
           {products.map((product) => (
@@ -480,9 +487,9 @@ export function B2BLandingPage() {
               <div className={styles.productBody}>
                 <h3>{product.name}</h3>
                 <p>{product.copy}</p>
-                <span>Available for bulk customization</span>
+                <span>{product.tag}</span>
                 <Link href="/contact" className={styles.cardButton}>
-                  Include in Package
+                  Request Pro Shop Pricing
                 </Link>
               </div>
             </article>
