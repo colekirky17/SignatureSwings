@@ -348,7 +348,7 @@ export function B2BLandingPage() {
         <div className={styles.heroLayout}>
           <div className={styles.heroContent}>
             <p className={styles.heroEyebrow}>SIGNATURE SWINGS FOR CLUBS & EVENTS</p>
-            <h1>CUSTOM GOLF ACCESSORIES FOR TOURNAMENTS, MEMBER GIFTS & EVENTS</h1>
+            <h1>CUSTOM GOLF ACCESSORIES FOR TOURNAMENTS, MEMBER GIFTS & PRO SHOP MERCH</h1>
             <p className={styles.heroCopy}>
               Premium engraved golf accessories designed for tournaments, golf clubs, corporate
               outings, and event gifting.
